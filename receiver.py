@@ -31,7 +31,7 @@ def receive_data():
         ranks = {}
         for category in ['great', 'little', 'ultra']:
             category_data = pvp_data.get(category, [])
-            ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), None)
+            ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), 0)  # Default to 0 if no rank
         return ranks
 
     if isinstance(data, list):
@@ -51,7 +51,7 @@ def receive_data():
                     'pokemon_level': message.get('pokemon_level'),
                     **pvp_ranks
                 }
-                print("Filtered data:", filtered_data)
+                print("Data Matched")
                 save_to_file(filtered_data)
             else:
                 print("Data did not meet filter criteria")
