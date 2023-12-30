@@ -1,0 +1,74 @@
+    {
+        "type": "pokemon",
+        "message": {
+            "capture_1": 0,
+            "capture_2": 0,
+            "capture_3": 0,
+            "costume": 0,
+            "cp": 986,
+            "disappear_time": 1703956234,
+            "disappear_time_verified": true,
+            "display_pokemon_id": null,
+            "encounter_id": "9780882360720328003",
+            "first_seen": 1703954508,
+            "form": 2341,
+            "gender": 1,
+            "height": 0.6205919981002808,
+            "individual_attack": 15,
+            "individual_defense": 5,
+            "individual_stamina": 4,
+            "is_event": 0,
+            "last_modified_time": 1703954508,
+            "latitude": 38.51861924236351,
+            "longitude": -28.622878136871766,
+            "move_1": 327,
+            "move_2": 39,
+            "pokemon_id": 554,
+            "pokemon_level": 26,
+            "pokestop_id": "None",
+            "pvp": {
+                "great": [
+                    {
+                        "pokemon": 554,
+                        "form": 2341,
+                        "cap": 50,
+                        "value": 1577439,
+                        "level": 49.5,
+                        "cp": 1492,
+                        "percentage": 0.91476,
+                        "rank": 2246
+                    },
+                    {
+                        "pokemon": 554,
+                        "form": 2341,
+                        "cap": 51,
+                        "value": 1577439,
+                        "level": 49.5,
+                        "cp": 1492,
+                        "percentage": 0.90995,
+                        "rank": 2635
+                    }
+                ],
+                "ultra": [
+                    {
+                        "pokemon": 555,
+                        "form": 2342,
+                        "cap": 50,
+                        "value": 3064107,
+                        "level": 30,
+                        "cp": 2499,
+                        "percentage": 0.94667,
+                        "rank": 3354,
+                        "capped": true
+                    }
+                ]
+            },
+            "seen_type": "encounter",
+            "shiny": false,
+            "size": 3,
+            "spawnpoint_id": "b478b017ad",
+            "username": "Du3V37Cad",
+            "weather": 0,
+            "weight": 29.04987144470215
+        }
+    },
