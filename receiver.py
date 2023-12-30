@@ -1,7 +1,41 @@
 from flask import Flask, request, jsonify, abort, redirect, url_for
 import json
+from shapely.geometry import Point, Polygon
+import requests
 
 app = Flask(__name__)
+
+# Load configuration
+with open('config.json') as config_file:
+    config = json.load(config_file)
+
+GEOFENCE_API_URL = config['GEOFENCE_API_URL']
+BEARER_TOKEN = config['BEARER_TOKEN']
+
+def fetch_geofences():
+    headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
+    response = requests.get(GEOFENCE_API_URL, headers=headers)
+
+    if response.status_code == 200:
+        geofences = response.json().get("data", {}).get("features", [])
+        # Convert coordinates to Shapely Polygons
+        for geofence in geofences:
+            coordinates = geofence["geometry"]["coordinates"][0]
+            geofence["geometry"]["polygon"] = Polygon(coordinates)
+        return geofences
+    else:
+        print(f"Failed to fetch geofences. Status Code: {response.status_code}")
+        return []
+
+def is_inside_geofence(lat, lon, geofences):
+    point = Point(lon, lat)
+    for geofence in geofences:
+        polygon = geofence["geometry"]["polygon"]
+        if point.within(polygon):
+            geofence_name = geofence.get("properties", {}).get("name", "Unknown")
+            return True, geofence_name
+    return False, None
+
 
 @app.before_request
 def limit_remote_addr():
@@ -24,8 +58,27 @@ def root_redirect():
     return redirect(url_for('receive_data'), code=307)
 
 @app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['POST'])
 def receive_data():
     data = request.json
+    geofences = fetch_geofences()  # Fetch geofences once or cache them as needed
+
+    if isinstance(data, list):
+        for item in data:
+            if item.get('type') == 'pokemon':
+                message = item.get('message', {})
+                lat = message.get('latitude')
+                lon = message.get('longitude')
+
+                # Check if the point is inside a geofence
+                inside, geofence_name = is_inside_geofence(lat, lon, geofences)
+                if inside:
+                    print(f"Data matched inside geofence: {geofence_name}")
+                    # Add additional logic as needed
+                else:
+                    print("Data did not match any geofence")
+
+    return jsonify({"status": "success"}), 200
 
     def filter_criteria(message):
         required_fields = [
@@ -34,7 +87,7 @@ def receive_data():
             'individual_stamina', 'pokemon_level'
         ]
         return all(message.get(field) is not None for field in required_fields)
-    
+
 
     def extract_pvp_ranks(pvp_data):
         ranks = {}
