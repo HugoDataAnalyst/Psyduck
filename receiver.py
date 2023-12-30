@@ -57,7 +57,7 @@ def save_to_file(data, filename="received_data.json"):
 def root_redirect():
     return redirect(url_for('receive_data'), code=307)
 
-@app.route('/webhook', methods=['POST'])
+
 @app.route('/webhook', methods=['POST'])
 def receive_data():
     data = request.json
