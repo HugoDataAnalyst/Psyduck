@@ -17,25 +17,27 @@ def fetch_geofences():
     response = requests.get(GEOFENCE_API_URL, headers=headers)
 
     if response.status_code == 200:
-        geofences = response.json().get("data", {}).get("features", [])
-        # Convert coordinates to Shapely Polygons
-        for geofence in geofences:
-            coordinates = geofence["geometry"]["coordinates"][0]
-            geofence["geometry"]["polygon"] = Polygon(coordinates)
-        return geofences
+        return response.json().get("data", {}).get("features", [])
     else:
         print(f"Failed to fetch geofences. Status Code: {response.status_code}")
         return []
 
 def is_inside_geofence(lat, lon, geofences):
-    point = Point(lon, lat)
-    for geofence in geofences:
-        polygon = geofence["geometry"]["polygon"]
-        if point.within(polygon):
-            geofence_name = geofence.get("properties", {}).get("name", "Unknown")
-            return True, geofence_name
-    return False, None
+    # Round coordinates to 6 decimal places for consistency
+    lat = round(lat, 6)
+    lon = round(lon, 6)
 
+    for geofence in geofences:
+        coordinates = geofence["geometry"]["coordinates"][0]
+        polygon = Polygon(coordinates)
+        point = Point(lon, lat)
+
+        geofence_name = geofence.get("properties", {}).get("name")
+
+        result = point.within(polygon)
+        if result:
+            print(f"Checking {lat}, {lon} inside {geofence_name} with coordinates {coordinates}")
+            return result, geofence_name
 
 @app.before_request
 def limit_remote_addr():
