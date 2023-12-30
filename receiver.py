@@ -27,6 +27,15 @@ def root_redirect():
 def receive_data():
     data = request.json
 
+    def filter_criteria(message):
+        required_fields = [
+            'pokemon_id', 'form', 'latitude', 'longitude',
+            'cp', 'individual_attack', 'individual_defense',
+            'individual_stamina', 'pokemon_level'
+        ]
+        return all(message.get(field) is not None for field in required_fields)
+    
+
     def extract_pvp_ranks(pvp_data):
         ranks = {}
         if pvp_data is None:
@@ -38,8 +47,8 @@ def receive_data():
 
     if isinstance(data, list):
         for item in data:
-            if item.get('type') == 'pokemon':
-                message = item.get('message', {})
+            message = item.get('message', {})
+            if item.get('type') == 'pokemon' and filter_criteria(message):
                 pvp_ranks = extract_pvp_ranks(message.get('pvp', {}))
                 filtered_data = {
                     'pokemon_id': message.get('pokemon_id'),
