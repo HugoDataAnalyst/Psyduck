@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, abort, redirect, url_for
-from werkzeug.wrappers import Request, Response
 import json
 
 app = Flask(__name__)
@@ -10,17 +9,13 @@ def limit_remote_addr():
         abort(403)  # Forbidden
 
 def save_to_file(data, filename="received_data.json"):
-    # Check if the file exists and read existing data
     try:
         with open(filename, "r") as file:
             existing_data = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         existing_data = []
 
-    # Append new data
     existing_data.append(data)
-
-    # Save updated data back to file
     with open(filename, "w") as file:
         json.dump(existing_data, file, indent=4)
 
@@ -28,41 +23,36 @@ def save_to_file(data, filename="received_data.json"):
 def root_redirect():
     return redirect(url_for('receive_data'), code=307)
 
-
-
 @app.route('/webhook', methods=['POST'])
 def receive_data():
     data = request.json
 
-    # Define your filter criteria
-    def filter_criteria(message):
-        pvp_categories = message.get('pvp', {})
-        if pvp_categories is None:
-            return False
-        rank_one_in_pvp = any(
-            any(entry.get('rank') == 1 for entry in pvp_categories.get(category, []) if entry)
-            for category in ['great', 'little', 'ultra']
-        )
+    def extract_pvp_ranks(pvp_data):
+        ranks = {}
+        for category in ['great', 'little', 'ultra']:
+            category_data = pvp_data.get(category, [])
+            ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), None)
+        return ranks
 
-        return (
-            message.get('pokemon_id') is not None and
-            message.get('form') is not None and
-            'latitude' in message and
-            'longitude' in message and
-            message.get('cp') is not None and
-            message.get('individual_attack') is not None and
-            message.get('individual_defense') is not None and
-            message.get('individual_stamina') is not None and
-            message.get('pokemon_level') is not None and
-            rank_one_in_pvp
-        )
-
-    # Check if data meets the filter criteria
     if isinstance(data, list):
         for item in data:
-            if item.get('type') == 'pokemon' and filter_criteria(item.get('message', {})):
-                print("Filtered data:", item)
-                save_to_file(item)
+            if item.get('type') == 'pokemon':
+                message = item.get('message', {})
+                pvp_ranks = extract_pvp_ranks(message.get('pvp', {}))
+                filtered_data = {
+                    'pokemon_id': message.get('pokemon_id'),
+                    'form': message.get('form'),
+                    'latitude': message.get('latitude'),
+                    'longitude': message.get('longitude'),
+                    'cp': message.get('cp'),
+                    'individual_attack': message.get('individual_attack'),
+                    'individual_defense': message.get('individual_defense'),
+                    'individual_stamina': message.get('individual_stamina'),
+                    'pokemon_level': message.get('pokemon_level'),
+                    **pvp_ranks
+                }
+                print("Filtered data:", filtered_data)
+                save_to_file(filtered_data)
             else:
                 print("Data did not meet filter criteria")
     else:
