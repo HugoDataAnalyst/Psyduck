@@ -6,7 +6,7 @@ import requests
 app = Flask(__name__)
 
 # Load configuration
-with open('/config/config.json') as config_file:
+with open('config/config.json') as config_file:
     config = json.load(config_file)
 
 GEOFENCE_API_URL = config['GEOFENCE_API_URL']
