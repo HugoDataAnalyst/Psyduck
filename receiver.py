@@ -29,6 +29,8 @@ def receive_data():
 
     def extract_pvp_ranks(pvp_data):
         ranks = {}
+        if pvp_data is None:
+            return {f'pvp_{category}_rank': 0 for category in ['great', 'little', 'ultra']}        
         for category in ['great', 'little', 'ultra']:
             category_data = pvp_data.get(category, [])
             ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), 0)  # Default to 0 if no rank
