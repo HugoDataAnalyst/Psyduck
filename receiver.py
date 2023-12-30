@@ -11,7 +11,7 @@ with open('config/config.json') as config_file:
 
 GEOFENCE_API_URL = config['GEOFENCE_API_URL']
 BEARER_TOKEN = config['BEARER_TOKEN']
-ALLOW_WEBHOOK_HOST = config['WEBHOOK_HOST']
+ALLOW_WEBHOOK_HOST = config['ALLOW_WEBHOOK_HOST']
 RECEIVER_PORT = config['RECEIVER_PORT']
 
 def fetch_geofences():
