@@ -43,7 +43,7 @@ def is_inside_geofence(lat, lon, geofences):
 
 @app.before_request
 def limit_remote_addr():
-    if request.remote_addr != 'ALLOW_WEBHOOK_HOST':
+    if request.remote_addr != ALLOW_WEBHOOK_HOST:
         abort(403)  # Forbidden
 
 def save_to_file(data, filename="received_data.json"):
