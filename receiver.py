@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort, redirect, url_for
 import json
 from shapely.geometry import Point, Polygon
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -58,8 +59,8 @@ def receive_data():
     def filter_criteria(message):
         required_fields = [
             'pokemon_id', 'form', 'latitude', 'longitude',
-            'cp', 'individual_attack', 'individual_defense',
-            'individual_stamina', 'pokemon_level'
+            'individual_attack', 'individual_defense',
+            'individual_stamina'
         ]
         return all(message.get(field) is not None for field in required_fields)
 
@@ -93,14 +94,10 @@ def receive_data():
                             'form': message['form'],
                             'latitude': lat,
                             'longitude': lon,
-                            'cp': message['cp'],
-                            'individual_attack': message['individual_attack'],
-                            'individual_defense': message['individual_defense'],
-                            'individual_stamina': message['individual_stamina'],
                             'iv': iv_percentage,
-                            'pokemon_level': message['pokemon_level'],
-                            'geofence_name': geofence_name,
-                            **extract_pvp_ranks(message.get('pvp', {}))
+                            **extract_pvp_ranks(message.get('pvp', {})),
+                            'shiny':message['shiny'],
+                            'area_name': geofence_name
                         }
                         save_to_file(filtered_data)
                         print(f"Data matched and saved for geofence: {geofence_name}")
