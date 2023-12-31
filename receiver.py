@@ -94,7 +94,7 @@ def receive_data():
                             'form': message['form'],
                             'latitude': lat,
                             'longitude': lon,
-                            'iv': iv_percentage,
+                            'iv': round(iv_percentage, 2),
                             **extract_pvp_ranks(message.get('pvp', {})),
                             'shiny':message['shiny'],
                             'area_name': geofence_name
