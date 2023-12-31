@@ -17,7 +17,6 @@ RECEIVER_PORT = config['RECEIVER_PORT']
 def fetch_geofences():
     headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
     response = requests.get(GEOFENCE_API_URL, headers=headers)
-
     if response.status_code == 200:
         return response.json().get("data", {}).get("features", [])
     else:
@@ -25,21 +24,12 @@ def fetch_geofences():
         return []
 
 def is_inside_geofence(lat, lon, geofences):
-    # Round coordinates to 6 decimal places for consistency
-    lat = round(lat, 6)
-    lon = round(lon, 6)
-
+    point = Point(lon, lat)
     for geofence in geofences:
-        coordinates = geofence["geometry"]["coordinates"][0]
-        polygon = Polygon(coordinates)
-        point = Point(lon, lat)
-
-        geofence_name = geofence.get("properties", {}).get("name")
-
-        result = point.within(polygon)
-        if result:
-            print(f"Checking {lat}, {lon} inside {geofence_name} with coordinates {coordinates}")
-            return result, geofence_name
+        polygon = geofence["geometry"]["coordinates"][0]
+        if point.within(Polygon(polygon)):
+            return True, geofence.get("properties", {}).get("name", "Unknown")
+    return False, None
 
 @app.before_request
 def limit_remote_addr():
@@ -52,7 +42,6 @@ def save_to_file(data, filename="received_data.json"):
             existing_data = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         existing_data = []
-
     existing_data.append(data)
     with open(filename, "w") as file:
         json.dump(existing_data, file, indent=4)
@@ -61,13 +50,11 @@ def save_to_file(data, filename="received_data.json"):
 def root_redirect():
     return redirect(url_for('receive_data'), code=307)
 
-
 @app.route('/webhook', methods=['POST'])
 def receive_data():
     data = request.json
-    geofences = fetch_geofences()  # Fetch geofences once or cache them as needed
+    geofences = fetch_geofences()
 
-    # Helper functions
     def filter_criteria(message):
         required_fields = [
             'pokemon_id', 'form', 'latitude', 'longitude',
@@ -77,51 +64,46 @@ def receive_data():
         return all(message.get(field) is not None for field in required_fields)
 
     def extract_pvp_ranks(pvp_data):
-        ranks = {}
-        if pvp_data is None:
-            return {f'pvp_{category}_rank': 0 for category in ['great', 'little', 'ultra']}
-        for category in ['great', 'little', 'ultra']:
-            category_data = pvp_data.get(category, [])
-            ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), 0)  # Default to 0 if no rank
+        ranks = {f'pvp_{category}_rank': 0 for category in ['great', 'little', 'ultra']}
+        if pvp_data:
+            for category in ['great', 'little', 'ultra']:
+                category_data = pvp_data.get(category, [])
+                ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), 0)
         return ranks
 
     def iv_calculator(ind_attack, ind_defense, ind_stamina):
         total_iv = ind_attack + ind_defense + ind_stamina
-        max_iv = 45  # 15 for each stat
-        iv_percentage = (total_iv / max_iv) * 100
-        return iv_percentage
+        return (total_iv / 45) * 100
 
     if isinstance(data, list):
         for item in data:
             if item.get('type') == 'pokemon':
                 message = item.get('message', {})
                 if filter_criteria(message):
-                    lat = message.get('latitude')
-                    lon = message.get('longitude')
+                    lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
-                        pvp_ranks = extract_pvp_ranks(message.get('pvp', {}))
                         iv_percentage = iv_calculator(
-                            message.get('individual_attack'),
-                            message.get('individual_defense'),
-                            message.get('individual_stamina')
+                            message['individual_attack'],
+                            message['individual_defense'],
+                            message['individual_stamina']
                         )
                         filtered_data = {
-                            'pokemon_id': message.get('pokemon_id'),
-                            'form': message.get('form'),
-                            'latitude': message.get('latitude'),
-                            'longitude': message.get('longitude'),
-                            'cp': message.get('cp'),
-                            'individual_attack': message.get('individual_attack'),
-                            'individual_defense': message.get('individual_defense'),
-                            'individual_stamina': message.get('individual_stamina'),
+                            'pokemon_id': message['pokemon_id'],
+                            'form': message['form'],
+                            'latitude': lat,
+                            'longitude': lon,
+                            'cp': message['cp'],
+                            'individual_attack': message['individual_attack'],
+                            'individual_defense': message['individual_defense'],
+                            'individual_stamina': message['individual_stamina'],
                             'iv': iv_percentage,
-                            'pokemon_level': message.get('pokemon_level'),
+                            'pokemon_level': message['pokemon_level'],
                             'geofence_name': geofence_name,
-                            **pvp_ranks
+                            **extract_pvp_ranks(message.get('pvp', {}))
                         }
                         save_to_file(filtered_data)
-                        print("Data Matched and saved")
+                        print(f"Data matched and saved for geofence: {geofence_name}")
                     else:
                         print("Data did not match any geofence")
                 else:
