@@ -29,6 +29,8 @@ def make_celery(webhook_processor):
 def configure_logger(webhook_processor, celery_logger):
     log_level = getattr(logging, webhook_processor.config['CELERY_LOG_LEVEL'].upper(), None)
     log_file = webhook_processor.config['CELERY_LOG_FILE']
+    max_bytes = int(app.config.get('CELERY_LOG_MAX_BYTES', 10240))
+    backup_count = int(app.config.get('CELERY_MAX_LOG_FILES', 10))
 
     # Create logs directory if it doesn't exist
     if not os.path.exists(os.path.dirname(log_file)):
@@ -72,7 +74,7 @@ EXTRA_FLUSH_THRESHOLD = config['EXTRA_FLUSH_THRESHOLD']
 FLUSH_INTERVAL = config['FLUSH_INTERVAL']
 MAX_RETRIES = config['MAX_RETRIES']
 RETRY_DELAY = config['RETRY_DELAY']
-CELERY_MAX_LOG_FILES = config['MAX_LOG_FILES']
+CELERY_MAX_LOG_FILES = config['CELERY_MAX_LOG_FILES']
 
 webhook_processor.config.from_object(Config())
 webhook_processor.config.update(config)
@@ -93,8 +95,8 @@ db_config = {
 def configure_flask_logger(webhook_processor):
     log_level = getattr(logging, webhook_processor.config['FLASK_LOG_LEVEL'].upper(), None)
     log_file = webhook_processor.config['FLASK_LOG_FILE']
-    max_bytes = webhook_processor.config.get('FLASK_LOG_MAX_BYTES', 10240)  # Default to 10KB
-    backup_count = webhook_processor.config.get('FLASK_MAX_LOG_FILES', 5)  # Default to 5 files
+    max_bytes = int(webhook_processor.config.get('FLASK_LOG_MAX_BYTES', 10240))  # Default to 10KB
+    backup_count = int(webhook_processor.config.get('FLASK_MAX_LOG_FILES', 5))  # Default to 5 files
 
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
