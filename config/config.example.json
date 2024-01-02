@@ -1,6 +1,6 @@
 {
-    "GEOFENCE_API_URL": "http://myip:port/api/v1/geofence/feature-collection/ProjectName",
-    "BEARER_TOKEN": "your_bearer_token_here",
+	"GEOFENCE_API_URL": "http://your_ip:port/api/v1/geofence/feature-collection/ProjectName",
+	"BEARER_TOKEN": "your_bearer_token_here",
 	"ALLOW_WEBHOOK_HOST": "your_golbat_ip",
 	"RECEIVER_PORT": "5000",
 	"DATABASE_HOST": "db_host",

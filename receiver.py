@@ -3,6 +3,7 @@ import json
 from shapely.geometry import Point, Polygon
 import requests
 import os
+import datetime
 
 app = Flask(__name__)
 
@@ -14,6 +15,11 @@ GEOFENCE_API_URL = config['GEOFENCE_API_URL']
 BEARER_TOKEN = config['BEARER_TOKEN']
 ALLOW_WEBHOOK_HOST = config['ALLOW_WEBHOOK_HOST']
 RECEIVER_PORT = config['RECEIVER_PORT']
+DATABASE_HOST = config['DATABASE_HOST']
+DATABASE_PORT = config['DATABASE_PORT']
+DATABASE_NAME = config['DATABASE_NAME']
+DATABASE_USER = config['DATABASE_USER']
+DATABASE_PASSWORD = config['DATABASE_PASSWORD']
 
 def fetch_geofences():
     headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
@@ -31,6 +37,13 @@ def is_inside_geofence(lat, lon, geofences):
         if point.within(Polygon(polygon)):
             return True, geofence.get("properties", {}).get("name", "Unknown")
     return False, None
+
+def calculate_despawn_time(disappear_time, first_seen):
+    if disappear_time is None or first_seen is None:
+        return None
+    time_diff = disappear_time - first_seen
+    minutes, seconds = divmod(time_diff, 60)
+    return f"{minutes}mins {seconds}secs"
 
 @app.before_request
 def limit_remote_addr():
@@ -65,16 +78,12 @@ def receive_data():
         return all(message.get(field) is not None for field in required_fields)
 
     def extract_pvp_ranks(pvp_data):
-        ranks = {f'pvp_{category}_rank': 0 for category in ['great', 'little', 'ultra']}
+        ranks = {f'pvp_{category}_rank': None for category in ['great', 'little', 'ultra']}
         if pvp_data:
             for category in ['great', 'little', 'ultra']:
                 category_data = pvp_data.get(category, [])
-                ranks[f'pvp_{category}_rank'] = next((entry.get('rank') for entry in category_data if entry), 0)
-        return ranks
-
-    def iv_calculator(ind_attack, ind_defense, ind_stamina):
-        total_iv = ind_attack + ind_defense + ind_stamina
-        return (total_iv / 45) * 100
+                ranks[f'pvp_{category}_rank'] = 1 if any(entry.get('rank') == 1 for entry in category_data) else None                
+         return ranks
 
     if isinstance(data, list):
         for item in data:
@@ -84,20 +93,31 @@ def receive_data():
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
-                        iv_percentage = iv_calculator(
-                            message['individual_attack'],
-                            message['individual_defense'],
-                            message['individual_stamina']
+                        ind_attack = message['individual_attack']
+                        ind_defense = message['individual_defense']
+                        ind_stamina = message['individual_stamina']
+
+                        if ind_attack == ind_defense == ind_stamina == 15:
+                            iv_value = 100
+                        elif ind_attack == ind_defense == ind_stamina == 0:
+                            iv_value = 0
+                        else:
+                            iv_value = None
+
+                        despawn_time = calculate_despawn_time(
+                            message.get('disappear_time'),
+                            message.get('first_seen')
                         )
                         filtered_data = {
                             'pokemon_id': message['pokemon_id'],
                             'form': message['form'],
                             'latitude': lat,
                             'longitude': lon,
-                            'iv': round(iv_percentage, 2),
+                            'iv': iv_value,
                             **extract_pvp_ranks(message.get('pvp', {})),
                             'shiny':message['shiny'],
-                            'area_name': geofence_name
+                            'area_name': geofence_name,
+                            'despawn_time': despawn_time
                         }
                         save_to_file(filtered_data)
                         print(f"Data matched and saved for geofence: {geofence_name}")
