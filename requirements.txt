@@ -1,0 +1,7 @@
+Flask
+celery
+redis
+mysql-connector-python
+requests
+shapely
+Flask-APScheduler
