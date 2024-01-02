@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 	iv TINYINT,
 	pvp_great_rank TINYINT,
 	pvp_little_rank TINYINT,
-	pvp_ultraª_rank TINYINT,
+	pvp_ultra_rank TINYINT,
 	shiny BOOLEAN,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	despawn_time VARCHAR(255)
