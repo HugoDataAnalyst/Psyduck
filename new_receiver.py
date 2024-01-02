@@ -29,8 +29,8 @@ def make_celery(webhook_processor):
 def configure_logger(webhook_processor, celery_logger):
     log_level = getattr(logging, webhook_processor.config['CELERY_LOG_LEVEL'].upper(), None)
     log_file = webhook_processor.config['CELERY_LOG_FILE']
-    max_bytes = int(app.config.get('CELERY_LOG_MAX_BYTES', 10240))
-    backup_count = int(app.config.get('CELERY_MAX_LOG_FILES', 10))
+    max_bytes = int(webhook_processor.config.get('CELERY_LOG_MAX_BYTES', 10240))
+    backup_count = int(webhook_processor.config.get('CELERY_MAX_LOG_FILES', 10))
 
     # Create logs directory if it doesn't exist
     if not os.path.exists(os.path.dirname(log_file)):
@@ -63,18 +63,20 @@ with open('config/config.json') as config_file:
 GEOFENCE_API_URL = config['GEOFENCE_API_URL']
 BEARER_TOKEN = config['BEARER_TOKEN']
 ALLOW_WEBHOOK_HOST = config['ALLOW_WEBHOOK_HOST']
-RECEIVER_PORT = config['RECEIVER_PORT']
+RECEIVER_PORT = int(config['RECEIVER_PORT'])
 DATABASE_HOST = config['DATABASE_HOST']
-DATABASE_PORT = config['DATABASE_PORT']
+DATABASE_PORT = int(config['DATABASE_PORT'])
 DATABASE_NAME = config['DATABASE_NAME']
 DATABASE_USER = config['DATABASE_USER']
 DATABASE_PASSWORD = config['DATABASE_PASSWORD']
-MAX_QUEUE_SIZE = config['MAX_QUEUE_SIZE']
-EXTRA_FLUSH_THRESHOLD = config['EXTRA_FLUSH_THRESHOLD']
-FLUSH_INTERVAL = config['FLUSH_INTERVAL']
-MAX_RETRIES = config['MAX_RETRIES']
-RETRY_DELAY = config['RETRY_DELAY']
-CELERY_MAX_LOG_FILES = config['CELERY_MAX_LOG_FILES']
+MAX_QUEUE_SIZE = int(config['MAX_QUEUE_SIZE'])
+EXTRA_FLUSH_THRESHOLD = int(config['EXTRA_FLUSH_THRESHOLD'])
+FLUSH_INTERVAL = int(config['FLUSH_INTERVAL'])
+MAX_RETRIES = int(config['MAX_RETRIES'])
+RETRY_DELAY = int(config['RETRY_DELAY'])
+CELERY_MAX_LOG_FILES = int(config['CELERY_MAX_LOG_FILES'])
+FLASK_LOG_MAX_BYTES = int(config['FLASK_LOG_MAX_BYTES'])
+FLASK_MAX_LOG_FILES = int(config['FLASK_MAX_LOG_FILES'])
 
 webhook_processor.config.from_object(Config())
 webhook_processor.config.update(config)
