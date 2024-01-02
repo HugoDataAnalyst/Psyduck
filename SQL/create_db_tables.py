@@ -37,8 +37,8 @@ def create_database_and_table():
 		conn = mysql.connector.connect(**df_config)
 		cursor = conn.cursor()
 
-        cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
-        db_exists = cursor.fetchone() is not None
+		cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
+		db_exists = cursor.fetchone() is not None
 
 		cursor.execute(create_database_sql)
 
