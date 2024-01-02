@@ -82,8 +82,8 @@ def receive_data():
         if pvp_data:
             for category in ['great', 'little', 'ultra']:
                 category_data = pvp_data.get(category, [])
-                ranks[f'pvp_{category}_rank'] = 1 if any(entry.get('rank') == 1 for entry in category_data) else None                
-         return ranks
+                ranks[f'pvp_{category}_rank'] = 1 if any(entry.get('rank') == 1 for entry in category_data) else None
+        return ranks
 
     if isinstance(data, list):
         for item in data:

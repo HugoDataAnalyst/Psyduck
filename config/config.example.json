@@ -7,5 +7,12 @@
 	"DATABASE_PORT": "db_port",
 	"DATABASE_NAME": "db_name",
 	"DATABASE_USER": "db_user",
-	"DATABASE_PASSWORD": "db_password"
+	"DATABASE_PASSWORD": "db_password",
+	"CELERY_BROKER_URL": "redis://localhost:6379/0",
+	"CELERY_RESULT_BACKEND": "redis://localhost:6379/0",
+	"MAX_QUEUE_SIZE": "3000",
+	"EXTRA_FLUSH_THRESHOLD": "6000",
+	"FLUSH_INTERVAL": "180",
+	"MAX_RETRIES": "2",
+	"RETRY_DELAY": "5"
 }
