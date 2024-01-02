@@ -35,7 +35,7 @@ def configure_logger(webhook_processor, celery_logger):
         os.makedirs(os.path.dirname(log_file))
 
     # Set up file handler
-    file_handler = RotatingFileHandler(log_file, maxBytes=10240, backupCount=CELERY_MAX_LOG_FILES)
+    file_handler = RotatingFileHandler(log_file, maxBytes=10485760, backupCount=CELERY_MAX_LOG_FILES)
     file_handler.setLevel(log_level)
 
     # Set up formatter
@@ -90,21 +90,24 @@ db_config = {
     'database': config['DATABASE_NAME']
 }
 
-def configure_flask_logger(app):
-    log_level = getattr(logging, app.config['FLASK_LOG_LEVEL'].upper(), None)
-    log_file = app.config['FLASK_LOG_FILE']
+def configure_flask_logger(webhook_processor):
+    log_level = getattr(logging, webhook_processor.config['FLASK_LOG_LEVEL'].upper(), None)
+    log_file = webhook_processor.config['FLASK_LOG_FILE']
+    max_bytes = webhook_processor.config.get('FLASK_LOG_MAX_BYTES', 10240)  # Default to 10KB
+    backup_count = webhook_processor.config.get('FLASK_MAX_LOG_FILES', 5)  # Default to 5 files
 
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
 
-    file_handler = RotatingFileHandler(log_file, maxBytes=10240, backupCount=app.config['MAX_LOG_FILES'])
+    file_handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
     file_handler.setLevel(log_level)
 
     formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
     file_handler.setFormatter(formatter)
 
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(log_level)
+    webhook_processor.logger.addHandler(file_handler)
+    webhook_processor.logger.setLevel(log_level)
+
 
 configure_flask_logger(webhook_processor)
 
