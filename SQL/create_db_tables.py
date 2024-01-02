@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 
 def create_database_and_table():
 	try:
-		conn = mysql.connector.connect(**df_config)
+		conn = mysql.connector.connect(**db_config)
 		cursor = conn.cursor()
 
 		cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
