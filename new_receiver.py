@@ -11,94 +11,34 @@ from time import sleep
 from celery.utils.log import get_task_logger
 import logging
 from logging.handlers import RotatingFileHandler
+from app_config import app_config
+from tasks import insert_data_task
 
 class Config:
     SCHEDULER_API_ENABLED = True
 
 scheduler = APScheduler()
 
-def make_celery(webhook_processor):
-    celery = Celery(
-        webhook_processor.import_name, 
-        backend = webhook_processor.config['CELERY_RESULT_BACKEND'],
-        broker = webhook_processor.config['CELERY_BROKER_URL']
-    )
-    celery.conf.update(webhook_processor.config)
-    return celery
-
-def configure_logger(webhook_processor, celery_logger):
-    log_level = getattr(logging, webhook_processor.config['CELERY_LOG_LEVEL'].upper(), None)
-    log_file = webhook_processor.config['CELERY_LOG_FILE']
-    max_bytes = int(webhook_processor.config.get('CELERY_LOG_MAX_BYTES', 10240))
-    backup_count = int(webhook_processor.config.get('CELERY_MAX_LOG_FILES', 10))
-
-    # Create logs directory if it doesn't exist
-    if not os.path.exists(os.path.dirname(log_file)):
-        os.makedirs(os.path.dirname(log_file))
-
-    # Set up file handler
-    file_handler = RotatingFileHandler(log_file, maxBytes=10485760, backupCount=CELERY_MAX_LOG_FILES)
-    file_handler.setLevel(log_level)
-
-    # Set up formatter
-    formatter = logging.Formatter(
-        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-    )
-    file_handler.setFormatter(formatter)
-
-    # Add handler to the logger
-    celery_logger.addHandler(file_handler)
-    celery_logger.setLevel(log_level)
-
 webhook_processor = Flask(__name__)
 
-celery_logger = get_task_logger(__name__)
+celery = Celery(
+    webhook_processor.import_name, 
+    broker = app_config.celery_broker_url,
+    backend = app_config.celery_result_backend
+)
+
 scheduler.init_app(webhook_processor)
 scheduler.start()
 
-# Load configuration
-with open('config/config.json') as config_file:
-    config = json.load(config_file)
-
-GEOFENCE_API_URL = config['GEOFENCE_API_URL']
-BEARER_TOKEN = config['BEARER_TOKEN']
-ALLOW_WEBHOOK_HOST = config['ALLOW_WEBHOOK_HOST']
-RECEIVER_PORT = int(config['RECEIVER_PORT'])
-DATABASE_HOST = config['DATABASE_HOST']
-DATABASE_PORT = int(config['DATABASE_PORT'])
-DATABASE_NAME = config['DATABASE_NAME']
-DATABASE_USER = config['DATABASE_USER']
-DATABASE_PASSWORD = config['DATABASE_PASSWORD']
-MAX_QUEUE_SIZE = int(config['MAX_QUEUE_SIZE'])
-EXTRA_FLUSH_THRESHOLD = int(config['EXTRA_FLUSH_THRESHOLD'])
-FLUSH_INTERVAL = int(config['FLUSH_INTERVAL'])
-MAX_RETRIES = int(config['MAX_RETRIES'])
-RETRY_DELAY = int(config['RETRY_DELAY'])
-CELERY_MAX_LOG_FILES = int(config['CELERY_MAX_LOG_FILES'])
-FLASK_LOG_MAX_BYTES = int(config['FLASK_LOG_MAX_BYTES'])
-FLASK_MAX_LOG_FILES = int(config['FLASK_MAX_LOG_FILES'])
-
 webhook_processor.config.from_object(Config())
-webhook_processor.config.update(config)
-configure_logger(webhook_processor, celery_logger)
-
-celery = make_celery(webhook_processor)
 
 data_queue = []
 
-db_config = {
-    'host': config['DATABASE_HOST'],
-    'port': config['DATABASE_PORT'],
-    'user': config['DATABASE_USER'],
-    'password': config['DATABASE_PASSWORD'],
-    'database': config['DATABASE_NAME']
-}
-
 def configure_flask_logger(webhook_processor):
-    log_level = getattr(logging, webhook_processor.config['FLASK_LOG_LEVEL'].upper(), None)
-    log_file = webhook_processor.config['FLASK_LOG_FILE']
-    max_bytes = int(webhook_processor.config.get('FLASK_LOG_MAX_BYTES', 10240))  # Default to 10KB
-    backup_count = int(webhook_processor.config.get('FLASK_MAX_LOG_FILES', 5))  # Default to 5 files
+    log_level = getattr(logging, app_config.flask_log_level.upper(), None)
+    log_file = app_config.flask_log_file
+    max_bytes = app_config.flask_log_max_bytes
+    backup_count = app_config.flask_max_log_files
 
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
@@ -115,69 +55,32 @@ def configure_flask_logger(webhook_processor):
 
 configure_flask_logger(webhook_processor)
 
-@scheduler.task('interval', id='check_queue', seconds=FLUSH_INTERVAL, misfire_grace_time=900)
+@scheduler.task('interval', id='check_queue', seconds=app_config.flush_interval, misfire_grace_time=900)
 def check_queue_size():
     global data_queue
     retries = 0
 
-    while retries <= MAX_RETRIES:
+    while retries <= app_config.max_retries:
         try:
-            if len(data_queue) >= MAX_QUEUE_SIZE + EXTRA_FLUSH_THRESHOLD:
+            if len(data_queue) >= app_config.max_queue_size + app_config.extra_flush_threshold:
                 num_items_to_flush = len(data_queue)
                 insert_data_task.delay(data_queue[:num_items_to_flush].copy())
                 data_queue = data_queue[num_items_to_flush:]
                 webhook_processor.logger.info(f"Flushed an extra-large batch of size: {num_items_to_flush}")
                 break
         except Exception as error:
-            celery_logger.error(f"Error occurred in check_queue_size: {error}")
+            webhook_processor.logger.error(f"Error occurred in check_queue_size: {error}")
             retries += 1
-            if retries > MAX_RETRIES:
+            if retries > app_config.max_retries:
                 webhook_processor.logger.error("Maximum retries exceeded. Aborting.")
                 break
             else:
-                webhook_processor.logger.info(f"Retrying... Attempt {retries}/{MAX_RETRIES}")
-                sleep(RETRY_DELAY)
-
-@celery.task(bind=True, max_retries=MAX_RETRIES)
-def insert_data_task(self, data_batch):
-    conn = None
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-
-        insert_query = '''
-        INSERT INTO pokemon_sightings (pokemon_id, form, latitude, longitude, iv,
-        pvp_great_rank, pvp_little_rank, pvp_ultra_rank, shiny, area_name, despawn_time)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
-
-        for data in data_batch:
-            values = (
-                data['pokemon_id'], data['form'], data['latitude'], data['longitude'],
-                data['iv'], data.get('pvp_great_rank'), data.get('pvp_little_rank'),
-                data.get('pvp_ultra_rank'), data['shiny'], data['area_name'],
-                data['despawn_time']
-            )
-            cursor.execute(insert_query, values)
-        conn.commit()
-        celery_logger.info(f"Successfully inserted {len(data_batch)} records into the database.")
-    except mysql.connector.Error as error:
-        celery_logger.error(f"Failed to insert record into MySQL table: {error}")
-        try:
-            # Retry with exponential backoff
-            retry_delay = RETRY_DELAY * (2 ** self.request.retries)
-            celery_logger.info(f"Retrying in {retry_delay} seconds...")
-            self.retry(countdown=retry_delay)
-        except self.MaxRetriesExceededError:
-            celery_logger.error("Max retries exceeded. Giving up.")
-    finally:
-        if conn is not None and conn.is_connected():
-            cursor.close()
-            conn.close()
+                webhook_processor.logger.info(f"Retrying... Attempt {retries}/{app_config.max_retries}")
+                sleep(app_config.retry_delay)
 
 def fetch_geofences():
-    headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
-    response = requests.get(GEOFENCE_API_URL, headers=headers)
+    headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
+    response = requests.get(app_config.geofence_api_url, headers=headers)
     if response.status_code == 200:
         return response.json().get("data", {}).get("features", [])
     else:
@@ -201,7 +104,7 @@ def calculate_despawn_time(disappear_time, first_seen):
 
 @webhook_processor.before_request
 def limit_remote_addr():
-    if request.remote_addr != ALLOW_WEBHOOK_HOST:
+    if request.remote_addr != app_config.allow_webhook_host:
         abort(403)  # Forbidden
 
 @webhook_processor.route('/', methods=['POST'])
@@ -266,10 +169,9 @@ def receive_data():
                         }
                         data_queue.append(filtered_data)
 
-                        if len(data_queue) >= MAX_QUEUE_SIZE:
-                            insert_data_task.delay(data_queue[:MAX_QUEUE_SIZE].copy())
-
-                            data_queue = data_queue[MAX_QUEUE_SIZE:]
+                        if len(data_queue) >= app_config.max_queue_size:
+                            insert_data_task.delay(data_queue[:app_config.max_queue_size].copy())
+                            data_queue = data_queue[app_config.max_queue_size:]
                         webhook_processor.logger.info(f"Data matched and saved for geofence: {geofence_name}")
                     else:
                         webhook_processor.logger.info("Data did not match any geofence")
@@ -281,4 +183,4 @@ def receive_data():
     return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
-    webhook_processor.run(debug=True, port=RECEIVER_PORT)
+    webhook_processor.run(debug=True, port=app_config.receiver_port)
