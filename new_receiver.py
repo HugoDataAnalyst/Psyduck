@@ -146,26 +146,24 @@ def receive_data():
 
                         if len(data_queue) >= app_config.max_queue_size:
                             # Prepare current batch to send
-                            current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
-                            current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
-
-                            # Increment sequence number
-                            batch_sequence_number += 1
-
-                            batch_unique_id = generate_unique_id([current_batch_ids, batch_sequence_number])
+                            current_batch = [item[0] for item in data_queue]
+                            current_batch_unique_id = generate_unique_id(current_batch)
 
                             # Send current batch for processing
-                            insert_data_task.delay(current_batch_data, batch_unique_id)
-                            webhook_processor.logger.info(f"Task queued with batch_unique_id: {batch_unique_id} for batch_size: {len(current_batch_data)}")
+                            insert_data_task.delay(current_batch, current_batch_unique_id)
+                            webhook_processor.logger.info(f"Processed full queue with unique_id: {current_batch_unique_id}")
 
-                            # Retain any new data while processing previous tassk
-                            data_queue = data_queue[app_config.max_queue_size:]
+                            # Clear the queue
+                            data_queue = []
 
-                        webhook_processor.logger.debug(f"Data matched and saved for geofence: {geofence_name}")
+                        # Append new data to the queue
+                        item_unique_id = generate_unique_id(filtered_data)
+                        data_queue.append((filtered_data, item_unique_id))
+
                     else:
-                        webhook_processor.logger.debug("Data did not match any geofence")
+                        webhook_processor.logger.debug("Data did not meet filter criteria")
                 else:
-                    webhook_processor.logger.debug("Data did not meet filter criteria")
+                    webhook_processor.logger.debug("Unsupported data type")
     else:
         webhook_processor.logger.error("Received data is not in list format")
 
