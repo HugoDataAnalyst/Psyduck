@@ -85,15 +85,13 @@ def root_redirect():
 @webhook_processor.route('/webhook', methods=['POST'])
 def receive_data():
     global data_queue
-    global batch_sequence_number
     data = request.json
     geofences = fetch_geofences()
 
     def filter_criteria(message):
         required_fields = [
             'pokemon_id', 'form', 'latitude', 'longitude',
-            'individual_attack', 'individual_defense',
-            'individual_stamina'
+            'individual_attack', 'individual_defense', 'individual_stamina'
         ]
         return all(message.get(field) is not None for field in required_fields)
 
@@ -141,24 +139,11 @@ def receive_data():
                         }
 
                         item_unique_id = generate_unique_id(filtered_data)
-
                         data_queue.append((filtered_data, item_unique_id))
+
 
                         if len(data_queue) >= app_config.max_queue_size:
-                            # Prepare current batch to send
-                            current_batch = [item[0] for item in data_queue]
-                            current_batch_unique_id = generate_unique_id(current_batch)
-
-                            # Send current batch for processing
-                            insert_data_task.delay(current_batch, current_batch_unique_id)
-                            webhook_processor.logger.info(f"Processed full queue with unique_id: {current_batch_unique_id}")
-
-                            # Clear the queue
-                            data_queue = []
-
-                        # Append new data to the queue
-                        item_unique_id = generate_unique_id(filtered_data)
-                        data_queue.append((filtered_data, item_unique_id))
+                            process_full_queue()
 
                     else:
                         webhook_processor.logger.debug("Data did not meet filter criteria")
@@ -171,6 +156,16 @@ def receive_data():
     webhook_processor.logger.info(f"Current queue size: {len(data_queue)}")
 
     return jsonify({"status": "success"}), 200
+
+def process_full_queue():
+    global data_queue
+    current_batch_data = [item[0] for item in data_queue]
+    current_batch_ids = [item[1] for item in data_queue]
+    batch_unique_id = generate_unique_id(current_batch_ids)
+
+    insert_data_task.delay(current_batch_data, batch_unique_id)
+    webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
+    data_queue = []    
 
 if __name__ == '__main__':
     webhook_processor.run(debug=True, port=app_config.receiver_port)
