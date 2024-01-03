@@ -167,6 +167,7 @@ def receive_data():
                         if len(data_queue) >= app_config.max_queue_size:
                             unique_id = generate_unique_id(data_queue[:app_config.max_queue_size])
                             insert_data_task.delay(data_queue[:app_config.max_queue_size].copy(), unique_id)
+                            webhook_processor.logger.info(f"Task queued with unique_id: {unique_id} for batch size: {len(data_queue[:app_config.max_queue_size])}")
                             data_queue = data_queue[app_config.max_queue_size:]
                         webhook_processor.logger.debug(f"Data matched and saved for geofence: {geofence_name}")
                     else:
