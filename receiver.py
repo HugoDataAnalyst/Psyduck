@@ -12,7 +12,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from app_config import app_config
 from tasks import insert_data_task, generate_unique_id
-from threading import Lock
+from threading import Lock, Thread
 import time
 
 class Config:
