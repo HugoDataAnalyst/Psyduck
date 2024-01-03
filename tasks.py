@@ -62,7 +62,8 @@ def insert_data_task(self, data_batch):
             )
             cursor.execute(insert_query, values)
         conn.commit()
-        celery_logger.info(f"Successfully inserted {len(data_batch)} records into the database.")
+        num_records = len(data_batch)
+        celery_logger.info(f"Successfully inserted {num_records} records into the database.")
         return f"Inserted {num_records} records"        
     except mysql.connector.Error as error:
         celery_logger.error(f"Failed to insert record into MySQL table: {error}")

@@ -63,13 +63,13 @@ def check_queue_size():
                 webhook_processor.logger.info(f"Flushed an extra-large batch of size: {num_items_to_flush}")
                 break
         except Exception as error:
-            webhook_processor.logger.info(f"Error occurred in check_queue_size: {error}")
+            webhook_processor.logger.error(f"Error occurred in check_queue_size: {error}")
             retries += 1
             if retries > app_config.max_retries:
                 webhook_processor.logger.info("Maximum retries exceeded. Aborting.")
                 break
             else:
-                webhook_processor.logger.info(f"Retrying... Attempt {retries}/{app_config.max_retries}")
+                webhook_processor.logger.error(f"Retrying... Attempt {retries}/{app_config.max_retries}")
                 sleep(app_config.retry_delay)
 
 def fetch_geofences():
