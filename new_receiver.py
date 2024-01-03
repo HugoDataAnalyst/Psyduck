@@ -162,17 +162,19 @@ def receive_data():
                             'despawn_time': despawn_time
                         }
 
-                        unique_id = generate_unique_id(filtered_data)
-                        data_queue.append(filtered_data, unique_id)
+                        item_unique_id = generate_unique_id(filtered_data)
+
+                        data_queue.append((filtered_data, item_unique_id))
 
                         if len(data_queue) >= app_config.max_queue_size:
                             # Prepare current batch to send
-                            current_batch = data_queue[:app_config.max_queue_size]
-                            batch_unique_id = generate_unique_id(current_batch)
+                            current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
+                            current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
+                            batch_unique_id = generate_unique_id(current_batch_ids)
 
                             # Send current batch for processing
-                            insert_data_task.delay(current_batch, batch_unique_id)
-                            webhook_processor.logger.info(f"Task queued with batch_unique_id: {batch_unique_id} for batch_size: {len(current_batch)}")
+                            insert_data_task.delay(current_batch_data, batch_unique_id)
+                            webhook_processor.logger.info(f"Task queued with batch_unique_id: {batch_unique_id} for batch_size: {len(current_batch_data)}")
 
                             # Retain any new data while processing previous tassk
                             data_queue = data_queue[app_config.max_queue_size:]
