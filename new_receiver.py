@@ -11,7 +11,7 @@ from time import sleep
 import logging
 from logging.handlers import RotatingFileHandler
 from app_config import app_config
-from tasks import insert_data_task
+from tasks import insert_data_task, generate_unique_id
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -161,10 +161,12 @@ def receive_data():
                             'area_name': geofence_name,
                             'despawn_time': despawn_time
                         }
+
                         data_queue.append(filtered_data)
 
                         if len(data_queue) >= app_config.max_queue_size:
-                            insert_data_task.delay(data_queue[:app_config.max_queue_size].copy())
+                            unique_id = generate_unique_id(data_queue[:app_config.max_queue_size])
+                            insert_data_task.delay(data_queue[:app_config.max_queue_size].copy(), unique_id)
                             data_queue = data_queue[app_config.max_queue_size:]
                         webhook_processor.logger.debug(f"Data matched and saved for geofence: {geofence_name}")
                     else:

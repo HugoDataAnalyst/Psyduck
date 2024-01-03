@@ -4,6 +4,9 @@ from celery.utils.log import get_task_logger
 from app_config import app_config
 import mysql.connector
 import os
+import hashlib
+import json
+import redis
 
 celery_logger = get_task_logger(__name__)
 
@@ -40,12 +43,28 @@ db_config = {
     'database': app_config.db_name
 }
 
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)  # Adjust host and port if needed
+
+def generate_unique_id(data):
+    data_str = json.dumps(data, sort_keys=True)
+    return hashlib.md5(data_str.encode()).hexdigest()
+
+
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_data_task(self, data_batch):
+def insert_data_task(self, data_batch, unique_id):
+    celery_logger.info  (f"Task received with unique_id: {unique_id}")
+
+    if redis_client.get(unique_id):
+        celery_logger.info(f"Duplicate task skipped: {unique_id}")
+        return "Duplicate task skipped"
+
+    redis_client.set(unique_id, 'locked', ex=600)
+
     conn = None
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
+        celery_logger.info(f"Inserting data for unique_id: {unique_id}")
 
         insert_query = '''
         INSERT INTO pokemon_sightings (pokemon_id, form, latitude, longitude, iv,
@@ -63,7 +82,7 @@ def insert_data_task(self, data_batch):
             cursor.execute(insert_query, values)
         conn.commit()
         num_records = len(data_batch)
-        celery_logger.info(f"Successfully inserted {num_records} records into the database.")
+        celery_logger.info(f"Successfully inserted {num_records} records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} records"        
     except mysql.connector.Error as error:
         celery_logger.error(f"Failed to insert record into MySQL table: {error}")
@@ -78,3 +97,4 @@ def insert_data_task(self, data_batch):
         if conn is not None and conn.is_connected():
             cursor.close()
             conn.close()
+        redis_client.delete(unique_id)
