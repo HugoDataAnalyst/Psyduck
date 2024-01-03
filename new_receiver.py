@@ -166,13 +166,14 @@ def receive_data():
 
 def process_full_queue():
     global data_queue, is_processing_queue
-    current_batch_data = [item[0] for item in data_queue]
-    current_batch_ids = [item[1] for item in data_queue]
+
+    current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
+    current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
     batch_unique_id = generate_unique_id(current_batch_ids)
 
     insert_data_task.delay(current_batch_data, batch_unique_id)
     webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
-    data_queue = []
+    data_queue = data_queue[app_config.max_queue_size:]
     is_processing_queue = False
 
 if __name__ == '__main__':
