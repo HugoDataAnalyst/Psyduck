@@ -128,8 +128,6 @@ def receive_data():
                             iv_value = 0
                         else:
                             iv_value = None
-                    else:
-                        webhook_processor.logger.debug("Data did not match any Geofence")
 
                         despawn_time = calculate_despawn_time(
                             message.get('disappear_time'),
@@ -149,7 +147,6 @@ def receive_data():
 
                         item_unique_id = generate_unique_id(filtered_data)
                         data_queue.append((filtered_data, item_unique_id))
-
 
                         if len(data_queue) >= app_config.max_queue_size and not is_processing_queue :
                             is_processing_queue = True
