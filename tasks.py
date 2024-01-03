@@ -1,4 +1,4 @@
-from new_receiver import celery
+from celery_app import celery
 import logging
 from celery.utils.log import get_task_logger
 from app_config import app_config

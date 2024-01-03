@@ -4,11 +4,10 @@ from shapely.geometry import Point, Polygon
 import requests
 import os
 import datetime
-from celery import Celery
+from celery_app import celery
 import mysql.connector
 from flask_apscheduler import APScheduler
 from time import sleep
-from celery.utils.log import get_task_logger
 import logging
 from logging.handlers import RotatingFileHandler
 from app_config import app_config
@@ -21,11 +20,6 @@ scheduler = APScheduler()
 
 webhook_processor = Flask(__name__)
 
-celery = Celery(
-    webhook_processor.import_name, 
-    broker = app_config.celery_broker_url,
-    backend = app_config.celery_result_backend
-)
 
 scheduler.init_app(webhook_processor)
 scheduler.start()
