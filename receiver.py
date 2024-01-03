@@ -128,7 +128,7 @@ def receive_data():
                             iv_value = 0
                         else:
                             iv_value = None
-                    else
+                    else:
                         webhook_processor.logger.debug("Data did not match any Geofence")
 
                         despawn_time = calculate_despawn_time(
@@ -154,11 +154,11 @@ def receive_data():
                         if len(data_queue) >= app_config.max_queue_size and not is_processing_queue :
                             is_processing_queue = True
                             process_full_queue()
-
-                    else:
-                        webhook_processor.logger.debug("Data did not meet filter criteria")
                 else:
-                    webhook_processor.logger.debug("Unsupported data type")
+                    missing_fields = [field for field in required_fields if message.get(field) is None]
+                    webhook_processor.logger.debug(f"Data {message} did not meet filter criteria. Missing fields: {missing_fields}")
+            else:
+                webhook_processor.logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
     else:
         webhook_processor.logger.error("Received data is not in list format")
 

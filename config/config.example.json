@@ -25,5 +25,5 @@
 	"FLASK_MAX_LOG_FILES": "10",
 	"REDIS_HOST": "localhost",
 	"REDIS_PORT": "6379",
-	"REDIS_DB": "0",
+	"REDIS_DB": "0"
 }
