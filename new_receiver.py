@@ -162,13 +162,21 @@ def receive_data():
                             'despawn_time': despawn_time
                         }
 
-                        data_queue.append(filtered_data)
+                        unique_id = generate_unique_id(filtered_data)
+                        data_queue.append(filtered_data, unique_id)
 
                         if len(data_queue) >= app_config.max_queue_size:
-                            unique_id = generate_unique_id(data_queue[:app_config.max_queue_size])
-                            insert_data_task.delay(data_queue[:app_config.max_queue_size].copy(), unique_id)
-                            webhook_processor.logger.info(f"Task queued with unique_id: {unique_id} for batch size: {len(data_queue[:app_config.max_queue_size])}")
+                            # Prepare current batch to send
+                            current_batch = data_queue[:app_config.max_queue_size]
+                            batch_unique_id = generate_unique_id(current_batch)
+
+                            # Send current batch for processing
+                            insert_data_task.delay(current_batch, batch_unique_id)
+                            webhook_processor.logger.info(f"Task queued with batch_unique_id: {batch_unique_id} for batch_size: {len(current_batch)}")
+
+                            # Retain any new data while processing previous tassk
                             data_queue = data_queue[app_config.max_queue_size:]
+
                         webhook_processor.logger.debug(f"Data matched and saved for geofence: {geofence_name}")
                     else:
                         webhook_processor.logger.debug("Data did not match any geofence")
