@@ -23,6 +23,7 @@ class AppConfig:
         self.retry_delay = int(config['RETRY_DELAY'])
         self.celery_log_level = config['CELERY_LOG_LEVEL']
         self.celery_log_file = config['CELERY_LOG_FILE']
+        self.celery_log_max_bytes = int(config['CELERY_LOG_MAX_BYTES'])
         self.celery_max_log_files = int(config['CELERY_MAX_LOG_FILES'])
         self.flask_log_level = config['FLASK_LOG_LEVEL']
         self.flask_log_file = config['FLASK_LOG_FILE']

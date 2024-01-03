@@ -172,13 +172,16 @@ def receive_data():
                         if len(data_queue) >= app_config.max_queue_size:
                             insert_data_task.delay(data_queue[:app_config.max_queue_size].copy())
                             data_queue = data_queue[app_config.max_queue_size:]
-                        webhook_processor.logger.info(f"Data matched and saved for geofence: {geofence_name}")
+                        webhook_processor.logger.debug(f"Data matched and saved for geofence: {geofence_name}")
                     else:
-                        webhook_processor.logger.info("Data did not match any geofence")
+                        webhook_processor.logger.debug("Data did not match any geofence")
                 else:
-                    webhook_processor.logger.info("Data did not meet filter criteria")
+                    webhook_processor.logger.debug("Data did not meet filter criteria")
     else:
         webhook_processor.logger.error("Received data is not in list format")
+
+    # Log current queue size for monitoring
+    webhook_processor.logger.info(f"Current queue size: {len(data_queue)}")
 
     return jsonify({"status": "success"}), 200
 
