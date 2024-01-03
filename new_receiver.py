@@ -21,7 +21,10 @@ scheduler = APScheduler()
 
 webhook_processor = Flask(__name__)
 
+# Data processing queue
 data_queue_lock = Lock()
+is_processing_queue = False
+
 scheduler.init_app(webhook_processor)
 scheduler.start()
 
@@ -85,7 +88,7 @@ def root_redirect():
 
 @webhook_processor.route('/webhook', methods=['POST'])
 def receive_data():
-    global data_queue
+    global data_queue, is_processing_queue
 
     with data_queue_lock: 
         data = request.json
@@ -145,7 +148,8 @@ def receive_data():
                         data_queue.append((filtered_data, item_unique_id))
 
 
-                        if len(data_queue) >= app_config.max_queue_size:
+                        if len(data_queue) >= app_config.max_queue_size and not is_processing_queue :
+                            is_processing_queue = True
                             process_full_queue()
 
                     else:
@@ -161,14 +165,15 @@ def receive_data():
     return jsonify({"status": "success"}), 200
 
 def process_full_queue():
-    global data_queue
+    global data_queue, is_processing_queue
     current_batch_data = [item[0] for item in data_queue]
     current_batch_ids = [item[1] for item in data_queue]
     batch_unique_id = generate_unique_id(current_batch_ids)
 
     insert_data_task.delay(current_batch_data, batch_unique_id)
     webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
-    data_queue = []    
+    data_queue = []
+    is_processing_queue = False
 
 if __name__ == '__main__':
     webhook_processor.run(debug=True, port=app_config.receiver_port)
