@@ -12,6 +12,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from app_config import app_config
 from tasks import insert_data_task, generate_unique_id
+from threading import Lock
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -20,7 +21,7 @@ scheduler = APScheduler()
 
 webhook_processor = Flask(__name__)
 
-batch_sequence_number = 0
+data_queue_lock = Lock()
 scheduler.init_app(webhook_processor)
 scheduler.start()
 
@@ -85,8 +86,10 @@ def root_redirect():
 @webhook_processor.route('/webhook', methods=['POST'])
 def receive_data():
     global data_queue
-    data = request.json
-    geofences = fetch_geofences()
+
+    with data_queue_lock: 
+        data = request.json
+        geofences = fetch_geofences()
 
     def filter_criteria(message):
         required_fields = [
