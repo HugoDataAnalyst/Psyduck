@@ -155,8 +155,7 @@ def receive_data():
                             is_processing_queue = True
                             process_full_queue()
                 else:
-                    missing_fields = [field for field in required_fields if message.get(field) is None]
-                    webhook_processor.logger.debug(f"Data {message} did not meet filter criteria. Missing fields: {missing_fields}")
+                    webhook_processor.logger.debug("Data did not meet filter criteria")
             else:
                 webhook_processor.logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
     else:
