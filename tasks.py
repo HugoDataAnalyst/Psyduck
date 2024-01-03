@@ -43,7 +43,7 @@ db_config = {
     'database': app_config.db_name
 }
 
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)  # Adjust host and port if needed
+redis_client = redis.StrictRedis(host=app_config.redis_host, port=app_config.redis_port, db=app_config.redis_db)  # Adjust host and port if needed
 
 def generate_unique_id(data):
     data_str = json.dumps(data, sort_keys=True)

@@ -29,6 +29,9 @@ class AppConfig:
         self.flask_log_file = config['FLASK_LOG_FILE']
         self.flask_log_max_bytes = int(config['FLASK_LOG_MAX_BYTES'])
         self.flask_max_log_files = int(config['FLASK_MAX_LOG_FILES'])
+        self.redis_host = config['REDIS_HOST']
+        self.redis_port = int(config['REDIS_PORT'])
+        self.redis_db = config['REDIS_DB']
 
 # Create a global instance of AppConfig to use throughout the application
 app_config = AppConfig()

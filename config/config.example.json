@@ -22,5 +22,8 @@
 	"FLASK_LOG_LEVEL": "INFO",
 	"FLASK_LOG_FILE": "logs/flask_logger.log",
 	"FLASK_LOG_MAX_BYTES": "10485760",
-	"FLASK_MAX_LOG_FILES": "10"
+	"FLASK_MAX_LOG_FILES": "10",
+	"REDIS_HOST": "localhost",
+	"REDIS_PORT": "6379",
+	"REDIS_DB": "0",
 }

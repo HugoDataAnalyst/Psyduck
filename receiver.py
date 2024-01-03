@@ -13,6 +13,7 @@ from logging.handlers import RotatingFileHandler
 from app_config import app_config
 from tasks import insert_data_task, generate_unique_id
 from threading import Lock
+import time
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -127,6 +128,8 @@ def receive_data():
                             iv_value = 0
                         else:
                             iv_value = None
+                    else
+                        webhook_processor.logger.debug("Data did not match any Geofence")
 
                         despawn_time = calculate_despawn_time(
                             message.get('disappear_time'),
@@ -167,14 +170,36 @@ def receive_data():
 def process_full_queue():
     global data_queue, is_processing_queue
 
-    current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
-    current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
-    batch_unique_id = generate_unique_id(current_batch_ids)
+    retry_count = 0
+    while retry_count <= app_config.max_retries:
+        try:
+            current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
+            current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
+            batch_unique_id = generate_unique_id(current_batch_ids)
 
-    insert_data_task.delay(current_batch_data, batch_unique_id)
-    webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
-    data_queue = data_queue[app_config.max_queue_size:]
+            insert_data_task.delay(current_batch_data, batch_unique_id)
+            webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
+            data_queue = data_queue[app_config.max_queue_size:]
+            break
+        except Exception as e:
+            retry_count += 1
+            webhook_processor.logger.error(f"Error processing queue on attempt {retry_count}: {e}")
+            time.sleep(app_config.retry_delay)
+    
+    if retry_count > app_config.max_retries:
+        webhook_processor.logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
+
+def manage_large_queues():
+    global data_queue
+    while True:
+        time.sleep(app_config.flush_interval)
+        with data_queue_lock:
+            if len(data_queue) > app_config.extra_flush_threshold:
+                process_full_queue()
+
+queue_manager_thread = Thread(target=manage_large_queues, daemon=True)
+queue_manager_thread.start()
 
 if __name__ == '__main__':
     webhook_processor.run(debug=True, port=app_config.receiver_port)
