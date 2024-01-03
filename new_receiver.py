@@ -51,16 +51,29 @@ configure_flask_logger(webhook_processor)
 
 @scheduler.task('interval', id='check_queue', seconds=app_config.flush_interval, misfire_grace_time=900)
 def check_queue_size():
-    global data_queue
+    global data_queue, batch_sequence_number
     retries = 0
 
     while retries <= app_config.max_retries:
         try:
             if len(data_queue) >= app_config.max_queue_size + app_config.extra_flush_threshold:
-                num_items_to_flush = len(data_queue)
-                insert_data_task.delay(data_queue[:num_items_to_flush].copy())
-                data_queue = data_queue[num_items_to_flush:]
-                webhook_processor.logger.info(f"Flushed an extra-large batch of size: {num_items_to_flush}")
+                # Prepare the current batch to send
+                current_batch_data = [item[0] for item in data_queue]
+                current_batch_ids = [item[1] for item in data_queue]
+
+                # Increment the sequence number
+                batch_sequence_number += 1
+
+                # Generate a unique ID for the batch
+                batch_unique_id = generate_unique_id([current_batch_ids, batch_sequence_number])
+
+                # Send the batch for processing
+                insert_data_task.delay(current_batch_data, batch_unique_id)
+                webhook_processor.logger.info(f"Flushed an extra-large batch of size: {len(current_batch_data)} with batch_unique_id: {batch_unique_id}")
+
+                # Clear the entire data_queue
+                data_queue = []
+
                 break
         except Exception as error:
             webhook_processor.logger.error(f"Error occurred in check_queue_size: {error}")
@@ -71,6 +84,7 @@ def check_queue_size():
             else:
                 webhook_processor.logger.error(f"Retrying... Attempt {retries}/{app_config.max_retries}")
                 sleep(app_config.retry_delay)
+
 
 def fetch_geofences():
     headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
@@ -170,7 +184,11 @@ def receive_data():
                             # Prepare current batch to send
                             current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
                             current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
-                            batch_unique_id = generate_unique_id(current_batch_ids)
+
+                            # Increment sequence number
+                            batch_sequence_number += 1
+
+                            batch_unique_id = generate_unique_id([current_batch_ids, batch_sequence_number])
 
                             # Send current batch for processing
                             insert_data_task.delay(current_batch_data, batch_unique_id)
