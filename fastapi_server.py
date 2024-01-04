@@ -51,30 +51,28 @@ def validate_ip(request: Request):
         logger.warning(f"Access denied for IP: {client_host}")
         raise HTTPException(status_code=403, detail="Access denied")
 
-
-async def get_task_result(task_function, *args, **kwargs):
+def get_task_result(task_function, *args, **kwargs):
     logger.info(f"Fetching task result for {task_function.__name__}")
     result = task_function.delay(*args, **kwargs)
-    return await result.get(timeout=10)
+    return result.get(timeout=50)
 
 @app.get("/api/daily-area-pokemon-stats")
 @cache(expire=app_config.api_daily_cache)
 async def daily_pokemon_stats(secret: str = Depends(validate_secret)):
     logger.info("Request received for daily Pokemon stats")
-    return await get_task_result(query_daily_pokemon_stats)
+    return get_task_result(query_daily_pokemon_stats)
 
 @app.get("/api/weekly-area-pokemon-stats")
 @cache(expire=app_config.api_weekly_cache)
 async def weekly_pokemon_stats(secret: str = Depends(validate_secret)):
     logger.info("Request received for weekly Pokemon stats")
-    return await get_task_result(query_weekly_pokemon_stats)
+    return get_task_result(query_weekly_pokemon_stats)
 
 @app.get("/api/monthly-area-pokemon-stats")
 @cache(expire=app_config.api_monthly_cache)
 async def monthly_pokemon_stats(secret: str = Depends(validate_secret)):
     logger.info("Request received for monthly Pokemon stats")
-    return await get_task_result(query_monthly_pokemon_stats)
-
+    return get_task_result(query_monthly_pokemon_stats)
 
 if __name__ == "__main__":
     import uvicorn
