@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 	pvp_ultra_rank TINYINT,
 	shiny BOOLEAN,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-	despawn_time VARCHAR(15)
+	despawn_time SMALLINT
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
 	total_top1_ultra INTEGER,
 	total_shiny INTEGER,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-	avg_despawn VARCHAR(15),
+	avg_despawn SMALLINT,
     PRIMARY KEY (pokemon_id, form, area_name)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''

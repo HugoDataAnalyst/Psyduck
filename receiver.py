@@ -75,8 +75,8 @@ def calculate_despawn_time(disappear_time, first_seen):
     if disappear_time is None or first_seen is None:
         return None
     time_diff = disappear_time - first_seen
-    minutes, seconds = divmod(time_diff, 60)
-    return f"{minutes}mins {seconds}secs"
+    total_seconds = time_diff // 1
+    return total_seconds
 
 @webhook_processor.before_request
 def limit_remote_addr():
