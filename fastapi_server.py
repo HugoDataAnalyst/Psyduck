@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
-from fastapi_cache2 import FastAPICache
+from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
 from redis import asyncio as aioredis
@@ -31,7 +31,7 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     logger.info("Starting up the application")
-    redis = aioredis.from_url(app_config.redis_host, encoding="utf8", decode_responses=True)
+    redis = aioredis.from_url(app_config.redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     logger.info("FastAPI cache initialized with Redis backend")
 
