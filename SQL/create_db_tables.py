@@ -197,10 +197,6 @@ def create_database_and_table():
 		cursor.execute(create_monthly_api_pokemon_area_stats_table_sql)
 		print("monthly_api_pokemon_area_stats table checked/created.")
 
-		
-		# Allow events
-		cursor.execute("SET GLOBAL event_scheduler = ON;")
-
 		# Create event
 		cursor.execute(create_daily_event_sql)
 		print("update_daily_api_pokemon_area_stats event created.")
