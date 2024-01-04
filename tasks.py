@@ -144,5 +144,5 @@ def organize_results(results):
         area = row['area_name']
         if area not in organized_results:
             organized_results[area] = []
-        organized_results[area]._append(row)
+        organized_results[area].append(row)
     return organized_results
