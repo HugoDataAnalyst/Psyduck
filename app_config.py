@@ -1,9 +1,12 @@
 import json
+import urllib.parse
 
 class AppConfig:
     def __init__(self, config_path='config/config.json'):
         with open(config_path) as config_file:
             config = json.load(config_file)
+        
+        encoded_redis_password = urllib.parse.quote(config['REDIS_PASSWORD'])
         
         self.geofence_api_url = config['GEOFENCE_API_URL']
         self.bearer_token = config['BEARER_TOKEN']
@@ -14,8 +17,8 @@ class AppConfig:
         self.db_name = config['DATABASE_NAME']
         self.db_user = config['DATABASE_USER']
         self.db_password = config['DATABASE_PASSWORD']
-        self.celery_broker_url = config['CELERY_BROKER_URL']
-        self.celery_result_backend = config['CELERY_RESULT_BACKEND']
+        self.celery_broker_url = f"redis://:{encoded_redis_password}@{config['REDIS_HOST']}:{config['REDIS_PORT']}/{config['REDIS_DB']}"
+        self.celery_result_backend = f"redis://:{encoded_redis_password}@{config['REDIS_HOST']}:{config['REDIS_PORT']}/{config['REDIS_DB']}"
         self.max_queue_size = int(config['MAX_QUEUE_SIZE'])
         self.extra_flush_threshold = int(config['EXTRA_FLUSH_THRESHOLD'])
         self.flush_interval = int(config['FLUSH_INTERVAL'])
@@ -32,7 +35,7 @@ class AppConfig:
         self.redis_host = config['REDIS_HOST']
         self.redis_port = int(config['REDIS_PORT'])
         self.redis_db = config['REDIS_DB']
-        self.redis_url = config['REDIS_URL']
+        self.redis_url = f"redis://:{encoded_redis_password}@{config['REDIS_HOST']}:{config['REDIS_PORT']}/{config['REDIS_DB']}"
         self.api_log_level = config['API_LOG_LEVEL']
         self.api_log_file = config['API_LOG_FILE']
         self.api_log_max_bytes = int(config['API_LOG_MAX_BYTES'])
