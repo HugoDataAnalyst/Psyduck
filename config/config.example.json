@@ -1,5 +1,5 @@
 {
-	"GEOFENCE_API_URL": "http://your_ip:port/api/v1/geofence/feature-collection/ProjectName",
+	"GEOFENCE_API_URL": "http://your_koji_ip:port/api/v1/geofence/feature-collection/ProjectName",
 	"BEARER_TOKEN": "your_bearer_token_here",
 	"ALLOW_WEBHOOK_HOST": "your_golbat_ip",
 	"RECEIVER_PORT": "5000",
@@ -10,8 +10,8 @@
 	"DATABASE_PASSWORD": "db_password",
 	"CELERY_BROKER_URL": "redis://localhost:6379/0",
 	"CELERY_RESULT_BACKEND": "redis://localhost:6379/0",
-	"MAX_QUEUE_SIZE": "3000",
-	"EXTRA_FLUSH_THRESHOLD": "6000",
+	"MAX_QUEUE_SIZE": "2000",
+	"EXTRA_FLUSH_THRESHOLD": "4000",
 	"FLUSH_INTERVAL": "180",
 	"MAX_RETRIES": "2",
 	"RETRY_DELAY": "5",
