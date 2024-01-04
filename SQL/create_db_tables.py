@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 '''
 create_api_pokemon_area_stats_table_sql = '''
 CREATE IF NOT EXISTS api_pokemon_area_stats (
-	pokemon_id INTGER NOT NULL,
+	pokemon_id INTEGER NOT NULL,
 	form VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
 	avg_lat FLOAT,
