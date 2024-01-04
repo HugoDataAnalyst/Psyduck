@@ -43,7 +43,7 @@ db_config = {
     'database': app_config.db_name
 }
 
-redis_client = redis.StrictRedis(host=app_config.redis_host, port=app_config.redis_port, db=app_config.redis_db)  # Adjust host and port if needed
+redis_client = redis.StrictRedis(host=app_config.redis_host, port=app_config.redis_port, db=app_config.redis_db)
 
 def generate_unique_id(data):
     data_str = json.dumps(data, sort_keys=True)
@@ -98,3 +98,51 @@ def insert_data_task(self, data_batch, unique_id):
             cursor.close()
             conn.close()
         redis_client.delete(unique_id)
+
+# API query task
+def execute_query(query):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        return cursor.fetchall()
+    except mysql.connector.Error as err:
+        celery_logger.error(f"Database query error: {err}")
+        raise
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM daily_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_weekly_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM weekly_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_monthly_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM monthly_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+def organize_results(results):
+    organized_results = {}
+    for row in results:
+        area = row['area_name']
+        if area not in organized_results:
+            organized_results[area] = []
+        organized_results[area]._append(row)
+    return organized_results

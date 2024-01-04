@@ -1,19 +1,17 @@
 import json
 import mysql.connector
+from app_config import app_config
 
-with open('../config/config.json') as config_file:
-	config = json.load(config_file)
-
+# Database configuration
 db_config = {
-	'host': config['DATABASE_HOST'],
-	'port': config['DATABASE_PORT'],
-	'user': config['DATABASE_USER'],
-	'password': config['DATABASE_PASSWORD']
+    'host': app_config.db_host,
+    'port': app_config.db_port,
+    'user': app_config.db_user,
+    'password': app_config.db_password,
+    'database': app_config.db_name
 }
 
-event_update = config['STATS_EVENT_UPDATE']
-
-db_name = config['DATABASE_NAME']
+db_name = app_config.db_name
 
 create_database_sql = f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
@@ -112,7 +110,7 @@ DO
         area_name,
         ROUND(AVG(despawn_time),2) AS avg_despawn
     FROM pokemon_sightings
-    WHERE inserted_at < CURDATE()
+    WHERE inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE()
     GROUP BY pokemon_id, form, area_name
     ORDER BY area_name, pokemon_id;
 '''
@@ -138,7 +136,7 @@ DO
         area_name,
         ROUND(AVG(despawn_time),2) AS avg_despawn
     FROM pokemon_sightings
-    WHERE inserted_at < CURDATE()
+    WHERE inserted_at >= CURDATE() - INTERVAL 7 DAY AND inserted_at < CURDATE()
     GROUP BY pokemon_id, form, area_name
     ORDER BY area_name, pokemon_id;
 '''
@@ -164,7 +162,7 @@ DO
         area_name,
         ROUND(AVG(despawn_time),2) AS avg_despawn
     FROM pokemon_sightings
-    WHERE inserted_at < CURDATE()
+    WHERE inserted_at >= CURDATE() - INTERVAL 1 MONTH AND inserted_at < CURDATE()
     GROUP BY pokemon_id, form, area_name
     ORDER BY area_name, pokemon_id;
 '''

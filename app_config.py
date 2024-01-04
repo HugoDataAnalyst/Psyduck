@@ -32,6 +32,13 @@ class AppConfig:
         self.redis_host = config['REDIS_HOST']
         self.redis_port = int(config['REDIS_PORT'])
         self.redis_db = config['REDIS_DB']
-
+        self.api_port = int(config['API_PORT'])
+        self.api_secret_key = config['API_SECRET_KEY']
+        self.api_secret_header_key = config['API_SECRET_HEADER_KEY']
+        self.api_daily_cache = int(config['API_DAILY_CACHE'])
+        self.api_weekly_cache = int(config['API_WEEKLY_CACHE'])
+        self.api_monthly_cache = int(config['API_MONTHLY_CACHE'])
+        self.api_ip_restriction = config['API_IP_RESTRICTION'].lower() == 'true'
+        self.api_allowed_ips = config['API_ALLOWED_IPS'].split(", ")
 # Create a global instance of AppConfig to use throughout the application
 app_config = AppConfig()
