@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 	latitude FLOAT,
 	longitude FLOAT,
 	iv TINYINT,
-	pvp_little_rank TINYINT,	
+	pvp_little_rank TINYINT,
 	pvp_great_rank TINYINT,
 	pvp_ultra_rank TINYINT,
 	shiny BOOLEAN,
@@ -31,8 +31,9 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 	despawn_time VARCHAR(15)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
+
 create_api_pokemon_area_stats_table_sql = '''
-CREATE IF NOT EXISTS api_pokemon_area_stats (
+CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
 	pokemon_id INTEGER NOT NULL,
 	form VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
