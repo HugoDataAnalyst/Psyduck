@@ -30,12 +30,13 @@ CREATE TABLE IF NOT EXISTS pokemon_sightings (
 	pvp_ultra_rank TINYINT,
 	shiny BOOLEAN,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-	despawn_time SMALLINT
+	despawn_time SMALLINT,
+	inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
-create_api_pokemon_area_stats_table_sql = '''
-CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
+create_daily_api_pokemon_area_stats_table_sql = '''
+CREATE TABLE IF NOT EXISTS daily_api_pokemon_area_stats (
 	pokemon_id INTEGER NOT NULL,
 	form VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
@@ -53,11 +54,49 @@ CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
-create_event_sql = f'''
-CREATE EVENT IF NOT EXISTS update_api_pokemon_area_stats
-ON SCHEDULE EVERY {event_update}
+create_weekly_api_pokemon_area_stats_table_sql = '''
+CREATE TABLE IF NOT EXISTS weekly_api_pokemon_area_stats (
+	pokemon_id INTEGER NOT NULL,
+	form VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+	total INTEGER,
+	avg_lat FLOAT,
+	avg_lon FLOAT,
+	total_iv100 INTEGER,
+	total_iv0 INTEGER,
+	total_top1_little INTEGER,
+	total_top1_great INTEGER,
+	total_top1_ultra INTEGER,
+	total_shiny INTEGER,
+	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+	avg_despawn SMALLINT,
+    PRIMARY KEY (pokemon_id, form, area_name)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+'''
+
+create_monthly_api_pokemon_area_stats_table_sql = '''
+CREATE TABLE IF NOT EXISTS monthly_api_pokemon_area_stats (
+	pokemon_id INTEGER NOT NULL,
+	form VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+	total INTEGER,
+	avg_lat FLOAT,
+	avg_lon FLOAT,
+	total_iv100 INTEGER,
+	total_iv0 INTEGER,
+	total_top1_little INTEGER,
+	total_top1_great INTEGER,
+	total_top1_ultra INTEGER,
+	total_shiny INTEGER,
+	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+	avg_despawn SMALLINT,
+    PRIMARY KEY (pokemon_id, form, area_name)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+'''
+
+create_daily_event_sql = f'''
+CREATE EVENT IF NOT EXISTS update_daily_api_pokemon_area_stats
+ON SCHEDULE EVERY 1 DAY
 DO
-    REPLACE INTO api_pokemon_area_stats
+    REPLACE INTO daily_api_pokemon_area_stats
     SELECT
         pokemon_id,
         form,
@@ -73,6 +112,59 @@ DO
         area_name,
         ROUND(AVG(despawn_time),2) AS avg_despawn
     FROM pokemon_sightings
+    WHERE inserted_at < CURDATE()
+    GROUP BY pokemon_id, form, area_name
+    ORDER BY area_name, pokemon_id;
+'''
+
+create_weekly_event_sql = f'''
+CREATE EVENT IF NOT EXISTS update_weekly_api_pokemon_area_stats
+ON SCHEDULE EVERY 1 WEEK
+STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 WEEK)
+DO
+    REPLACE INTO weekly_api_pokemon_area_stats
+    SELECT
+        pokemon_id,
+        form,
+        COUNT(pokemon_id) AS total,
+        AVG(latitude) AS avg_lat,
+        AVG(longitude) AS avg_lon,
+        SUM(CASE WHEN iv = 100 THEN 1 ELSE NULL END) AS total_iv100,
+        SUM(CASE WHEN iv = 0 THEN 1 ELSE NULL END) AS total_iv0,
+        SUM(CASE WHEN pvp_little_rank = 1 THEN 1 ELSE NULL END) AS total_top1_little,
+        SUM(CASE WHEN pvp_great_rank = 1 THEN 1 ELSE NULL END) AS total_top1_great,
+        SUM(CASE WHEN pvp_ultra_rank = 1 THEN 1 ELSE NULL END) AS total_top1_ultra,
+        SUM(CASE WHEN shiny = 1 THEN 1 ELSE NULL END) AS total_shiny,
+        area_name,
+        ROUND(AVG(despawn_time),2) AS avg_despawn
+    FROM pokemon_sightings
+    WHERE inserted_at < CURDATE()
+    GROUP BY pokemon_id, form, area_name
+    ORDER BY area_name, pokemon_id;
+'''
+
+create_monthly_event_sql = f'''
+CREATE EVENT IF NOT EXISTS update_monthly_api_pokemon_area_stats
+ON SCHEDULE EVERY 1 MONTH
+STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 MONTH)
+DO
+    REPLACE INTO monthly_api_pokemon_area_stats
+    SELECT
+        pokemon_id,
+        form,
+        COUNT(pokemon_id) AS total,
+        AVG(latitude) AS avg_lat,
+        AVG(longitude) AS avg_lon,
+        SUM(CASE WHEN iv = 100 THEN 1 ELSE NULL END) AS total_iv100,
+        SUM(CASE WHEN iv = 0 THEN 1 ELSE NULL END) AS total_iv0,
+        SUM(CASE WHEN pvp_little_rank = 1 THEN 1 ELSE NULL END) AS total_top1_little,
+        SUM(CASE WHEN pvp_great_rank = 1 THEN 1 ELSE NULL END) AS total_top1_great,
+        SUM(CASE WHEN pvp_ultra_rank = 1 THEN 1 ELSE NULL END) AS total_top1_ultra,
+        SUM(CASE WHEN shiny = 1 THEN 1 ELSE NULL END) AS total_shiny,
+        area_name,
+        ROUND(AVG(despawn_time),2) AS avg_despawn
+    FROM pokemon_sightings
+    WHERE inserted_at < CURDATE()
     GROUP BY pokemon_id, form, area_name
     ORDER BY area_name, pokemon_id;
 '''
@@ -95,11 +187,29 @@ def create_database_and_table():
 		# Create tables
 		cursor.execute(create_pokemon_sightings_table_sql)
 		print("pokemon_sightings table checked/created.")
-		cursor.execute(create_api_pokemon_area_stats_table_sql)
-		print("api_pokemon_area_stats table checked/created.")
-		#Create event
-		cursor.execute(create_event_sql)
-		print("update_api_pokemon_area_stats event created.")
+		
+		cursor.execute(create_daily_api_pokemon_area_stats_table_sql)
+		print("daily_api_pokemon_area_stats table checked/created.")
+		
+		cursor.execute(create_weekly_api_pokemon_area_stats_table_sql)
+		print("weekly_api_pokemon_area_stats table checked/created.")
+
+		cursor.execute(create_monthly_api_pokemon_area_stats_table_sql)
+		print("monthly_api_pokemon_area_stats table checked/created.")
+
+		
+		# Allow events
+		cursor.execute("SET GLOBAL event_scheduler = ON;")
+
+		# Create event
+		cursor.execute(create_daily_event_sql)
+		print("update_daily_api_pokemon_area_stats event created.")
+
+		cursor.execute(create_weekly_event_sql)
+		print("update_weekly_api_pokemon_area_stats event created.")
+
+		cursor.execute(create_monthly_event_sql)
+		print("update_monthly_api_pokemon_area_stats event created.")
 
 		conn.commit()
 		print("Tables & Event created sucessfully")

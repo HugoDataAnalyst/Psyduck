@@ -198,4 +198,4 @@ queue_manager_thread = Thread(target=manage_large_queues, daemon=True)
 queue_manager_thread.start()
 
 if __name__ == '__main__':
-    webhook_processor.run(debug=True, port=app_config.receiver_port)
+    webhook_processor.run(debug=False, port=app_config.receiver_port)
