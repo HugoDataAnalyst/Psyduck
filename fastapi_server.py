@@ -1,14 +1,19 @@
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
-from starlette_cache.backends.memory import MemoryBackend
-from starlette_cache.middleware import CacheMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+from redis import asyncio as aioredis
 from celery.result import AsyncResult
 from app_config import app_config
 from tasks import query_daily_pokemon_stats, query_weekly_pokemon_stats, query_monthly_pokemon_stats
-import asyncio
+
 
 app = FastAPI()
 
-app.add_middleware(CacheMiddleware, backend=MemoryBackend(), prefix="api-cache", ttl=3600)
+@app.on_event("startup")
+async def startup():
+    redis = aioredis.from_url(app_config.redis_url, encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 def validate_secret_header(secret: str = Header(None)):
     if not secret or secret != app_config.api_secret_header_key:
@@ -29,34 +34,19 @@ async def get_task_result(task_function, *args, **kwargs):
     return await result.get(timeout=10)
 
 @app.get("/api/daily-area-pokemon-stats")
-async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    cached_response = await request.app.state.cache.get(request.url.path)
-    if cached_response:
-        return cached_response
-
-    response_data = await get_task_result(query_daily_pokemon_stats)
-    await request.app.state.cache.set(request.url.path, response_data, ttl=app_config.api_daily_cache)
-    return response_data
+@cache(expire=app_config.api_daily_cache)
+async def daily_pokemon_stats(secret: str = Depends(validate_secret)):
+    return await get_task_result(query_daily_pokemon_stats)
 
 @app.get("/api/weekly-area-pokemon-stats")
-async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    cached_response = await request.app.state.cache.get(request.url.path)
-    if cached_response:
-        return cached_response
-
-    response_data = await get_task_result(query_weekly_pokemon_stats)
-    await request.app.state.cache.set(request.url.path, response_data, ttl=app_config.api_weekly_cache)
-    return response_data
+@cache(expire=app_config.api_weekly_cache)
+async def weekly_pokemon_stats(secret: str = Depends(validate_secret)):
+    return await get_task_result(query_weekly_pokemon_stats)
 
 @app.get("/api/monthly-area-pokemon-stats")
-async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    cached_response = await request.app.state.cache.get(request.url.path)
-    if cached_response:
-        return cached_response
-
-    response_data = await get_task_result(query_monthly_pokemon_stats)
-    await request.app.state.cache.set(request.url.path, response_data, ttl=app_config.api_monthly_cache)
-    return response_data
+@cache(expire=app_config.api_monthly_cache)
+async def monthly_pokemon_stats(secret: str = Depends(validate_secret)):
+    return await get_task_result(query_monthly_pokemon_stats)
 
 
 if __name__ == "__main__":
