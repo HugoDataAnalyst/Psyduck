@@ -48,11 +48,10 @@ CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	avg_despawn VARCHAR(15),
     PRIMARY KEY (pokemon_id, form, area_name)
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;	
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
 create_event_sql = '''
-DELIMITER //
 CREATE EVENT IF NOT EXISTS update_api_pokemon_area_stats
 ON SCHEDULE EVERY 15 MINUTE
 DO
@@ -74,8 +73,6 @@ DO
     FROM pokemon_sightings
     GROUP BY pokemon_id, form, area_name
     ORDER BY area_name, pokemon_id;
-//
-DELIMITER ;
 '''
 
 def create_database_and_table():
