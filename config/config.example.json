@@ -8,7 +8,6 @@
 	"DATABASE_NAME": "PokeWebhookDB",
 	"DATABASE_USER": "db_user",
 	"DATABASE_PASSWORD": "db_password",
-	"STATS_EVENT_UPDATE": "15 MINUTE",
 	"CELERY_BROKER_URL": "redis://localhost:6379/0",
 	"CELERY_RESULT_BACKEND": "redis://localhost:6379/0",
 	"MAX_QUEUE_SIZE": "2000",
@@ -33,6 +32,6 @@
 	"API_DAILY_CACHE": "3600",
 	"API_WEEKLY_CACHE": "3600",
 	"API_MONTHLY_CACHE": "3600",
-	"API_IP_RESTRICTION": "true",	
+	"API_IP_RESTRICTION": "true",
 	"API_ALLOWED_IPS": "127.0.0.1, 192.168.1.100, 192.168.1.105"
 }
