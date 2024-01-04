@@ -10,6 +10,7 @@ db_config = {
 	'user': config['DATABASE_USER'],
 	'password': config['DATABASE_PASSWORD']
 }
+
 event_update = config['STATS_EVENT_UPDATE']
 
 db_name = config['DATABASE_NAME']
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS api_pokemon_area_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
-create_event_sql = '''
+create_event_sql = f'''
 CREATE EVENT IF NOT EXISTS update_api_pokemon_area_stats
 ON SCHEDULE EVERY {event_update}
 DO
