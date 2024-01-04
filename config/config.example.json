@@ -8,6 +8,7 @@
 	"DATABASE_NAME": "PokeWebhookDB",
 	"DATABASE_USER": "db_user",
 	"DATABASE_PASSWORD": "db_password",
+	"STATS_EVENT_UPDATE": "15 MINUTE",
 	"CELERY_BROKER_URL": "redis://localhost:6379/0",
 	"CELERY_RESULT_BACKEND": "redis://localhost:6379/0",
 	"MAX_QUEUE_SIZE": "2000",
