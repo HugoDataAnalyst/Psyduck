@@ -45,5 +45,6 @@ class AppConfig:
         self.api_monthly_cache = int(config['API_MONTHLY_CACHE'])
         self.api_ip_restriction = config['API_IP_RESTRICTION'].lower() == 'true'
         self.api_allowed_ips = config['API_ALLOWED_IPS'].split(", ")
+        self.api_header_name = config['API_HEADER_NAME']
 # Create a global instance of AppConfig to use throughout the application
 app_config = AppConfig()

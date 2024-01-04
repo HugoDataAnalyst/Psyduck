@@ -1,7 +1,7 @@
 import requests
 
 # Endpoint URL
-url = "http://yourserverdomain.com/api/daily-area-pokemon-stats"
+url = "http://127.0.0.1:5003/api/daily-area-pokemon-stats"
 
 # Your API secret keys
 api_secret_key = "your_api_secret_key"
@@ -9,7 +9,7 @@ api_secret_header_key = "your_api_secret_header_key"
 
 # Headers
 headers = {
-    "Your-Custom-Header-Name": api_secret_header_key
+    "X-Stats-Api-Secret": api_secret_header_key
 }
 
 # Query parameters

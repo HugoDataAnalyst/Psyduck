@@ -35,7 +35,7 @@ async def startup():
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     logger.info("FastAPI cache initialized with Redis backend")
 
-def validate_secret_header(secret: str = Header(None)):
+def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
     if not secret or secret != app_config.api_secret_header_key:
         logger.warning("Unauthorized access attempt with wrong secret header")
         raise HTTPException(status_code=403, detail="Unauthorized access")
