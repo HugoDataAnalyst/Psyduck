@@ -32,6 +32,11 @@ class AppConfig:
         self.redis_host = config['REDIS_HOST']
         self.redis_port = int(config['REDIS_PORT'])
         self.redis_db = config['REDIS_DB']
+        self.redis_url = config['REDIS_URL']
+        self.api_log_level = config['API_LOG_LEVEL']
+        self.api_log_file = config['API_LOG_FILE']
+        self.api_log_max_bytes = int(config['API_LOG_MAX_BYTES'])
+        self.api_max_log_files = int(config['API_MAX_LOG_FILES'])
         self.api_port = int(config['API_PORT'])
         self.api_secret_key = config['API_SECRET_KEY']
         self.api_secret_header_key = config['API_SECRET_HEADER_KEY']
