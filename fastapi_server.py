@@ -35,22 +35,24 @@ async def startup():
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     logger.info("FastAPI cache initialized with Redis backend")
 
-def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
+async def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
     if not secret or secret != app_config.api_secret_header_key:
         logger.warning("Unauthorized access attempt with wrong secret header")
         raise HTTPException(status_code=403, detail="Unauthorized access")
+    logger.info("Secret header validated successfully.")
 
-def validate_secret(secret: str = None):
+async def validate_secret(secret: str = None):
     if not secret or secret != app_config.api_secret_key:
         logger.warning("Unauthorized access attempt with wrong secret")
         raise HTTPException(status_code=403, detail="Unauthorized access")
+    logger.info("Secret validated successfully.")
 
-def validate_ip(request: Request):
+async def validate_ip(request: Request):
     client_host = request.client.host
-    logger.info(f"Access attempt from IP: {client_host}")
     if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
         logger.info(f"Access denied for IP: {client_host}")
         raise HTTPException(status_code=403, detail="Access denied")
+    logger.info(f"Access from IP: {client_host} allowed.")
 
 def get_task_result(task_function, *args, **kwargs):
     logger.info(f"Fetching task result for {task_function.__name__}")
@@ -59,21 +61,18 @@ def get_task_result(task_function, *args, **kwargs):
 
 @fastapi.get("/api/daily-area-pokemon-stats")
 @cache(expire=app_config.api_daily_cache)
-async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    validate_ip(request)
+async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for daily Pokemon stats")
     return get_task_result(query_daily_pokemon_stats)
 
 @fastapi.get("/api/weekly-area-pokemon-stats")
 @cache(expire=app_config.api_weekly_cache)
-async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    validate_ip(request)
+async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for weekly Pokemon stats")
     return get_task_result(query_weekly_pokemon_stats)
 
 @fastapi.get("/api/monthly-area-pokemon-stats")
 @cache(expire=app_config.api_monthly_cache)
-async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
-    validate_ip(request)
+async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for monthly Pokemon stats")
     return get_task_result(query_monthly_pokemon_stats)
