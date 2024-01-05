@@ -47,8 +47,9 @@ def validate_secret(secret: str = None):
 
 def validate_ip(request: Request):
     client_host = request.client.host
+    logger.info(f"Access attempt from IP: {client_host}")
     if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
-        logger.warning(f"Access denied for IP: {client_host}")
+        logger.info(f"Access denied for IP: {client_host}")
         raise HTTPException(status_code=403, detail="Access denied")
 
 def get_task_result(task_function, *args, **kwargs):
@@ -58,22 +59,21 @@ def get_task_result(task_function, *args, **kwargs):
 
 @app.get("/api/daily-area-pokemon-stats")
 @cache(expire=app_config.api_daily_cache)
-async def daily_pokemon_stats(secret: str = Depends(validate_secret)):
+async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
+    validate_ip(request)
     logger.info("Request received for daily Pokemon stats")
     return get_task_result(query_daily_pokemon_stats)
 
 @app.get("/api/weekly-area-pokemon-stats")
 @cache(expire=app_config.api_weekly_cache)
-async def weekly_pokemon_stats(secret: str = Depends(validate_secret)):
+async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
+    validate_ip(request)
     logger.info("Request received for weekly Pokemon stats")
     return get_task_result(query_weekly_pokemon_stats)
 
 @app.get("/api/monthly-area-pokemon-stats")
 @cache(expire=app_config.api_monthly_cache)
-async def monthly_pokemon_stats(secret: str = Depends(validate_secret)):
+async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
+    validate_ip(request)
     logger.info("Request received for monthly Pokemon stats")
     return get_task_result(query_monthly_pokemon_stats)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0")
