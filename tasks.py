@@ -43,7 +43,7 @@ db_config = {
     'database': app_config.db_name
 }
 
-redis_client = redis.StrictRedis(host=app_config.redis_host, port=app_config.redis_port, db=app_config.redis_db)
+redis_client = redis.StrictRedis.from_url(app_config.redis_url)
 
 def generate_unique_id(data):
     data_str = json.dumps(data, sort_keys=True)
@@ -83,7 +83,7 @@ def insert_data_task(self, data_batch, unique_id):
         conn.commit()
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} records into the database for unique_id: {unique_id}")
-        return f"Inserted {num_records} records"        
+        return f"Inserted {num_records} records"
     except mysql.connector.Error as error:
         celery_logger.error(f"Failed to insert record into MySQL table: {error}")
         try:

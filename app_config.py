@@ -5,9 +5,9 @@ class AppConfig:
     def __init__(self, config_path='config/config.json'):
         with open(config_path) as config_file:
             config = json.load(config_file)
-        
+
         encoded_redis_password = urllib.parse.quote(config['REDIS_PASSWORD'])
-        
+
         self.geofence_api_url = config['GEOFENCE_API_URL']
         self.bearer_token = config['BEARER_TOKEN']
         self.allow_webhook_host = config['ALLOW_WEBHOOK_HOST']
