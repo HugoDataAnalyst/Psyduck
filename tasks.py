@@ -100,11 +100,11 @@ def insert_data_task(self, data_batch, unique_id):
         redis_client.delete(unique_id)
 
 # API query task
-def execute_query(query):
+def execute_query(query, params=None):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(query)
+        cursor.execute(query, params or ())
         return cursor.fetchall()
     except mysql.connector.Error as err:
         celery_logger.error(f"Database query error: {err}")

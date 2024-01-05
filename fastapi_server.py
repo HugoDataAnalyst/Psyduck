@@ -26,9 +26,9 @@ handler.setFormatter(formatter)
 # Add the handler to the logger
 logger.addHandler(handler)
 
-app = FastAPI()
+fastapi = FastAPI()
 
-@app.on_event("startup")
+@fastapi.on_event("startup")
 async def startup():
     logger.info("Starting up the application")
     redis = aioredis.from_url(app_config.redis_url, encoding="utf8", decode_responses=True)
@@ -57,21 +57,21 @@ def get_task_result(task_function, *args, **kwargs):
     result = task_function.delay(*args, **kwargs)
     return result.get(timeout=50)
 
-@app.get("/api/daily-area-pokemon-stats")
+@fastapi.get("/api/daily-area-pokemon-stats")
 @cache(expire=app_config.api_daily_cache)
 async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
     validate_ip(request)
     logger.info("Request received for daily Pokemon stats")
     return get_task_result(query_daily_pokemon_stats)
 
-@app.get("/api/weekly-area-pokemon-stats")
+@fastapi.get("/api/weekly-area-pokemon-stats")
 @cache(expire=app_config.api_weekly_cache)
 async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
     validate_ip(request)
     logger.info("Request received for weekly Pokemon stats")
     return get_task_result(query_weekly_pokemon_stats)
 
-@app.get("/api/monthly-area-pokemon-stats")
+@fastapi.get("/api/monthly-area-pokemon-stats")
 @cache(expire=app_config.api_monthly_cache)
 async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret)):
     validate_ip(request)

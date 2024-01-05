@@ -6,7 +6,7 @@ class AppConfig:
         with open(config_path) as config_file:
             config = json.load(config_file)
 
-        encoded_redis_password = urllib.parse.quote(config['REDIS_PASSWORD'])
+        encoded_redis_password = urllib.parse.quote(config['redis']['PASSWORD'])
 
         self.geofence_api_url = config['koji']['GEOFENCE_API_URL']
         self.bearer_token = config['koji']['BEARER_TOKEN']
@@ -32,6 +32,7 @@ class AppConfig:
         self.celery_log_file = config['celery']['LOG_FILE']
         self.celery_log_max_bytes = int(config['celery']['LOG_MAX_BYTES'])
         self.celery_max_log_files = int(config['celery']['MAX_LOG_FILES'])
+        self.celery_workers = int(config['celery']['WORKERS'])
         self.redis_host = config['redis']['HOST']
         self.redis_port = int(config['redis']['PORT'])
         self.redis_db = config['redis']['DB']
