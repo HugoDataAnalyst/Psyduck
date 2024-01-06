@@ -6,13 +6,13 @@ with open('../config/config.json') as config_file:
 
 # Database configuration
 db_config = {
-	'host': config['DATABASE_HOST'],
-	'port': config['DATABASE_PORT'],
-	'user': config['DATABASE_USER'],
-	'password': config['DATABASE_PASSWORD']
+	'host': config['database']['HOST'],
+	'port': config['database']['PORT'],
+	'user': config['database']['USER'],
+	'password': config['database']['PASSWORD']
 }
 
-db_name = config['DATABASE_NAME']
+db_name = config['database']['NAME']
 
 create_database_sql = f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
