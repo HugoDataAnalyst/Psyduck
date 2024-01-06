@@ -1,7 +1,7 @@
-from celery_app import celery
+from .celery_app import celery
 import logging
 from celery.utils.log import get_task_logger
-from app_config import app_config
+from config.app_config import app_config
 import mysql.connector
 import os
 import hashlib

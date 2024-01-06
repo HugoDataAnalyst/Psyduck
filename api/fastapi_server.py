@@ -8,8 +8,8 @@ from fastapi_cache.decorator import cache
 from redis import asyncio as aioredis
 from celery.result import AsyncResult
 from celery import Celery
-from app_config import app_config
-from tasks import query_daily_pokemon_stats, query_weekly_pokemon_stats, query_monthly_pokemon_stats
+from config.app_config import app_config
+from processor.tasks import query_daily_pokemon_stats, query_weekly_pokemon_stats, query_monthly_pokemon_stats
 
 
 # Create a custom logger

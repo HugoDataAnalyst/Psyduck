@@ -8,10 +8,10 @@ from shapely.geometry import Point, Polygon
 import requests
 import os
 import datetime
-from celery_app import celery
+from processor.celery_app import celery
 import mysql.connector
-from app_config import app_config
-from tasks import insert_data_task, generate_unique_id
+from config.app_config import app_config
+from processor.tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread
 import time
 

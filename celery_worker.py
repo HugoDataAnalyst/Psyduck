@@ -1,5 +1,5 @@
-from celery_app import celery
-import app_config
+from processor.celery_app import celery
+from config.app_config import app_config
 
 if __name__ == "__main__":
     worker = celery.Worker(
