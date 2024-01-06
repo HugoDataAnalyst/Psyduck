@@ -1,18 +1,15 @@
 import json
 import mysql.connector
-import urllib.parse
 
 with open('../config/config.json') as config_file:
 	config = json.load(config_file)
-
-encoded_db_password = urllib.parse.quote(config['database']['PASSWORD'])
 
 # Database configuration
 db_config = {
 	'host': config['database']['HOST'],
 	'port': config['database']['PORT'],
 	'user': config['database']['USER'],
-	'password': encoded_db_password
+	'password': config['database']['PASSWORD']
 }
 
 db_name = config['database']['NAME']
