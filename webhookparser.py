@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import RedirectResponse
 import json
 from shapely.geometry import Point, Polygon
 import requests
@@ -66,8 +67,13 @@ async def validate_remote_addr(request: Request):
     if request.client.host != app_config.allow_webhook_host:
         raise HTTPException(status_code=403, detail="Access denied")
 
+@webhook_processor.post("/")
+def root_post_redirect():
+    return RedirectResponse(url="/webhook", status_code=307)
+
 @webhook_processor.post("/webhook")
 async def receive_data(request: Request):
+    logger.info(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
     await validate_remote_addr(request)
 
@@ -75,7 +81,7 @@ async def receive_data(request: Request):
         data = await request.json()
         geofences = fetch_geofences()
  
-     def filter_criteria(message):
+    def filter_criteria(message):
         required_fields = [
             'pokemon_id', 'form', 'latitude', 'longitude',
             'individual_attack', 'individual_defense', 'individual_stamina'
