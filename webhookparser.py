@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 import json
@@ -7,7 +8,6 @@ import os
 import datetime
 from celery_app import celery
 import mysql.connector
-import logging
 from logging.handlers import RotatingFileHandler
 from app_config import app_config
 from tasks import insert_data_task, generate_unique_id
@@ -138,14 +138,14 @@ async def receive_data(request: Request):
                             is_processing_queue = True
                             process_full_queue()
                 else:
-                    webhook_processor.logger.debug("Data did not meet filter criteria")
+                    logger.debug("Data did not meet filter criteria")
             else:
-                webhook_processor.logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
+                logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
     else:
-        webhook_processor.logger.error("Received data is not in list format")
+        logger.error("Received data is not in list format")
 
     # Log current queue size for monitoring
-    webhook_processor.logger.info(f"Current queue size: {len(data_queue)}")
+    logger.info(f"Current queue size: {len(data_queue)}")
 
     return jsonify({"status": "success"}), 200
 
@@ -160,16 +160,16 @@ def process_full_queue():
             batch_unique_id = generate_unique_id(current_batch_ids)
 
             insert_data_task.delay(current_batch_data, batch_unique_id)
-            webhook_processor.logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
+            logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
             data_queue = data_queue[app_config.max_queue_size:]
             break
         except Exception as e:
             retry_count += 1
-            webhook_processor.logger.error(f"Error processing queue on attempt {retry_count}: {e}")
+            logger.error(f"Error processing queue on attempt {retry_count}: {e}")
             time.sleep(app_config.retry_delay)
     
     if retry_count > app_config.max_retries:
-        webhook_processor.logger.error("Maximum retry attempts reached. Unable to process queue")
+        logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
 
 def manage_large_queues():
