@@ -2,7 +2,7 @@ import json
 import urllib.parse
 
 class AppConfig:
-    def __init__(self, config_path='config.json'):
+    def __init__(self, config_path='config/config.json'):
         with open(config_path) as config_file:
             config = json.load(config_file)
 

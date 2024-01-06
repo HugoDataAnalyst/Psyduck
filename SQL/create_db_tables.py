@@ -1,16 +1,21 @@
 import json
 import mysql.connector
-from config.app_config import app_config
+import urllib.parse
+
+with open('../config/config.json') as config_file:
+	config = json.load(config_file)
+
+encoded_db_password = urllib.parse.quote(config['database']['PASSWORD'])
 
 # Database configuration
 db_config = {
-    'host': app_config.db_host,
-    'port': app_config.db_port,
-    'user': app_config.db_user,
-    'password': app_config.db_password,
+	'host': config['database']['HOST'],
+	'port': config['database']['PORT'],
+	'user': config['database']['USER'],
+	'password': encoded_db_password
 }
 
-db_name = app_config.db_name
+db_name = config['database']['NAME']
 
 create_database_sql = f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
