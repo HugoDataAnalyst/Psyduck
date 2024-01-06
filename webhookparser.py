@@ -25,10 +25,10 @@ data_queue = []
 
 # Configure logger
 logger = logging.getLogger("webhook_logger")
-log_level = getattr(logging, app_config.flask_log_level.upper(), None)
-log_file = app_config.flask_log_file
-max_bytes = app_config.flask_log_max_bytes
-backup_count = app_config.flask_max_log_files
+log_level = getattr(logging, app_config.webhook_log_level.upper(), None)
+log_file = app_config.webhook_log_file
+max_bytes = app_config.webhook_log_max_bytes
+backup_count = app_config.webhook_max_log_files
 
 if not os.path.exists(os.path.dirname(log_file)):
     os.makedirs(os.path.dirname(log_file))
@@ -37,7 +37,7 @@ file_handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=bac
 file_handler.setLevel(log_level)
 
 console_handler = StreamHandler()
-console_handler.setlevel(log_level)
+console_handler.setLevel(log_level)
 
 formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 file_handler.setFormatter(formatter)
@@ -81,7 +81,7 @@ def root_post_redirect():
 
 @webhook_processor.post("/webhook")
 async def receive_data(request: Request):
-    logger.info(f"Received request on path: {request.url.path}")
+    logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
     await validate_remote_addr(request)
 

@@ -19,10 +19,10 @@ class AppConfig:
         self.flush_interval = int(config['receiver']['EXTRA_FLUSH_INTERVAL'])
         self.max_retries = int(config['receiver']['MAX_RETRIES'])
         self.retry_delay = int(config['receiver']['RETRY_DELAY'])
-        self.flask_log_level = config['receiver']['LOG_LEVEL']
-        self.flask_log_file = config['receiver']['LOG_FILE']
-        self.flask_log_max_bytes = int(config['receiver']['LOG_MAX_BYTES'])
-        self.flask_max_log_files = int(config['receiver']['MAX_LOG_FILES'])
+        self.webhook_log_level = config['receiver']['LOG_LEVEL']
+        self.webhook_log_file = config['receiver']['LOG_FILE']
+        self.webhook_log_max_bytes = int(config['receiver']['LOG_MAX_BYTES'])
+        self.webhook_max_log_files = int(config['receiver']['MAX_LOG_FILES'])
         self.db_host = config['database']['HOST']
         self.db_port = int(config['database']['PORT'])
         self.db_name = config['database']['NAME']
