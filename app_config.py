@@ -11,7 +11,9 @@ class AppConfig:
         self.geofence_api_url = config['koji']['GEOFENCE_API_URL']
         self.bearer_token = config['koji']['BEARER_TOKEN']
         self.allow_webhook_host = config['receiver']['ALLOW_WEBHOOK_HOST']
+        self.receiver_host = config['receiver']['HOST']
         self.receiver_port = int(config['receiver']['PORT'])
+        self.receiver_reload = config['receiver']['RELOAD'].lower() == 'true'
         self.max_queue_size = int(config['receiver']['MAX_QUEUE_SIZE'])
         self.extra_flush_threshold = int(config['receiver']['EXTRA_FLUSH_THRESHOLD'])
         self.flush_interval = int(config['receiver']['EXTRA_FLUSH_INTERVAL'])

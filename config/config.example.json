@@ -5,7 +5,9 @@
 	},
 	"receiver": {
 		"ALLOW_WEBHOOK_HOST": "your_golbat_ip",
+		"HOST": "127.0.0.1",
 		"PORT": "5000",
+		"RELOAD": "true",
 		"MAX_QUEUE_SIZE": "2000",
 		"EXTRA_FLUSH_THRESHOLD": "4000",
 		"EXTRA_FLUSH_INTERVAL": "180",
