@@ -193,11 +193,18 @@ def process_remaining_queue_on_shutdown():
     logger.info("Processing remaining items in queue before shutdown.")
     while data_queue:
         try:
-            current_item = data_queue.pop(0)
-            insert_data_task.delay(current_item[0], generate_unique_id(current_item[1]))
-            logger.info(f"Processed item with unique_id: {generate_unique_id(current_item[1])}")
+            current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
+            current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
+            batch_unique_id = generate_unique_id(current_batch_ids)
+
+            insert_data_task.delay(current_batch_data, batch_unique_id)
+            logger.info(f"Processed batch with unique_id: {batch_unique_id}")
+
+            # Remove processed items from the queue
+            data_queue = data_queue[app_config.max_queue_size:]
+
         except Exception as e:
-            logger.error(f"Error processing item during shutdown: {e}")
+            logger.error(f"Error processing batch during shutdown: {e}")
 
 @webhook_processor.on_event("shutdown")
 async def shutdown_event():
