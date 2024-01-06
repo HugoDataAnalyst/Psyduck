@@ -1,4 +1,6 @@
 import logging
+from logging.handlers import RotatingFileHandler
+from logging import StreamHandler
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 import json
@@ -8,7 +10,6 @@ import os
 import datetime
 from celery_app import celery
 import mysql.connector
-from logging.handlers import RotatingFileHandler
 from app_config import app_config
 from tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread
@@ -34,9 +35,16 @@ if not os.path.exists(os.path.dirname(log_file)):
 
 file_handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
 file_handler.setLevel(log_level)
+
+console_handler = StreamHandler()
+console_handler.setlevel(log_level)
+
 formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
 logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 logger.setLevel(log_level)
 
 def fetch_geofences():
@@ -147,7 +155,7 @@ async def receive_data(request: Request):
     # Log current queue size for monitoring
     logger.info(f"Current queue size: {len(data_queue)}")
 
-    return jsonify({"status": "success"}), 200
+    return {"status": "success"}
 
 def process_full_queue():
     global data_queue, is_processing_queue
