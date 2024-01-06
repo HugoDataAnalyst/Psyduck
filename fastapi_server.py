@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from logging import StreamHandler
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -16,15 +17,21 @@ logger = logging.getLogger("my_logger")
 logger.setLevel(app_config.api_log_level)
 
 # Create a file handler that logs even debug messages
-handler = RotatingFileHandler(app_config.api_log_file, maxBytes=app_config.api_log_max_bytes, backupCount=app_config.api_max_log_files)
-handler.setLevel(logging.INFO)
+file_handler = RotatingFileHandler(app_config.api_log_file, maxBytes=app_config.api_log_max_bytes, backupCount=app_config.api_max_log_files)
+file_handler.setLevel(logging.INFO)
+
+# Console logger
+console_handler = StreamHandler()
+console_handler.setLevel(logging.INFO)
 
 # Create and set the formatter
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
 
 # Add the handler to the logger
-logger.addHandler(handler)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 fastapi = FastAPI()
 

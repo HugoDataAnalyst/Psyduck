@@ -79,8 +79,17 @@ async def validate_remote_addr(request: Request):
 def root_post_redirect():
     return RedirectResponse(url="/webhook", status_code=307)
 
+@webhook_processor.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Application shutdown initiated.")
+    with data_queue_lock:
+        if data_queue:
+            logger.info("Processing remaining items in queue before shutdown.")
+            background_tasks = BackgroundTasks()
+            process_full_queue(background_tasks)
+
 @webhook_processor.post("/webhook")
-async def receive_data(request: Request):
+async def receive_data(request: Request, background_tasks: BackgroundTasks):
     logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
     await validate_remote_addr(request)
@@ -144,7 +153,8 @@ async def receive_data(request: Request):
 
                         if len(data_queue) >= app_config.max_queue_size and not is_processing_queue :
                             is_processing_queue = True
-                            process_full_queue()
+                            background_tasks.add_task(process_full_queue, background_tasks)
+                        return JSONResponse({"status": "success"})
                 else:
                     logger.debug("Data did not meet filter criteria")
             else:
@@ -157,7 +167,7 @@ async def receive_data(request: Request):
 
     return {"status": "success"}
 
-def process_full_queue():
+def process_full_queue(background_tasks: BackgroundTasks):
     global data_queue, is_processing_queue
 
     retry_count = 0
@@ -180,7 +190,7 @@ def process_full_queue():
         logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
 
-def manage_large_queues():
+def manage_large_queues(background_tasks: BackgroundTasks):
     global data_queue
     while True:
         time.sleep(app_config.flush_interval)
