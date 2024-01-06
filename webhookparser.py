@@ -79,17 +79,8 @@ async def validate_remote_addr(request: Request):
 def root_post_redirect():
     return RedirectResponse(url="/webhook", status_code=307)
 
-@webhook_processor.on_event("shutdown")
-async def shutdown_event():
-    logger.info("Application shutdown initiated.")
-    with data_queue_lock:
-        if data_queue:
-            logger.info("Processing remaining items in queue before shutdown.")
-            background_tasks = BackgroundTasks()
-            process_full_queue(background_tasks)
-
 @webhook_processor.post("/webhook")
-async def receive_data(request: Request, background_tasks: BackgroundTasks):
+async def receive_data(request: Request):
     logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
     await validate_remote_addr(request)
@@ -153,8 +144,7 @@ async def receive_data(request: Request, background_tasks: BackgroundTasks):
 
                         if len(data_queue) >= app_config.max_queue_size and not is_processing_queue :
                             is_processing_queue = True
-                            background_tasks.add_task(process_full_queue, background_tasks)
-                        return JSONResponse({"status": "success"})
+                            process_full_queue()
                 else:
                     logger.debug("Data did not meet filter criteria")
             else:
@@ -167,7 +157,7 @@ async def receive_data(request: Request, background_tasks: BackgroundTasks):
 
     return {"status": "success"}
 
-def process_full_queue(background_tasks: BackgroundTasks):
+def process_full_queue():
     global data_queue, is_processing_queue
 
     retry_count = 0
@@ -190,13 +180,30 @@ def process_full_queue(background_tasks: BackgroundTasks):
         logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
 
-def manage_large_queues(background_tasks: BackgroundTasks):
+def manage_large_queues():
     global data_queue
     while True:
         time.sleep(app_config.flush_interval)
         with data_queue_lock:
             if len(data_queue) > app_config.extra_flush_threshold:
                 process_full_queue()
+
+def process_remaining_queue_on_shutdown():
+    global data_queue
+    logger.info("Processing remaining items in queue before shutdown.")
+    while data_queue:
+        try:
+            current_item = data_queue.pop(0)
+            insert_data_task.delay(current_item[0], generate_unique_id(current_item[1]))
+            logger.info(f"Processed item with unique_id: {generate_unique_id(current_item[1])}")
+        except Exception as e:
+            logger.error(f"Error processing item during shutdown: {e}")
+
+@webhook_processor.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Application shutdown initiated.")
+    with data_queue_lock:
+        process_remaining_queue_on_shutdown()
 
 queue_manager_thread = Thread(target=manage_large_queues, daemon=True)
 queue_manager_thread.start()
