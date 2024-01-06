@@ -8,8 +8,6 @@ celery
 mysql-connector-python
 shapely
 requests
-Flask
-Flask-APScheduler
 python-dotenv
 h11
 httptools
