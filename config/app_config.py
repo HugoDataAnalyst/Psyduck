@@ -13,7 +13,7 @@ class AppConfig:
         self.allow_webhook_host = config['receiver']['ALLOW_WEBHOOK_HOST']
         self.receiver_host = config['receiver']['HOST']
         self.receiver_port = int(config['receiver']['PORT'])
-        self.receiver_reload = config['receiver']['RELOAD'].lower() == 'true'
+        self.receiver_workers = int(config['receiver']['WORKERS'])
         self.max_queue_size = int(config['receiver']['MAX_QUEUE_SIZE'])
         self.extra_flush_threshold = int(config['receiver']['EXTRA_FLUSH_THRESHOLD'])
         self.flush_interval = int(config['receiver']['EXTRA_FLUSH_INTERVAL'])
@@ -45,7 +45,7 @@ class AppConfig:
         self.api_max_log_files = int(config['api']['MAX_LOG_FILES'])
         self.api_host = config['api']['HOST']
         self.api_port = int(config['api']['PORT'])
-        self.api_reload = config['api']['RELOAD'].lower() == 'true'
+        self.api_workers = int(config['api']['WORKERS'])
         self.api_secret_key = config['api']['SECRET_KEY']
         self.api_secret_header_key = config['api']['SECRET_HEADER_KEY']
         self.api_daily_cache = int(config['api']['DAILY_CACHE'])

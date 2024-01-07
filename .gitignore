@@ -1,3 +1,6 @@
 # Ignore configuration files that contain sensitive information
 config/config.json
 README.md
+Dockerfile
+.dockerignore
+docker-compose.yml

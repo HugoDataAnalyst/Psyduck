@@ -11,3 +11,4 @@ requests
 python-dotenv
 h11
 httptools
+apscheduler

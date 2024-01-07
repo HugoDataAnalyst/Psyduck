@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from logging import StreamHandler
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 import json
@@ -17,6 +18,10 @@ import time
 
 # Setup the FastAPI app
 webhook_processor = FastAPI()
+
+# Scheduler
+
+scheduler = BackgroundScheduler()
 
 # Data processing queue
 data_queue_lock = Lock()
@@ -182,11 +187,13 @@ def process_full_queue():
 
 def manage_large_queues():
     global data_queue
-    while True:
-        time.sleep(app_config.flush_interval)
-        with data_queue_lock:
-            if len(data_queue) > app_config.extra_flush_threshold:
-                process_full_queue()
+    with data_queue_lock:
+        if len(data_queue) > app_config.extra_flush_threshold:
+            process_full_queue()
+
+scheduler.add_job(manage_large_queues, 'interval', seconds=app_config.flush_interval)
+
+scheduler.start()
 
 def process_remaining_queue_on_shutdown():
     global data_queue
@@ -211,6 +218,3 @@ async def shutdown_event():
     logger.info("Application shutdown initiated.")
     with data_queue_lock:
         process_remaining_queue_on_shutdown()
-
-queue_manager_thread = Thread(target=manage_large_queues, daemon=True)
-queue_manager_thread.start()
