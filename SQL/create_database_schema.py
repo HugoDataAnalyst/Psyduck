@@ -201,7 +201,7 @@ END;
 create_event_clean_pokemon_sightings = f'''
 CREATE EVENT IF NOT EXISTS clean_pokemon_sightings
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 5 HOUR
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 5 HOUR)
 DO
 CALL delete_pokemon_sightings_batches();
 '''
@@ -274,7 +274,7 @@ END;
 create_event_update_api_daily_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_daily_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 1 HOUR)
 DO
     REPLACE INTO daily_api_pokemon_stats
     SELECT
@@ -300,7 +300,7 @@ DO
 create_event_update_api_weekly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_weekly_stats
 ON SCHEDULE EVERY 1 WEEK
-STARTS ADDDATE(CURDATE(), INTERVAL 7 DAY) + INTERVAL 1 HOUR + INTERVAL 15 MIN
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 7 DAY), INTERVAL '1:15' HOUR_MINUTE)
 DO
     REPLACE INTO weekly_api_pokemon_stats
     SELECT
@@ -326,7 +326,7 @@ DO
 create_event_update_api_monthly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_monthly_stats
 ON SCHEDULE EVERY 1 MONTH
-STARTS ADDDATE(CURDATE(), INTERVAL 1 MONTH) + INTERVAL 2 HOUR + INTERVAL 10 MIN
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 MONTH), INTERVAL '2:10' HOUR_MINUTE)
 DO
     REPLACE INTO monthly_api_pokemon_stats
     SELECT
@@ -382,7 +382,7 @@ END;
 create_event_update_daily_total_api_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_daily_total_api_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 1 HOUR)
 DO
     REPLACE INTO daily_total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
@@ -404,7 +404,7 @@ DO
 create_event_update_total_api_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_total_api_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR + INTERVAL 15 MIN
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '1:15' HOUR_MINUTE)
 DO
     INSERT INTO total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
