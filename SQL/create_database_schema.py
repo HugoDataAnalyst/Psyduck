@@ -438,11 +438,13 @@ def create_cursor(connection):
 		else:
 			print("Connection is not established. Reconnecting...")
 			connection.reconnect(attempts=3, delay=5)
-			if connection.is_connected():
-				return connection.cursor()
-			else:
-				print("Failed to re-establish database connection.")
-				return None
+			
+		if connection.is_connected():
+			connection.database = db_name
+			return connection.cursor()
+		else:
+			print("Failed to re-establish database connection.")
+			return None
 	except Error as err:
 		print(f"Error creating cursor: {err}")
 		return None
