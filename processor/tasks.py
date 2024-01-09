@@ -114,26 +114,52 @@ def execute_query(query, params=None):
             cursor.close()
             conn.close()
 
+# API grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_pokemon_stats(self):
+def query_daily_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM daily_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        results = execute_query("SELECT * FROM daily_api_pokemon_stats ORDER BY area_name, pokemon_id")
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_pokemon_stats(self):
+def query_weekly_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM weekly_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        results = execute_query("SELECT * FROM weekly_api_pokemon_stats ORDER BY area_name, pokemon_id")
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_pokemon_stats(self):
+def query_monthly_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM monthly_api_pokemon_area_stats ORDER BY area_name, pokemon_id")
+        results = execute_query("SELECT * FROM monthly_api_pokemon_stats ORDER BY area_name, pokemon_id")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Totals
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_hourly_total_api_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_total_api_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM daily_total_api_pokemon_stats ORDER BY area_name")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_total_api_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM total_api_pokemon_stats ORDER BY area_name")
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)

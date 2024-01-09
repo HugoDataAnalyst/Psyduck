@@ -28,6 +28,7 @@ class AppConfig:
         self.db_name = config['database']['NAME']
         self.db_user = config['database']['USER']
         self.db_password = config['database']['PASSWORD']
+        self.db_clean = config['database']['CLEAN'].lower() == 'true'
         self.celery_broker_url = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.celery_result_backend = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.celery_log_level = config['celery']['LOG_LEVEL']
@@ -48,9 +49,12 @@ class AppConfig:
         self.api_workers = int(config['api']['WORKERS'])
         self.api_secret_key = config['api']['SECRET_KEY']
         self.api_secret_header_key = config['api']['SECRET_HEADER_KEY']
-        self.api_daily_cache = int(config['api']['DAILY_CACHE'])
-        self.api_weekly_cache = int(config['api']['WEEKLY_CACHE'])
-        self.api_monthly_cache = int(config['api']['MONTHLY_CACHE'])
+        self.api_daily_pokemon_cache = int(config['api']['DAILY_POKEMON_CACHE'])
+        self.api_weekly_pokemon_cache = int(config['api']['WEEKLY_POKEMON_CACHE'])
+        self.api_monthly_pokemon_cache = int(config['api']['MONTHLY_POKEMON_CACHE'])
+        self.api_hourly_total_pokemon_cache = int(config['api']['HOURLY_TOTAL_POKEMON'])
+        self.api_daily_total_pokemon_cache = int(config['api']['DAILY_TOTAL_POKEMON'])
+        self.api_total_pokemon_cache = int(config['api']['TOTAL_POKEMON'])
         self.api_ip_restriction = config['api']['IP_RESTRICTION'].lower() == 'true'
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']

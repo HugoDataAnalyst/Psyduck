@@ -9,7 +9,7 @@ from redis import asyncio as aioredis
 from celery.result import AsyncResult
 from celery import Celery
 from config.app_config import app_config
-from processor.tasks import query_daily_pokemon_stats, query_weekly_pokemon_stats, query_monthly_pokemon_stats
+from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats
 
 
 # Create a custom logger
@@ -66,20 +66,40 @@ def get_task_result(task_function, *args, **kwargs):
     result = task_function.delay(*args, **kwargs)
     return result.get(timeout=50)
 
+# API Grouped
 @fastapi.get("/api/daily-area-pokemon-stats")
-@cache(expire=app_config.api_daily_cache)
-async def daily_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+@cache(expire=app_config.api_daily_pokemon_cache)
+async def daily_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for daily Pokemon stats")
-    return get_task_result(query_daily_pokemon_stats)
+    return get_task_result(query_daily_api_pokemon_stats)
 
 @fastapi.get("/api/weekly-area-pokemon-stats")
-@cache(expire=app_config.api_weekly_cache)
-async def weekly_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+@cache(expire=app_config.api_weekly_pokemon_cache)
+async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for weekly Pokemon stats")
-    return get_task_result(query_weekly_pokemon_stats)
+    return get_task_result(query_weekly_api_pokemon_stats)
 
 @fastapi.get("/api/monthly-area-pokemon-stats")
-@cache(expire=app_config.api_monthly_cache)
-async def monthly_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+@cache(expire=app_config.api_monthly_pokemon_cache)
+async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for monthly Pokemon stats")
-    return get_task_result(query_monthly_pokemon_stats)
+    return get_task_result(query_monthly_api_pokemon_stats)
+
+# API Totals
+@fastapi.get("/api/hourly-total-pokemon-stats")
+@cache(expire=app_config.api_hourly_total_pokemon_cache)
+async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for hourly total Pokemon stats")
+    return get_task_result(query_hourly_total_api_pokemon_stats)
+
+@fastapi.get("/api/daily-total-pokemon-stats")
+@cache(expire=app_config.api_daily_total_pokemon_cache)
+async def daily_total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for daily total Pokemon stats")
+    return get_task_result(query_daily_total_api_pokemon_stats)
+
+@fastapi.get("/api/total-pokemon-stats")
+@cache(expire=app_config.api_total_pokemon_cache)
+async def total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for total Pokemon stats")
+    return get_task_result(query_total_api_pokemon_stats)
