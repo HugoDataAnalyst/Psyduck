@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS total_api_pokemon_stats (
     PRIMARY KEY (area_name)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
-
+# Use ADDATE (returns current date without time)
 # PROCEDURE to clean pokemon_sightings
 create_procedure_clean_pokemon_batches = f'''
 DROP PROCEDURE IF EXISTS delete_pokemon_sightings_batches;
@@ -201,7 +201,7 @@ END;
 create_event_clean_pokemon_sightings = f'''
 CREATE EVENT IF NOT EXISTS clean_pokemon_sightings
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), ' 05:00:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 5 HOUR
 DO
 CALL delete_pokemon_sightings_batches();
 '''
@@ -209,7 +209,7 @@ CALL delete_pokemon_sightings_batches();
 create_event_store_daily_grouped_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_store_daily_grouped_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), '00:00:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY)
 DO
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_grouped_pokemon_sightings AS
@@ -244,7 +244,7 @@ END;
 create_event_store_daily_total_api_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_store_daily_total_api_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), '00:00:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY)
 DO
 BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings AS
@@ -274,7 +274,7 @@ END;
 create_event_update_api_daily_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_daily_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), '01:00:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR
 DO
     REPLACE INTO daily_api_pokemon_stats
     SELECT
@@ -300,7 +300,7 @@ DO
 create_event_update_api_weekly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_weekly_stats
 ON SCHEDULE EVERY 1 WEEK
-STARTS CONCAT(CURDATE(), '01:15:00') + INTERVAL 7 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 7 DAY) + INTERVAL 1 HOUR + INTERVAL 15 MIN
 DO
     REPLACE INTO weekly_api_pokemon_stats
     SELECT
@@ -326,7 +326,7 @@ DO
 create_event_update_api_monthly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_monthly_stats
 ON SCHEDULE EVERY 1 MONTH
-STARTS CONCAT(CURDATE(), '02:10:00') + INTERVAL 1 MONTH
+STARTS ADDDATE(CURDATE(), INTERVAL 1 MONTH) + INTERVAL 2 HOUR + INTERVAL 10 MIN
 DO
     REPLACE INTO monthly_api_pokemon_stats
     SELECT
@@ -382,7 +382,7 @@ END;
 create_event_update_daily_total_api_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_daily_total_api_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), '01:00:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR
 DO
     REPLACE INTO daily_total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
@@ -404,7 +404,7 @@ DO
 create_event_update_total_api_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_total_api_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CONCAT(CURDATE(), '01:15:00') + INTERVAL 1 DAY
+STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY) + INTERVAL 1 HOUR + INTERVAL 15 MIN
 DO
     INSERT INTO total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
