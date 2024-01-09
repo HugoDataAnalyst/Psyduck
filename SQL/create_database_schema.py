@@ -184,16 +184,17 @@ DROP PROCEDURE IF EXISTS delete_pokemon_sightings_batches;
 
 CREATE PROCEDURE delete_pokemon_sightings_batches()
 BEGIN
-  DECLARE rows INT;
-  SET rows = 1;
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
   
-  WHILE rows > 0 DO
+  WHILE NOT done DO
     DELETE FROM pokemon_sightings
     WHERE inserted_at < CURDATE() - INTERVAL 1 DAY - INTERVAL 5 HOUR
     LIMIT 50000;
     
-    SET rows = ROW_COUNT();
-    COMMIT;
+    IF (ROW_COUNT() = 0) THEN
+      SET done = TRUE;
+    END IF;
   END WHILE;
 END;
 '''
