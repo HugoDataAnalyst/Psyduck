@@ -431,6 +431,17 @@ DO
         avg_despawn = (avg_despawn + VALUES(avg_despawn)) / 2;
 '''
 
+def create_cursor(connection):
+	if connection.is_connected():
+		return connection.cursor()
+	else:
+		print("Connection is not established. Cursor cannot be crated.")
+		return None
+
+def close_cursor(cursor):
+	if cursor is not None:
+		cursor.close()
+
 def create_database_schema():
 	try:
 		conn = mysql.connector.connect(**db_config)
@@ -440,7 +451,7 @@ def create_database_schema():
 			print("Database connection failed. Please check your configuration")
 			return
 
-		cursor = conn.cursor()
+		cursor = create_cursor(conn)
 
 		# Create Database
 		cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
@@ -451,6 +462,9 @@ def create_database_schema():
 			cursor.execute(create_database_sql)
 			print(f"Database {db_name} created.")
 		conn.database = db_name
+
+		close_cursor(cursor)
+		cursor = create_cursor(conn)
 
 		def check_and_create_table(table_sql, table_name):
 			cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
@@ -476,6 +490,9 @@ def create_database_schema():
 		check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
 		check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
+		close_cursor(cursor)
+		cursor = create_cursor(conn)
+
 		def check_and_create_procedure(procedure_sql, procedure_name):
 			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
 			procedure_exists = cursor.fetchone() is not None
@@ -487,6 +504,8 @@ def create_database_schema():
 
 		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
 
+		close_cursor(cursor)
+		cursor = create_cursor(conn)
 
 		def check_and_create_event(event_sql, event_name):
 			cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
@@ -509,6 +528,9 @@ def create_database_schema():
 		check_and_create_event(create_event_update_daily_total_api_stats_sql, 'event_update_daily_total_api_stats')
 		check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
 
+		close_cursor(cursor)
+		cursor = create_cursor(conn)
+
 		# Create Cleaning Event if db_clean = true
 		if db_clean:
 			check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
@@ -527,7 +549,7 @@ def create_database_schema():
 			print(f"Error: {err}")
 	finally:
 		if conn.is_connected():
-			cursor.close()
+			close_cursor(cursor)
 			conn.close()
 			print("MySQL connection is closed.")
 
