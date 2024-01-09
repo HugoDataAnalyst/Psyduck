@@ -451,6 +451,15 @@ def close_cursor(cursor):
 	if cursor is not None:
 		cursor.close()
 
+def handle_multiple_results(connection):
+    """
+    Consumes all remaining results from the connection to avoid 'Commands out of sync' error.
+    """
+    while connection.unread_result:
+        cursor = connection.cursor()
+        cursor.fetchall()
+        cursor.close()
+
 def create_database_schema():
 	try:
 		conn = mysql.connector.connect(**db_config)
@@ -500,28 +509,22 @@ def create_database_schema():
 		check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
 		close_cursor(cursor)
-		
-		def check_and_create_procedure(procedure_sql, procedure_name, connection):
-			cursor = create_cursor(connection)
-			if cursor is None:
-				return
-
-			try:
-				cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
-				procedure_exists = cursor.fetchone() is not None
-				if procedure_exists:
-					print(f"Procedure {procedure_name} already existed.")
-				else:
-					cursor.execute(procedure_sql)
-					print(f"Procedure {procedure_name} created.")
-					# Consume all results in case of multiple
-					while connection.unread_result:
-						cursor.fetchall()
-			finally:
-				close_cursor(cursor)
-
-		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches', conn)
 		cursor = create_cursor(conn)
+
+		def check_and_create_procedure(procedure_sql, procedure_name):
+			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
+			procedure_exists = cursor.fetchone() is not None
+			if procedure_exists:
+				print(f"Procedure {procedure_name} already existed.")
+			else:
+				cursor.execute(procedure_sql)
+				print(f"Procedure {procedure_name} created.")
+
+		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+		handle_multiple_results(conn)
+
+		close_cursor(cursor)
+		cursor = create_cursor(conn)		
 
 		def check_and_create_event(event_sql, event_name):
 			cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
