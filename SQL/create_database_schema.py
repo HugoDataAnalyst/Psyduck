@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS total_api_pokemon_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 '''
 
-# Procedure to clean pokemon_sightings
+# PROCEDURE to clean pokemon_sightings
 create_procedure_clean_pokemon_batches = f'''
 DROP PROCEDURE IF EXISTS delete_pokemon_sightings_batches;
 
@@ -510,7 +510,6 @@ def create_database_schema():
 		check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
 
 		# Create Cleaning Event if db_clean = true
-
 		if db_clean:
 			check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
 		else:
