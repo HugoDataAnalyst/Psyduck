@@ -514,6 +514,22 @@ def handle_multiple_results(connection):
 			break
 	cursor.close()
 
+def execute_procedure(conn, procedure_sql, procedure_name):
+	try:
+			with conn.cursor() as cursor:
+			# Check if the procedure already exists
+			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
+			if cursor.fetchone():
+				print(f"Procedure {procedure_name} already exists.")
+			else:
+				# Execute and create procedure
+				print(f"Creating procedure: {procedure_name}")
+				cursor.execute(procedure_sql)
+				conn.commit()
+				print(f"Procedure {procedure_name} created successfully.")
+	except Error as e:
+		print(f"Error in procedure {procedure_name}: {e}")
+
 def create_database_schema():
 	try:
 		with mysql.connector.connect(**db_config) as conn:
@@ -562,19 +578,9 @@ def create_database_schema():
 				check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
 				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
-				def check_and_create_procedure(procedure_sql, procedure_name):
-					cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
-					procedure_exists = cursor.fetchone() is not None
-					if procedure_exists:
-						print(f"Procedure {procedure_name} already existed.")
-					else:
-						cursor.execute(procedure_sql)
-						print(f"Procedure {procedure_name} created.")
+				execute_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+				execute_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
 
-				check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-				handle_multiple_results(conn)
-				check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
-				handle_multiple_results(conn)
 
 				def check_and_create_event(event_sql, event_name):
 					cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
