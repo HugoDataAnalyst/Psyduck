@@ -211,7 +211,6 @@ BEGIN
     FROM pokemon_sightings
     WHERE inserted_at >= NOW() - INTERVAL 60 MINUTE;
 
-    -- Creating a temporary table with all area names
     CREATE TEMPORARY TABLE IF NOT EXISTS all_area_names AS
     SELECT DISTINCT area_name
     FROM pokemon_sightings;
@@ -440,8 +439,6 @@ DO
         avg_despawn
     FROM daily_total_storage_pokemon_stats
     WHERE day = CURDATE() - INTERVAL 1 DAY
-    GROUP BY area_name;
-
 '''
 # EVENT total API
 create_event_update_total_api_stats_sql = f'''
