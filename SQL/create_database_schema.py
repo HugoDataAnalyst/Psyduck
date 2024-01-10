@@ -189,12 +189,12 @@ CREATE PROCEDURE delete_pokemon_sightings_batches()
 BEGIN
   DECLARE done INT DEFAULT FALSE;
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-  
+
   WHILE NOT done DO
     DELETE FROM pokemon_sightings
     WHERE inserted_at < CURDATE() - INTERVAL 1 DAY
     LIMIT 50000;
-    
+
     IF (ROW_COUNT() = 0) THEN
       SET done = TRUE;
     END IF;
@@ -367,7 +367,7 @@ STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 7 DAY), INTERVAL '1:15' HOUR_MINUTE)
 DO
 BEGIN
 	DELETE FROM weekly_api_pokemon_stats
-	WHERE day = CURDATE() - INTERVAL 7 DAY
+	WHERE day = CURDATE() - INTERVAL 7 DAY;
 
     INSERT INTO weekly_api_pokemon_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
@@ -398,7 +398,7 @@ STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 MONTH), INTERVAL '2:10' HOUR_MINUTE
 DO
 BEGIN
 	DELETE FROM monthly_api_pokemon_stats
-	WHERE day = CURDATE() - INTERVAL 1 MONTH
+	WHERE day = CURDATE() - INTERVAL 1 MONTH;
 
     INSERT INTO monthly_api_pokemon_stats(day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
@@ -480,7 +480,7 @@ def create_cursor(connection):
 		else:
 			print("Connection is not established. Reconnecting...")
 			connection.reconnect(attempts=3, delay=5)
-			
+
 		if connection.is_connected():
 			connection.database = db_name
 			return connection.cursor()
@@ -565,12 +565,11 @@ def create_database_schema():
 				print(f"Procedure {procedure_name} created.")
 
 		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-		handle_multiple_results(conn)
 		check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
 		handle_multiple_results(conn)
 
 		close_cursor(cursor)
-		cursor = create_cursor(conn)		
+		cursor = create_cursor(conn)
 
 		def check_and_create_event(event_sql, event_name):
 			cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
