@@ -516,107 +516,95 @@ def handle_multiple_results(connection):
 
 def create_database_schema():
 	try:
-		conn = mysql.connector.connect(**db_config)
-		if conn.is_connected():
-			print("sucessfully connected to the database")
-		else:
-			print("Database connection failed. Please check your configuration")
-			return
-
-		cursor = create_cursor(conn)
-
-		# Create Database
-		cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
-		db_exists = cursor.fetchone() is not None
-		if db_exists:
-			print(f"Database {db_name} already existed.")
-		else:
-			cursor.execute(create_database_sql)
-			print(f"Database {db_name} created.")
-		conn.database = db_name
-
-		close_cursor(cursor)
-		cursor = create_cursor(conn)
-
-		def check_and_create_table(table_sql, table_name):
-			cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
-			table_exists = cursor.fetchone() is not None
-			if table_exists:
-				print(f"Table {table_name} already existed.")
+		with mysql.connector.connect(**db_config) as conn:
+			if conn.is_connected():
+				print("sucessfully connected to the database")
 			else:
-				cursor.execute(table_sql)
-				print(f"Table {table_name} created.")
+				print("Database connection failed. Please check your configuration")
+				return
 
-		# Create Raw Table
-		check_and_create_table(create_pokemon_sightings_table_sql, 'pokemon_sightings')
+			conn.database = db_name
 
-		# Create Storage Tables
-		check_and_create_table(create_grouped_total_daily_pokemon_stats_table_sql, 'grouped_total_daily_pokemon_stats')
-		check_and_create_table(create_daily_total_storage_pokemon_stats_table_sql, 'daily_total_storage_pokemon_stats')
 
-		# Create API Tables
-		check_and_create_table(create_daily_api_pokemon_stats_sql, 'daily_api_pokemon_stats')
-		check_and_create_table(create_weekly_api_pokemon_stats_table_sql, 'weekly_api_pokemon_stats')
-		check_and_create_table(create_monthly_api_pokemon_stats_table_sql, 'monthly_api_pokemon_stats')
-		check_and_create_table(create_hourly_total_api_pokemon_stats_table_sql, 'hourly_total_api_pokemon_stats')
-		check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
-		check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
+			with conn.cursor() as cursor:
+				# Create Database
+				cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
+				db_exists = cursor.fetchone() is not None
+				if not db_exists:
+					cursor.execute(create_database_sql)
+					print(f"Database {db_name} created.")
+				else:
+					print(f"Database {db_name} already existed.")
 
-		close_cursor(cursor)
-		cursor = create_cursor(conn)
 
-		def check_and_create_procedure(procedure_sql, procedure_name):
-			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
-			procedure_exists = cursor.fetchone() is not None
-			if procedure_exists:
-				print(f"Procedure {procedure_name} already existed.")
-			else:
-				cursor.execute(procedure_sql)
-				print(f"Procedure {procedure_name} created.")
 
-		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-		handle_multiple_results(conn)
+				def check_and_create_table(table_sql, table_name):
+					cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
+					table_exists = cursor.fetchone() is not None
+					if table_exists:
+						print(f"Table {table_name} already existed.")
+					else:
+						cursor.execute(table_sql)
+						print(f"Table {table_name} created.")
 
-		close_cursor(cursor)
-		cursor = create_cursor(conn)
-		
-		check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
+				# Create Raw Table
+				check_and_create_table(create_pokemon_sightings_table_sql, 'pokemon_sightings')
 
-		close_cursor(cursor)
-		cursor = create_cursor(conn)
+				# Create Storage Tables
+				check_and_create_table(create_grouped_total_daily_pokemon_stats_table_sql, 'grouped_total_daily_pokemon_stats')
+				check_and_create_table(create_daily_total_storage_pokemon_stats_table_sql, 'daily_total_storage_pokemon_stats')
 
-		def check_and_create_event(event_sql, event_name):
-			cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
-			event_exists = cursor.fetchone() is not None
-			if event_exists:
-				print(f"Event {event_name} already existed.")
-			else:
-				cursor.execute(event_sql)
-				print(f"Event {event_name} created.")
+				# Create API Tables
+				check_and_create_table(create_daily_api_pokemon_stats_sql, 'daily_api_pokemon_stats')
+				check_and_create_table(create_weekly_api_pokemon_stats_table_sql, 'weekly_api_pokemon_stats')
+				check_and_create_table(create_monthly_api_pokemon_stats_table_sql, 'monthly_api_pokemon_stats')
+				check_and_create_table(create_hourly_total_api_pokemon_stats_table_sql, 'hourly_total_api_pokemon_stats')
+				check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
+				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
-		# Create Storage Events
-		check_and_create_event(create_event_store_daily_grouped_stats_sql, 'event_store_daily_grouped_stats')
-		check_and_create_event(create_event_store_daily_total_api_stats_sql, 'event_store_daily_total_api_stats')
+				def check_and_create_procedure(procedure_sql, procedure_name):
+					cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
+					procedure_exists = cursor.fetchone() is not None
+					if procedure_exists:
+						print(f"Procedure {procedure_name} already existed.")
+					else:
+						cursor.execute(procedure_sql)
+						print(f"Procedure {procedure_name} created.")
 
-		# Create Updating Events
-		check_and_create_event(create_event_update_api_daily_stats_sql, 'event_update_api_daily_stats')
-		check_and_create_event(create_event_update_api_weekly_stats_sql, 'event_update_api_weekly_stats')
-		check_and_create_event(create_event_update_api_monthly_stats_sql, 'event_update_api_monthly_stats')
-		check_and_create_event(create_event_update_hourly_total_stats_sql, 'event_update_hourly_total_stats')
-		check_and_create_event(create_event_update_daily_total_api_stats_sql, 'event_update_daily_total_api_stats')
-		check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
+				check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+				handle_multiple_results(conn)
+				check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
+				handle_multiple_results(conn)
 
-		close_cursor(cursor)
-		cursor = create_cursor(conn)
+				def check_and_create_event(event_sql, event_name):
+					cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
+					event_exists = cursor.fetchone() is not None
+					if event_exists:
+						print(f"Event {event_name} already existed.")
+					else:
+						cursor.execute(event_sql)
+						print(f"Event {event_name} created.")
 
-		# Create Cleaning Event if db_clean = true
-		if db_clean:
-			check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
-		else:
-			print("Database cleaning event skipped as per configuration.")
+				# Create Storage Events
+				check_and_create_event(create_event_store_daily_grouped_stats_sql, 'event_store_daily_grouped_stats')
+				check_and_create_event(create_event_store_daily_total_api_stats_sql, 'event_store_daily_total_api_stats')
 
-		conn.commit()
-		print("Schema created sucessfully")
+				# Create Updating Events
+				check_and_create_event(create_event_update_api_daily_stats_sql, 'event_update_api_daily_stats')
+				check_and_create_event(create_event_update_api_weekly_stats_sql, 'event_update_api_weekly_stats')
+				check_and_create_event(create_event_update_api_monthly_stats_sql, 'event_update_api_monthly_stats')
+				check_and_create_event(create_event_update_hourly_total_stats_sql, 'event_update_hourly_total_stats')
+				check_and_create_event(create_event_update_daily_total_api_stats_sql, 'event_update_daily_total_api_stats')
+				check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
+
+				# Create Cleaning Event if db_clean = true
+				if db_clean:
+					check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
+				else:
+					print("Database cleaning event skipped as per configuration.")
+
+			conn.commit()
+			print("Schema created sucessfully")
 
 	except Error as err:
 		if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
