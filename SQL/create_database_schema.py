@@ -189,7 +189,7 @@ BEGIN
   
   WHILE NOT done DO
     DELETE FROM pokemon_sightings
-    WHERE inserted_at < CURDATE() - INTERVAL 1 DAY - INTERVAL 5 HOUR
+    WHERE inserted_at < CURDATE() - INTERVAL 1 DAY
     LIMIT 50000;
     
     IF (ROW_COUNT() = 0) THEN
