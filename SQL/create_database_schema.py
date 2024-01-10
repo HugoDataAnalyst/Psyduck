@@ -205,6 +205,8 @@ END;
 
 # PROCEDURE for hourly_total_updates
 create_procedure_update_hourly_total_stats = f'''
+DROP PROCEDURE IF EXISTS update_hourly_total_stats;
+
 CREATE PROCEDURE update_hourly_total_stats()
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_hourly_total_stats AS
