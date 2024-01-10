@@ -500,19 +500,19 @@ def close_cursor(cursor):
 		cursor.close()
 
 def handle_multiple_results(connection):
-    """
-    Consumes all remaining results from the connection to avoid 'Commands out of sync' error.
-    """
-    cursor = connection.cursor()
-    while True:
-        try:
-        	cursor.fetchall()
-        	if not connection.more_results():
-        		break
+	"""
+	Consumes all remaining results from the connection to avoid 'Commands out of sync' error.
+	"""
+	cursor = connection.cursor()
+	while True:
+		try:
+			cursor.fetchall()
+			if not connection.more_results():
+				break
 		except mysql.connector.Error as e:
 			print("No more results to fetch.")
 			break
-    cursor.close()
+	cursor.close()
 
 def create_database_schema():
 	try:
