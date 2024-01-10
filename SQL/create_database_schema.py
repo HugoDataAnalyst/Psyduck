@@ -568,15 +568,18 @@ def create_database_schema():
 		def check_and_create_procedure(procedure_sql, procedure_name):
 			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
 			procedure_exists = cursor.fetchone() is not None
-			handle_multiple_results(conn)
 			if procedure_exists:
 				print(f"Procedure {procedure_name} already existed.")
 			else:
 				cursor.execute(procedure_sql)
-				handle_multiple_results(conn)
 				print(f"Procedure {procedure_name} created.")
 
 		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+		handle_multiple_results(conn)
+
+		close_cursor(cursor)
+		cursor = create_cursor(conn)
+		
 		check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
 
 		close_cursor(cursor)
