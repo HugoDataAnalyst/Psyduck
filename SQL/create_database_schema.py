@@ -602,7 +602,7 @@ def create_database_schema():
 			print("Database cleaning event skipped as per configuration.")
 
 		conn.commit()
-		print("Tables & Events created sucessfully")
+		print("Schema created sucessfully")
 
 	except Error as err:
 		if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
