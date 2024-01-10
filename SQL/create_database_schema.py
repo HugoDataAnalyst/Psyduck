@@ -516,7 +516,7 @@ def handle_multiple_results(connection):
 
 def execute_procedure(conn, procedure_sql, procedure_name):
 	try:
-			with conn.cursor() as cursor:
+		with conn.cursor() as cursor:
 			# Check if the procedure already exists
 			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
 			if cursor.fetchone():
@@ -525,6 +525,8 @@ def execute_procedure(conn, procedure_sql, procedure_name):
 				# Execute and create procedure
 				print(f"Creating procedure: {procedure_name}")
 				cursor.execute(procedure_sql)
+				while conn.unread_result:
+					cursor.fetchall()
 				conn.commit()
 				print(f"Procedure {procedure_name} created successfully.")
 	except Error as e:
@@ -578,8 +580,8 @@ def create_database_schema():
 				check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
 				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
-				execute_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-				execute_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
+				execute_procedure(conn, create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+				execute_procedure(conn, create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
 
 
 				def check_and_create_event(event_sql, event_name):
