@@ -503,10 +503,16 @@ def handle_multiple_results(connection):
     """
     Consumes all remaining results from the connection to avoid 'Commands out of sync' error.
     """
-    while connection.unread_result:
-        cursor = connection.cursor()
-        cursor.fetchall()
-        cursor.close()
+    cursor = connection.cursor()
+    while True:
+        try:
+        	cursor.fetchall()
+        	if not connection.more_results():
+        		break
+		except mysql.connector.Error as e:
+			print("No more results to fetch.")
+			break
+    cursor.close()
 
 def create_database_schema():
 	try:
@@ -562,15 +568,16 @@ def create_database_schema():
 		def check_and_create_procedure(procedure_sql, procedure_name):
 			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
 			procedure_exists = cursor.fetchone() is not None
+			handle_multiple_results(conn)
 			if procedure_exists:
 				print(f"Procedure {procedure_name} already existed.")
 			else:
 				cursor.execute(procedure_sql)
+				handle_multiple_results(conn)
 				print(f"Procedure {procedure_name} created.")
 
 		check_and_create_procedure(create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
 		check_and_create_procedure(create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
-		handle_multiple_results(conn)
 
 		close_cursor(cursor)
 		cursor = create_cursor(conn)
