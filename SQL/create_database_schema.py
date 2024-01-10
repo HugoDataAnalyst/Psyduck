@@ -499,25 +499,10 @@ def close_cursor(cursor):
 	if cursor is not None:
 		cursor.close()
 
-def handle_multiple_results(connection):
-	"""
-	Consumes all remaining results from the connection to avoid 'Commands out of sync' error.
-	"""
-	cursor = connection.cursor()
-	while True:
-		try:
-			cursor.fetchall()
-			if not connection.more_results():
-				break
-		except mysql.connector.Error as e:
-			print("No more results to fetch.")
-			break
-	cursor.close()
-
 def execute_procedure(conn, procedure_sql, procedure_name):
 	try:
 		with conn.cursor() as cursor:
-			# Check if the procedure already exists
+			# Check if procedure exists
 			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
 			if cursor.fetchone():
 				print(f"Procedure {procedure_name} already exists.")
@@ -525,12 +510,19 @@ def execute_procedure(conn, procedure_sql, procedure_name):
 				# Execute and create procedure
 				print(f"Creating procedure: {procedure_name}")
 				cursor.execute(procedure_sql)
-				while conn.unread_result:
-					cursor.fetchall()
+
+				# Fetch all results to ensure that the results are cleared
+				while True:
+					# Check if there are more results
+					if conn.more_results:
+						cursor.fetchall()
+					else:
+						break
+
 				conn.commit()
 				print(f"Procedure {procedure_name} created successfully.")
 	except Error as e:
-		print(f"Error in procedure {procedure_name}: {e}")
+		print(f"Error in executing procedure {procedure_name}: {e}")
 
 def create_database_schema():
 	try:
@@ -580,10 +572,9 @@ def create_database_schema():
 				check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
 				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
+				# Create Procedures
 				execute_procedure(conn, create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-				handle_multiple_results(conn)
 				execute_procedure(conn, create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
-				handle_multiple_results(conn)
 
 
 				def check_and_create_event(event_sql, event_name):
