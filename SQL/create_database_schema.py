@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS hourly_total_api_pokemon_stats (
 # Daily API total
 create_daily_total_api_pokemon_stats_table_sql = '''
 CREATE TABLE IF NOT EXISTS daily_total_api_pokemon_stats (
+	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
 	total_iv100 MEDIUMINT,
@@ -426,8 +427,13 @@ CREATE EVENT IF NOT EXISTS event_update_daily_total_api_stats
 ON SCHEDULE EVERY 1 DAY
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 1 HOUR)
 DO
-    REPLACE INTO daily_total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
+BEGIN
+    DELETE FROM daily_api_pokemon_stats
+    WHERE day = CURDATE() - INTERVAL 1 DAY;
+
+    INSERT INTO daily_total_api_pokemon_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
+    	CURDATE() - INTERVAL 1 DAY AS day,
         area_name,
         total,
         total_iv100,
@@ -438,7 +444,8 @@ DO
         total_shiny,
         avg_despawn
     FROM daily_total_storage_pokemon_stats
-    WHERE day = CURDATE() - INTERVAL 1 DAY
+    WHERE day = CURDATE() - INTERVAL 1 DAY;
+END;
 '''
 # EVENT total API
 create_event_update_total_api_stats_sql = f'''
