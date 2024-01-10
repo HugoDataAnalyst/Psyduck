@@ -581,7 +581,9 @@ def create_database_schema():
 				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
 
 				execute_procedure(conn, create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+				handle_multiple_results(conn)
 				execute_procedure(conn, create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
+				handle_multiple_results(conn)
 
 
 				def check_and_create_event(event_sql, event_name):
