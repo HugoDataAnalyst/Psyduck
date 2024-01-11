@@ -10,7 +10,6 @@ import requests
 import os
 import datetime
 from processor.celery_app import celery
-import mysql.connector
 from config.app_config import app_config
 from processor.tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread

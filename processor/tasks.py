@@ -2,7 +2,8 @@ from .celery_app import celery
 import logging
 from celery.utils.log import get_task_logger
 from config.app_config import app_config
-import mysql.connector
+import pymysql
+from pymysql.err import OperationalError, ProgrammingError
 import os
 import hashlib
 import json
@@ -62,7 +63,7 @@ def insert_data_task(self, data_batch, unique_id):
 
     conn = None
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = pymysql.connect(**db_config)
         cursor = conn.cursor()
         celery_logger.info(f"Inserting data for unique_id: {unique_id}")
 
@@ -84,7 +85,7 @@ def insert_data_task(self, data_batch, unique_id):
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} records"
-    except mysql.connector.Error as error:
+    except OperationalError as error:
         celery_logger.error(f"Failed to insert record into MySQL table: {error}")
         try:
             # Retry with exponential backoff
@@ -94,7 +95,7 @@ def insert_data_task(self, data_batch, unique_id):
         except self.MaxRetriesExceededError:
             celery_logger.error("Max retries exceeded. Giving up.")
     finally:
-        if conn is not None and conn.is_connected():
+        if conn is not None and conn.open:
             cursor.close()
             conn.close()
         redis_client.delete(unique_id)
@@ -102,15 +103,15 @@ def insert_data_task(self, data_batch, unique_id):
 # API query task
 def execute_query(query, params=None):
     try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
+        conn = pymysql.connect(**db_config)
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(query, params or ())
         return cursor.fetchall()
-    except mysql.connector.Error as err:
+    except OperationalError as err:
         celery_logger.error(f"Database query error: {err}")
         raise
     finally:
-        if conn and conn.is_connected():
+        if conn and conn.open:
             cursor.close()
             conn.close()
 
