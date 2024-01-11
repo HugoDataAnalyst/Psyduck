@@ -12,3 +12,4 @@ python-dotenv
 h11
 httptools
 apscheduler
+pymysql

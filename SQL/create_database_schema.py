@@ -1,6 +1,6 @@
 import json
-import mysql.connector
-from mysql.connector import Error
+import pymysql
+from pymysql.err import OperationalError, ProgrammingError
 
 with open('../config/config.json') as config_file:
 	config = json.load(config_file)
@@ -8,9 +8,10 @@ with open('../config/config.json') as config_file:
 # Database configuration
 db_config = {
 	'host': config['database']['HOST'],
-	'port': config['database']['PORT'],
+	'port': int(config['database']['PORT']),
 	'user': config['database']['USER'],
 	'password': config['database']['PASSWORD'],
+	'database': config['database']['NAME']
 }
 
 db_clean = config['database']['CLEAN'].lower() == 'true'
@@ -184,8 +185,6 @@ CREATE TABLE IF NOT EXISTS total_api_pokemon_stats (
 # Use ADDATE (returns current date without time)
 # PROCEDURE to clean pokemon_sightings
 create_procedure_clean_pokemon_batches = f'''
-DROP PROCEDURE IF EXISTS delete_pokemon_sightings_batches;
-
 CREATE PROCEDURE delete_pokemon_sightings_batches()
 BEGIN
   DECLARE done INT DEFAULT FALSE;
@@ -205,8 +204,6 @@ END;
 
 # PROCEDURE for hourly_total_updates
 create_procedure_update_hourly_total_stats = f'''
-DROP PROCEDURE IF EXISTS update_hourly_total_stats;
-
 CREATE PROCEDURE update_hourly_total_stats()
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_hourly_total_stats AS
@@ -479,148 +476,129 @@ DO
     	avg_despawn = (total_api_pokemon_stats.avg_despawn + d.avg_despawn) / 2;
 '''
 
-def create_cursor(connection):
+def connect_to_database():
 	try:
-		if connection.is_connected():
-			return connection.cursor()
-		else:
-			print("Connection is not established. Reconnecting...")
-			connection.reconnect(attempts=3, delay=5)
-
-		if connection.is_connected():
-			connection.database = db_name
-			return connection.cursor()
-		else:
-			print("Failed to re-establish database connection.")
-			return None
-	except Error as err:
-		print(f"Error creating cursor: {err}")
+		conn = pymysql.connect(**db_config, cursorclass=pymysql.cursors.DictCursor)
+		conn.db = db_name
+		print("Successfully connected to the database.")
+		return conn
+	except OperationalError as err:
+		print(f"Database connection error: {err}")
 		return None
 
-def close_cursor(cursor):
-	if cursor is not None:
-		cursor.close()
-
-def execute_procedure(conn, procedure_sql, procedure_name):
+def create_database(conn):
 	try:
-		with conn.cursor() as cursor:
-			# Check if procedure exists
-			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
-			if cursor.fetchone():
-				print(f"Procedure {procedure_name} already exists.")
+		cursor = conn.cursor()
+		cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
+		if not cursor.fetchone():
+			cursor.execute(create_database_sql)
+			print(f"Database {db_name} created.")
+		else:
+			print(f"Database {db_name} already exists.")
+		cursor.close()
+	except OperationalError as err:
+		print(f"Error creating database: {err}")
+
+def create_tables(conn):
+	def check_and_create_table(table_sql, table_name):
+		try:
+			cursor = conn.cursor()
+			cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
+			if not cursor.fetchone():
+				cursor.execute(table_sql)
+				print(f"Table {table_name} created.")
 			else:
-				# Execute and create procedure
+				print(f"Table {table_name} already exists.")
+			cursor.close()
+		except OperationalError as err:
+			print(f"Error creating table {table_name}: {err}")
+
+	# Raw Table
+	check_and_create_table(create_pokemon_sightings_table_sql, 'pokemon_sightings')
+	# Storage Table
+	check_and_create_table(create_grouped_total_daily_pokemon_stats_table_sql, 'grouped_total_daily_pokemon_stats')
+	check_and_create_table(create_daily_total_storage_pokemon_stats_table_sql, 'daily_total_storage_pokemon_stats')
+	# API Table
+	check_and_create_table(create_daily_api_pokemon_stats_sql, 'daily_api_pokemon_stats')
+	check_and_create_table(create_weekly_api_pokemon_stats_table_sql, 'weekly_api_pokemon_stats')
+	check_and_create_table(create_monthly_api_pokemon_stats_table_sql, 'monthly_api_pokemon_stats')
+	check_and_create_table(create_hourly_total_api_pokemon_stats_table_sql, 'hourly_total_api_pokemon_stats')
+	check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
+	check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
+
+def consume_results(cursor, connection):
+	""" Helper function to consume all results from the cursor to avoid 'Commands out of sync' error """
+	print("Consuming any remaining results...")
+	while True:
+		# Attempt to fetch all results
+		cursor.fetchall()
+		# Check if more results exist
+		if not connection.more_results:
+			break
+
+def create_procedures(conn):
+	def execute_procedure(conn, procedure_sql, procedure_name):
+		try:
+			cursor = conn.cursor()
+			print(f"Checking existence of procedure: {procedure_name}")
+			cursor.execute(f"SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{db_name}' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_NAME = '{procedure_name}'")
+			if not cursor.fetchone():
 				print(f"Creating procedure: {procedure_name}")
 				cursor.execute(procedure_sql)
-
-				# Fetch all results to ensure that the results are cleared
-				while True:
-					# Check if there are more results
-					if conn.more_results:
-						cursor.fetchall()
-					else:
-						break
-
 				conn.commit()
 				print(f"Procedure {procedure_name} created successfully.")
-	except Error as e:
-		print(f"Error in executing procedure {procedure_name}: {e}")
+			else:
+				print(f"Procedure {procedure_name} already exists.")
+
+			cursor.close()
+		except OperationalError as err:
+			print(f"Error creating procedure {procedure_name}: {err}")
+
+	# Procedures
+	execute_procedure(conn, create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
+	execute_procedure(conn, create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
+
+def create_events(conn):
+	def check_and_create_event(event_sql, event_name):
+		try:
+			cursor = conn.cursor()
+			cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
+			if not cursor.fetchone():
+				cursor.execute(event_sql)
+				print(f"Event {event_name} created.")
+			else:
+				print(f"Event {event_name} already exists.")
+			cursor.close()
+		except OperationalError as err:
+			print(f"Error creating event {event_name}: {err}")
+
+	# Event Storage
+	check_and_create_event(create_event_store_daily_grouped_stats_sql, 'event_store_daily_grouped_stats')
+	check_and_create_event(create_event_store_daily_total_api_stats_sql, 'event_store_daily_total_api_stats')
+	# Event API
+	check_and_create_event(create_event_update_api_daily_stats_sql, 'event_update_api_daily_stats')
+	check_and_create_event(create_event_update_api_weekly_stats_sql, 'event_update_api_weekly_stats')
+	check_and_create_event(create_event_update_api_monthly_stats_sql, 'event_update_api_monthly_stats')
+	check_and_create_event(create_event_update_hourly_total_stats_sql, 'event_update_hourly_total_stats')
+	check_and_create_event(create_event_update_daily_total_api_stats_sql, 'event_update_daily_total_api_stats')
+	check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
+	# Event Cleaner
+	if db_clean:
+		check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
+	else:
+		print("Database cleaning event skipped as per configuration.")
 
 def create_database_schema():
-	try:
-		with mysql.connector.connect(**db_config) as conn:
-			if conn.is_connected():
-				print("sucessfully connected to the database")
-			else:
-				print("Database connection failed. Please check your configuration")
-				return
-
-			conn.database = db_name
-
-
-			with conn.cursor() as cursor:
-				# Create Database
-				cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
-				db_exists = cursor.fetchone() is not None
-				if not db_exists:
-					cursor.execute(create_database_sql)
-					print(f"Database {db_name} created.")
-				else:
-					print(f"Database {db_name} already existed.")
-
-
-
-				def check_and_create_table(table_sql, table_name):
-					cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
-					table_exists = cursor.fetchone() is not None
-					if table_exists:
-						print(f"Table {table_name} already existed.")
-					else:
-						cursor.execute(table_sql)
-						print(f"Table {table_name} created.")
-
-				# Create Raw Table
-				check_and_create_table(create_pokemon_sightings_table_sql, 'pokemon_sightings')
-
-				# Create Storage Tables
-				check_and_create_table(create_grouped_total_daily_pokemon_stats_table_sql, 'grouped_total_daily_pokemon_stats')
-				check_and_create_table(create_daily_total_storage_pokemon_stats_table_sql, 'daily_total_storage_pokemon_stats')
-
-				# Create API Tables
-				check_and_create_table(create_daily_api_pokemon_stats_sql, 'daily_api_pokemon_stats')
-				check_and_create_table(create_weekly_api_pokemon_stats_table_sql, 'weekly_api_pokemon_stats')
-				check_and_create_table(create_monthly_api_pokemon_stats_table_sql, 'monthly_api_pokemon_stats')
-				check_and_create_table(create_hourly_total_api_pokemon_stats_table_sql, 'hourly_total_api_pokemon_stats')
-				check_and_create_table(create_daily_total_api_pokemon_stats_table_sql, 'daily_total_api_pokemon_stats')
-				check_and_create_table(create_total_api_pokemon_stats_table_sql, 'total_api_pokemon_stats')
-
-				# Create Procedures
-				execute_procedure(conn, create_procedure_clean_pokemon_batches, 'delete_pokemon_sightings_batches')
-				execute_procedure(conn, create_procedure_update_hourly_total_stats, 'update_hourly_total_stats')
-
-
-				def check_and_create_event(event_sql, event_name):
-					cursor.execute(f"SELECT EVENT_NAME FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA = '{db_name}' AND EVENT_NAME = '{event_name}'")
-					event_exists = cursor.fetchone() is not None
-					if event_exists:
-						print(f"Event {event_name} already existed.")
-					else:
-						cursor.execute(event_sql)
-						print(f"Event {event_name} created.")
-
-				# Create Storage Events
-				check_and_create_event(create_event_store_daily_grouped_stats_sql, 'event_store_daily_grouped_stats')
-				check_and_create_event(create_event_store_daily_total_api_stats_sql, 'event_store_daily_total_api_stats')
-
-				# Create Updating Events
-				check_and_create_event(create_event_update_api_daily_stats_sql, 'event_update_api_daily_stats')
-				check_and_create_event(create_event_update_api_weekly_stats_sql, 'event_update_api_weekly_stats')
-				check_and_create_event(create_event_update_api_monthly_stats_sql, 'event_update_api_monthly_stats')
-				check_and_create_event(create_event_update_hourly_total_stats_sql, 'event_update_hourly_total_stats')
-				check_and_create_event(create_event_update_daily_total_api_stats_sql, 'event_update_daily_total_api_stats')
-				check_and_create_event(create_event_update_total_api_stats_sql, 'event_update_total_api_stats')
-
-				# Create Cleaning Event if db_clean = true
-				if db_clean:
-					check_and_create_event(create_event_clean_pokemon_sightings, 'clean_pokemon_sightings')
-				else:
-					print("Database cleaning event skipped as per configuration.")
-
-			conn.commit()
-			print("Schema created sucessfully")
-
-	except Error as err:
-		if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-			print("Invalid username or password.")
-		elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-			print("Database does not exist.")
-		else:
-			print(f"Error: {err}")
-	finally:
-		if conn.is_connected():
-			close_cursor(cursor)
-			conn.close()
-			print("MySQL connection is closed.")
+	conn = connect_to_database()
+	if conn:
+		conn.database = db_name
+		create_database(conn)
+		create_tables(conn)
+		create_procedures(conn)
+		create_events(conn)
+		conn.close()
+	print("Schema created sucessfully")
 
 if __name__ == '__main__':
-	create_database_schema()
+		create_database_schema()
+
