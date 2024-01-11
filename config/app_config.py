@@ -29,6 +29,10 @@ class AppConfig:
         self.db_user = config['database']['USER']
         self.db_password = config['database']['PASSWORD']
         self.db_clean = config['database']['CLEAN'].lower() == 'true'
+        self.migration_log_level = config['database']['MIGRATION_LOG_LEVEL']
+        self.migration_log_file = config['database']['MIGRATION_LOG_FILE']
+        self.migration_log_max_bytes = int(config['database']['MIGRATION_LOG_MAX_BYTES'])
+        self.migration_max_log_files = int(config['database']['MIGRATION_MAX_LOG_FILES'])
         self.celery_broker_url = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.celery_result_backend = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.celery_log_level = config['celery']['LOG_LEVEL']
