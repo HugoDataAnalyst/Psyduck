@@ -19,6 +19,13 @@ db_name = config['database']['NAME']
 # Database
 create_database_sql = f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
+# Migration Table
+create_migration_table_sql = '''
+CREATE TABLE IF NOT EXISTS schema_version (
+	version INT PRIMARY KEY
+);
+'''
+
 # Raw storage of Pokémons
 create_pokemon_sightings_table_sql = '''
 CREATE TABLE IF NOT EXISTS pokemon_sightings (
@@ -513,6 +520,8 @@ def create_tables(conn):
 		except OperationalError as err:
 			print(f"Error creating table {table_name}: {err}")
 
+	# Migration Table
+	check_and_create_table(create_migration_table_sql, 'schema_version')
 	# Raw Table
 	check_and_create_table(create_pokemon_sightings_table_sql, 'pokemon_sightings')
 	# Storage Table
