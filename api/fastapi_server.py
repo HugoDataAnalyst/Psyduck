@@ -106,19 +106,19 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
 
 # API Surge's
 @fastapi.get("/api/surge-daily-stats")
-@cache(expire=app_config.)
+@cache(expire=app_config.api_surge_daily_cache)
 async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for Surge Pokemon Daily Stats")
     return get_task_result(query_daily_surge_api_pokemon_stats)
 
 @fastapi.get("/api/surge-weekly-stats")
-@cache(expire=app_config.)
+@cache(expire=app_config.api_surge_weekly_cache)
 async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for Surge Pokemon Weekly Stats")
     return get_task_result(query_weekly_surge_api_pokemon_stats)
 
 @fastapi.get("/api/surge-monthly-stats")
-@cache(expire=app_config.)
+@cache(expire=app_config.api_surge_monthly_cache)
 async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for Surge Pokemon Monthly Stats")
     return get_task_result(query_monthly_surge_api_pokemon_stats)
