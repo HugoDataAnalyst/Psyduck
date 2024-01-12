@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS hourly_surge_storage_pokemon_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create PROCEDURE for hourly updating storage surge
-DELIMITER //
-
 CREATE PROCEDURE update_hourly_surge_stats()
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_hourly_surge_stats AS
@@ -39,21 +37,14 @@ BEGIN
         total_shiny = VALUES(total_shiny);
 
     DROP TEMPORARY TABLE IF EXISTS temp_hourly_surge_stats;
-END //
+END;
 
-DELIMITER ;
 -- Create EVENT to run the hourly update storage procedure
-DELIMITER //
-
 CREATE EVENT IF NOT EXISTS event_update_hourly_surge_stats
 ON SCHEDULE EVERY 1 HOUR
 STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 HOUR)
 DO
     CALL update_hourly_surge_stats();
-
-//
-
-DELIMITER ;
 
 -- Create TABLE for daily surge
 CREATE TABLE IF NOT EXISTS daily_surge_pokemon_stats (
@@ -67,7 +58,6 @@ CREATE TABLE IF NOT EXISTS daily_surge_pokemon_stats (
     PRIMARY KEY (hour)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;    
 -- Procedure for daily surge
-DELIMITER //
 
 CREATE PROCEDURE update_daily_surge_stats()
 BEGIN
@@ -99,22 +89,15 @@ BEGIN
     FROM temp_daily_surge;
 
     DROP TEMPORARY TABLE IF EXISTS temp_daily_surge;
-END //
-
-DELIMITER ;
+END;
 
 -- Event for update_daily_surge_stats
-DELIMITER //
 
 CREATE EVENT IF NOT EXISTS event_update_daily_surge_stats
 ON SCHEDULE EVERY 1 DAY
 STARTS ADDDATE(CURDATE(), INTERVAL 1 DAY)
 DO
 CALL update_daily_surge_stats();
-
-//
-
-DELIMITER ;
 
 -- Create Table for weekly surge
 CREATE TABLE IF NOT EXISTS weekly_surge_pokemon_stats (
@@ -127,8 +110,6 @@ CREATE TABLE IF NOT EXISTS weekly_surge_pokemon_stats (
     total_shiny INTEGER,
     PRIMARY KEY (hour)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-DELIMITER //
 
 -- Create PROCEDURE for weekly surge update
 CREATE PROCEDURE update_weekly_surge_stats()
@@ -161,22 +142,15 @@ BEGIN
     FROM temp_weekly_surge;
 
     DROP TEMPORARY TABLE IF EXISTS temp_weekly_surge;
-END //
-
-DELIMITER ;
+END;
 
 -- Create EVENT for weekly surge Procedure update
-DELIMITER //
 
 CREATE EVENT IF NOT EXISTS event_update_weekly_surge_stats
 ON SCHEDULE EVERY 1 WEEK
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 7 DAY), INTERVAL '1:05' HOUR_MINUTE)
 DO
 CALL update_weekly_surge_stats();
-
-//
-
-DELIMITER ;
 
 -- Create Table for Monthly surge
 CREATE TABLE IF NOT EXISTS monthly_surge_pokemon_stats (
@@ -191,7 +165,6 @@ CREATE TABLE IF NOT EXISTS monthly_surge_pokemon_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create Procedure for monthly surge update
-DELIMITER //
 
 CREATE PROCEDURE update_monthly_surge_stats()
 BEGIN
@@ -223,19 +196,11 @@ BEGIN
     FROM temp_weekly_surge;
 
     DROP TEMPORARY TABLE IF EXISTS temp_monthly_surge;
-END //
-
-DELIMITER ;
+END;
 
 -- Create EVENT for monthly surge Procedure update
-DELIMITER //
-
 CREATE EVENT IF NOT EXISTS event_update_monthly_surge_stats
 ON SCHEDULE EVERY 1 MONTH
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 MONTH), INTERVAL '1:10' HOUR_MINUTE)
 DO
 CALL update_monthly_surge_stats();
-
-//
-
-DELIMITER ;
