@@ -56,12 +56,9 @@ def apply_migration(cursor, filename):
             sql_script = file.read()
             # Remove comments
             sql_script = re.sub(r'(--.*?\n)|(/\*.*?\*/)', '', sql_script, flags=re.DOTALL)
-            commands = sql_script.split(';')
-            for command in commands:
-                if command.strip() == '':
-                    continue
-                cursor.execute(command.strip())
-                logger.info(f"Executed command: {command.strip()[:50]}...")
+
+            cursor.execute(sql_script)
+            logger.info(f"Executed migration script: {filename}")
 
     except Exception as e:
         logger.error(f"Error applying migration {filename}: {e}")
@@ -69,7 +66,7 @@ def apply_migration(cursor, filename):
 
 def run_migrations():
     try:
-        conn = pymysql.connect(**db_config)
+        conn = pymysql.connect(**db_config, client_flag=pymysql.constants.CLIENT.MULTI_STATEMENTS)
         cursor = conn.cursor()
         current_version = get_current_version(cursor)
     
