@@ -165,6 +165,32 @@ def query_total_api_pokemon_stats(self):
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
+# API Surge's
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_surge_api_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM daily_surge_pokemon_stats")
+        return organize_results_by_hour(results)
+    except Exception as e:
+        self.retry(exc=e, countodwn=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_weekly_surge_api_pokemon_stats(self):
+    try:
+        results = execute_query("SELECT * FROM weekly_surge_pokemon_stats")
+        return organized_results_by_hour(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_monthly_surge_api_pokemon_stats(self):
+    try
+        results = execute_query("SELECT * FROM monthly_surge_pokemon_stats")
+        return organized_results_by_hour(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# Organises Area based APIs
 def organize_results(results):
     organized_results = {}
     for row in results:
@@ -173,3 +199,13 @@ def organize_results(results):
             organized_results[area] = []
         organized_results[area].append(row)
     return organized_results
+
+# Organises Hour based APIs
+def organize_results_by_hour(results):
+    organized_results_by_hour = {}
+    for row in results:
+        hour = row['hour']
+        if hour not in organized_results_by_hour:
+            organized_results_by_hour[hour] = []
+        organized_results_by_hour[hour].append(row)
+    return organized_results_by_hour

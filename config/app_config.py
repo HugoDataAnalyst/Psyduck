@@ -59,6 +59,9 @@ class AppConfig:
         self.api_hourly_total_pokemon_cache = int(config['api']['HOURLY_TOTAL_POKEMON'])
         self.api_daily_total_pokemon_cache = int(config['api']['DAILY_TOTAL_POKEMON'])
         self.api_total_pokemon_cache = int(config['api']['TOTAL_POKEMON'])
+        self.api_surge_daily_cache = int(config['api']['SURGE_DAILY_CACHE'])
+        self.api_surge_weekly_cache = int(config['api']['SURGE_WEEKLY_CACHE'])
+        self.api_surge_monthly_cache = int(config['api']['SURGE_MONTHLY_CACHE'])
         self.api_ip_restriction = config['api']['IP_RESTRICTION'].lower() == 'true'
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']

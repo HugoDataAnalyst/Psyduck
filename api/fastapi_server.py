@@ -9,7 +9,7 @@ from redis import asyncio as aioredis
 from celery.result import AsyncResult
 from celery import Celery
 from config.app_config import app_config
-from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats
+from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats, query_daily_surge_api_pokemon_stats, query_weekly_surge_api_pokemon_stats, query_monthly_surge_api_pokemon_stats
 
 
 # Create a custom logger
@@ -103,3 +103,22 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
 async def total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     logger.info("Request received for total Pokemon stats")
     return get_task_result(query_total_api_pokemon_stats)
+
+# API Surge's
+@fastapi.get("/api/surge-daily-stats")
+@cache(expire=app_config.)
+async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for Surge Pokemon Daily Stats")
+    return get_task_result(query_daily_surge_api_pokemon_stats)
+
+@fastapi.get("/api/surge-weekly-stats")
+@cache(expire=app_config.)
+async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for Surge Pokemon Weekly Stats")
+    return get_task_result(query_weekly_surge_api_pokemon_stats)
+
+@fastapi.get("/api/surge-monthly-stats")
+@cache(expire=app_config.)
+async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    logger.info("Request received for Surge Pokemon Monthly Stats")
+    return get_task_result(query_monthly_surge_api_pokemon_stats)
