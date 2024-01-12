@@ -10,10 +10,11 @@ from config.app_config import app_config
 log_file = app_config.migration_log_file
 log_level = getattr(logging, app_config.migration_log_level.upper(), None)
 
+logger = logging.getLogger('migration_logger')
+logger.setLevel(log_level)
+
 if not os.path.exists(os.path.dirname(log_file)):
     os.makedirs(os.path.dirname(log_file))
-
-logger = logging.getLogger('migration_logger')
 
 file_handler = RotatingFileHandler(log_file, maxBytes=app_config.migration_log_max_bytes, backupCount=app_config.migration_max_log_files)
 file_handler.setLevel(log_level)
@@ -21,8 +22,14 @@ file_handler.setLevel(log_level)
 formatter = logging.Formatter(
     '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 )
+
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(log_level)
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
 # Database configuration
 db_config = {
