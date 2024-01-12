@@ -45,8 +45,13 @@ def get_current_version(cursor):
 def apply_migration(cursor, filename):
     try:
         with open(filename, 'r') as file:
-            sql_commands = file.read()
-            cursor.execute(sql_commands)
+            sql_script = file.read()
+            commands = sql_script.split(';')
+            for command in commands:
+                if command.strip() == '':
+                    continue
+                cursor.execute(command)
+
     except Exception as e:
         logger.error(f"Error applying migration {filename}: {e}")
         raise
