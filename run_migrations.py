@@ -56,8 +56,8 @@ def apply_migration(cursor, filename):
             commands = sql_script.split(';')
             for command in commands:
                 if command.strip() == '':
-                    continue
-                cursor.execute(command)
+                cursor.execute(command.strip())
+                logger.info(f"Executed command: {command.strip()[:50]}...")
 
     except Exception as e:
         logger.error(f"Error applying migration {filename}: {e}")
