@@ -21,7 +21,7 @@
 	"database": {
 		"HOST": "db_host",
 		"PORT": "db_port",
-		"NAME": "PokeWebhookDB",
+		"NAME": "Psyduck",
 		"USER": "db_user",
 		"PASSWORD": "db_password",
 		"CLEAN": "true",
