@@ -1,6 +1,7 @@
 import pymysql
 from pymysql.err import OperationalError, ProgrammingError
 import os
+import re
 import json
 import logging
 from logging.handlers import RotatingFileHandler
@@ -53,9 +54,12 @@ def apply_migration(cursor, filename):
     try:
         with open(filename, 'r') as file:
             sql_script = file.read()
+            # Remove comments
+            sql_script = re.sub(r'(--.*?\n)|(/\*.*?\*/)', '', sql_script, flags=re.DOTALL)
             commands = sql_script.split(';')
             for command in commands:
                 if command.strip() == '':
+                    continue
                 cursor.execute(command.strip())
                 logger.info(f"Executed command: {command.strip()[:50]}...")
 
