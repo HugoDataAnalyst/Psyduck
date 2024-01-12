@@ -184,7 +184,7 @@ def query_weekly_surge_api_pokemon_stats(self):
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_monthly_surge_api_pokemon_stats(self):
-    try
+    try:
         results = execute_query("SELECT * FROM monthly_surge_pokemon_stats")
         return organized_results_by_hour(results)
     except Exception as e:
