@@ -369,7 +369,7 @@ END;
 create_event_update_api_weekly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_weekly_stats
 ON SCHEDULE EVERY 1 WEEK
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 7 DAY), INTERVAL '1:15' HOUR_MINUTE)
+STARTS ADDDATE(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '01:15:00')
 DO
 BEGIN
 	DELETE FROM weekly_api_pokemon_stats
@@ -400,7 +400,7 @@ END;
 create_event_update_api_monthly_stats_sql = f'''
 CREATE EVENT IF NOT EXISTS event_update_api_monthly_stats
 ON SCHEDULE EVERY 1 MONTH
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 MONTH), INTERVAL '2:10' HOUR_MINUTE)
+STARTS ADDDATE(LAST_DAY(CURRENT_DATE) + INTERVAL 1 DAY, '02:10:00')
 DO
 BEGIN
 	DELETE FROM monthly_api_pokemon_stats
