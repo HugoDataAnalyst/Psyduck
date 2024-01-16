@@ -160,8 +160,9 @@ async def receive_data(request: Request):
     else:
         logger.error("Received data is not in list format")
 
-    return {"status": "success"}
     logger.info(f"Queue size AFTER processing: {len(data_queue)}")
+    return {"status": "success"}
+
 
 def process_full_queue():
     global data_queue, is_processing_queue
