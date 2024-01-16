@@ -89,11 +89,14 @@ async def receive_data(request: Request):
     logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
     await validate_remote_addr(request)
-
+    logger.info(f"Queue size before processing: {len(data_queue)}")
     with data_queue_lock: 
         data = await request.json()
-        geofences = fetch_geofences()
  
+    if not geofences:
+        logger.info("No geofences matched.")
+        return {"status": "info", "message": "No geofences available"}
+
     def filter_criteria(message):
         required_fields = [
             'pokemon_id', 'form', 'latitude', 'longitude',
@@ -157,13 +160,12 @@ async def receive_data(request: Request):
     else:
         logger.error("Received data is not in list format")
 
-    # Log current queue size for monitoring
-    logger.info(f"Current queue size: {len(data_queue)}")
-
     return {"status": "success"}
+    logger.info(f"Queue size AFTER processing: {len(data_queue)}")
 
 def process_full_queue():
     global data_queue, is_processing_queue
+    logger.info(f"Starting full queue processing. Current queue size: {len(data_queue)}")
 
     retry_count = 0
     while retry_count <= app_config.max_retries:
@@ -184,6 +186,7 @@ def process_full_queue():
     if retry_count > app_config.max_retries:
         logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
+    logger.info(f"Finished queue processing. Updated queue size: {len(data_queue)}")
 
 def process_remaining_queue_on_shutdown():
     global data_queue
