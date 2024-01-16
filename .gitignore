@@ -4,3 +4,4 @@ README.md
 Dockerfile
 .dockerignore
 docker-compose.yml
+ecosystem.config.js

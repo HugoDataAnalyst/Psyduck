@@ -1,7 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from logging import StreamHandler
-from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 import json
@@ -15,12 +14,11 @@ from processor.tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread
 import time
 
+# Store geofences
+
+geofences = []
 # Setup the FastAPI app
 webhook_processor = FastAPI()
-
-# Scheduler
-
-scheduler = BackgroundScheduler()
 
 # Data processing queue
 data_queue_lock = Lock()
@@ -59,6 +57,9 @@ def fetch_geofences():
     else:
         logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
         return []
+
+# Fetch geofences once
+geofences = fetch_geofences()
 
 def is_inside_geofence(lat, lon, geofences):
     point = Point(lon, lat)
@@ -183,16 +184,6 @@ def process_full_queue():
     if retry_count > app_config.max_retries:
         logger.error("Maximum retry attempts reached. Unable to process queue")
     is_processing_queue = False
-
-def manage_large_queues():
-    global data_queue
-    with data_queue_lock:
-        if len(data_queue) > app_config.extra_flush_threshold:
-            process_full_queue()
-
-scheduler.add_job(manage_large_queues, 'interval', seconds=app_config.flush_interval)
-
-scheduler.start()
 
 def process_remaining_queue_on_shutdown():
     global data_queue
