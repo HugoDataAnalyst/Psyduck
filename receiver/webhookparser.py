@@ -60,6 +60,7 @@ async def startup_event():
         geofences = await fetch_geofences()
         geofence_cache['geofences'] = geofences
         logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
+        asyncio.create_task(refresh_geofences())
     except httpx.HTTPError as e:
         logger.error(f"Failed to fetch geofences: {e}")
 
@@ -74,6 +75,18 @@ async def fetch_geofences():
         else:
             logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
             raise httpx.HTTPError(f"Failed to fetch geofences. Status Code: {response.status_code}")
+# MISSING - Add configurable option for the sleep
+async def refresh_geofences():
+    while True:
+        try:
+            geofences = await fetch_geofences()
+            geofence_cache['geofences'] = geofences
+            logger.info(f"Successfully refreshed {len(geofences)} geofences.")
+        except httpx.HTTPError as e:
+            logger.error(f"Failed to refresh geofences: {e}")
+        # Wait for a specified time before next refresh (e.g., 3600 seconds)
+        await asyncio.sleep(3600)
+
 
 def is_inside_geofence(lat, lon, geofences):
     point = Point(lon, lat)
