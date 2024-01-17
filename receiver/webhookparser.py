@@ -8,22 +8,23 @@ from shapely.geometry import Point, Polygon
 import requests
 import os
 import datetime
+import asyncio
 from processor.celery_app import celery
 from config.app_config import app_config
 from processor.tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread
 import time
 
-# Store geofences
-geofences = []
-
 # Setup the FastAPI app
 webhook_processor = FastAPI()
 
+# Caching geofences
+geofence_cache = TTLCache(ttl=3600)
+
 # Data processing queue
-data_queue_lock = Lock()
 is_processing_queue = False
 data_queue = []
+data_queue_lock = asyncio.Lock()
 
 # Configure logger
 logger = logging.getLogger("webhook_logger")
@@ -49,17 +50,24 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 logger.setLevel(log_level)
 
-def fetch_geofences():
-    headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
-    response = requests.get(app_config.geofence_api_url, headers=headers)
-    if response.status_code == 200:
-        return response.json().get("data", {}).get("features", [])
-    else:
-        logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
-        return []
+@webhook_processor.on_event("startup")
+async def startup_event():
+    global geofence_cache
+    geofences = await fetch_geofences()
+    geofence_cache['geofences'] = geofences
+
+async def fetch_geofences():
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
+        response = await client.get(app_config.geofence_api_url, headers=headers)
+        if response.status_code == 200:
+            return response.json().get("data", {}).get("features", [])
+        else:
+            logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
+            return []
 
 # Fetch geofences once
-geofences = fetch_geofences()
+geofences = asyncio.run(fetch_geofences())
 
 def is_inside_geofence(lat, lon, geofences):
     point = Point(lon, lat)
@@ -76,7 +84,7 @@ def calculate_despawn_time(disappear_time, first_seen):
     total_seconds = time_diff // 1
     return total_seconds
 
-def validate_remote_addr(request: Request):
+async def validate_remote_addr(request: Request):
     if request.client.host != app_config.allow_webhook_host:
         raise HTTPException(status_code=403, detail="Access denied")
 
@@ -86,13 +94,14 @@ def root_post_redirect():
 
 @webhook_processor.post("/webhook")
 async def receive_data(request: Request):
-    logger.debug(f"Received request on path: {request.url.path}")
-    global data_queue, is_processing_queue
+    logger.info(f"Received request on path: {request.url.path}")
+    global data_queue, is_processing_queue, geofence_cache
     await validate_remote_addr(request)
     logger.info(f"Queue size before processing: {len(data_queue)}")
-    with data_queue_lock: 
+    async with data_queue_lock: 
         data = await request.json()
  
+    geofences = geofence_cache.get('geofences', [])
     if not geofences:
         logger.info("No geofences matched.")
         return {"status": "info", "message": "No geofences available"}
@@ -208,7 +217,7 @@ def process_remaining_queue_on_shutdown():
             logger.error(f"Error processing batch during shutdown: {e}")
 
 @webhook_processor.on_event("shutdown")
-def shutdown_event():
+async def shutdown_event():
     logger.info("Application shutdown initiated.")
-    with data_queue_lock:
-        process_remaining_queue_on_shutdown()
+    async with data_queue_lock:
+        await process_remaining_queue_on_shutdown()
