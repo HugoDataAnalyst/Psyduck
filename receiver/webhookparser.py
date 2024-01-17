@@ -53,14 +53,19 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 logger.setLevel(log_level)
 
+refresh_task = None
+
 @webhook_processor.on_event("startup")
 async def startup_event():
-    global geofence_cache
+    global geofence_cache, refresh_task
     try:
         geofences = await fetch_geofences()
         geofence_cache['geofences'] = geofences
         logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
-        asyncio.create_task(refresh_geofences())
+        # Cancel existing refrsh tasks before creating a new one
+        if refresh_task:
+            refresh_task.cancel()
+        refresh_task = asyncio.create_task(refresh_geofences())
     except httpx.HTTPError as e:
         logger.error(f"Failed to fetch geofences: {e}")
 
@@ -237,6 +242,11 @@ def process_remaining_queue_on_shutdown():
 
 @webhook_processor.on_event("shutdown")
 async def shutdown_event():
+    global refresh_task
     logger.info("Application shutdown initiated.")
+    # Cancel refresh task during shutdown
+    if refresh_task:
+        refresh_task.cancel()
+    # Ensure all remaining items in the queue are processed
     async with data_queue_lock:
         await process_remaining_queue_on_shutdown()
