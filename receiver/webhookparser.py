@@ -56,11 +56,15 @@ logger.setLevel(log_level)
 @webhook_processor.on_event("startup")
 async def startup_event():
     global geofence_cache
-    geofences = await fetch_geofences()
-    geofence_cache['geofences'] = geofences
+    try:
+        geofences = await fetch_geofences()
+        geofence_cache['geofences'] = geofences
+        logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
+    except httpx.HTTPError as e:
+        logger.error(f"Failed to fetch geofences: {e}")
 
 # MISSING -- Add configurable options for retry system
-@backoff.on_exception(backoff.expo, httpx.HTTPError, max_retries=5, jitter=None, factor=2)
+@backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=5, jitter=None, factor=2)
 async def fetch_geofences():
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
