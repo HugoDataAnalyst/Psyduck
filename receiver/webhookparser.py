@@ -14,12 +14,15 @@ from config.app_config import app_config
 from processor.tasks import insert_data_task, generate_unique_id
 from threading import Lock, Thread
 import time
+from cachetools import TTLCache
+import httpx
+import backoff
 
 # Setup the FastAPI app
 webhook_processor = FastAPI()
 
-# Caching geofences
-geofence_cache = TTLCache(ttl=3600)
+# Caching geofences -- MISSING add configurable options
+geofence_cache = TTLCache(maxsize=100, ttl=3600)
 
 # Data processing queue
 is_processing_queue = False
@@ -56,6 +59,8 @@ async def startup_event():
     geofences = await fetch_geofences()
     geofence_cache['geofences'] = geofences
 
+# MISSING -- Add configurable options for retry system
+@backoff.on_exception(backoff.expo, httpx.HTTPError, max_retries=5, jitter=None, factor=2)
 async def fetch_geofences():
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
@@ -64,10 +69,7 @@ async def fetch_geofences():
             return response.json().get("data", {}).get("features", [])
         else:
             logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
-            return []
-
-# Fetch geofences once
-geofences = asyncio.run(fetch_geofences())
+            raise httpx.HTTPError(f"Failed to fetch geofences. Status Code: {response.status_code}")
 
 def is_inside_geofence(lat, lon, geofences):
     point = Point(lon, lat)
