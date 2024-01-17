@@ -85,13 +85,13 @@ def root_post_redirect():
     return RedirectResponse(url="/webhook", status_code=307)
 
 @webhook_processor.post("/webhook")
-def receive_data(request: Request):
+async def receive_data(request: Request):
     logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
-    validate_remote_addr(request)
+    await validate_remote_addr(request)
     logger.info(f"Queue size before processing: {len(data_queue)}")
     with data_queue_lock: 
-        data = request.json()
+        data = await request.json()
  
     if not geofences:
         logger.info("No geofences matched.")
