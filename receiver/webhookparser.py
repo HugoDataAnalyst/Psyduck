@@ -113,7 +113,7 @@ def root_post_redirect():
 
 @webhook_processor.post("/webhook")
 async def receive_data(request: Request):
-    logger.info(f"Received request on path: {request.url.path}")
+    logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue, geofence_cache
     await validate_remote_addr(request)
     logger.info(f"Queue size before processing: {len(data_queue)}")

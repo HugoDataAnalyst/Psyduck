@@ -265,7 +265,8 @@ CALL update_hourly_total_stats();
 create_event_clean_pokemon_sightings = f'''
 CREATE EVENT IF NOT EXISTS clean_pokemon_sightings
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 5 HOUR)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '05:05:00' HOUR_SECOND)
+
 DO
 CALL delete_pokemon_sightings_batches();
 '''
