@@ -76,7 +76,7 @@ def calculate_despawn_time(disappear_time, first_seen):
     total_seconds = time_diff // 1
     return total_seconds
 
-async def validate_remote_addr(request: Request):
+def validate_remote_addr(request: Request):
     if request.client.host != app_config.allow_webhook_host:
         raise HTTPException(status_code=403, detail="Access denied")
 
@@ -85,13 +85,13 @@ def root_post_redirect():
     return RedirectResponse(url="/webhook", status_code=307)
 
 @webhook_processor.post("/webhook")
-async def receive_data(request: Request):
+def receive_data(request: Request):
     logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue
-    await validate_remote_addr(request)
+    validate_remote_addr(request)
     logger.info(f"Queue size before processing: {len(data_queue)}")
     with data_queue_lock: 
-        data = await request.json()
+        data = request.json()
  
     if not geofences:
         logger.info("No geofences matched.")
@@ -208,7 +208,7 @@ def process_remaining_queue_on_shutdown():
             logger.error(f"Error processing batch during shutdown: {e}")
 
 @webhook_processor.on_event("shutdown")
-async def shutdown_event():
+def shutdown_event():
     logger.info("Application shutdown initiated.")
     with data_queue_lock:
         process_remaining_queue_on_shutdown()
