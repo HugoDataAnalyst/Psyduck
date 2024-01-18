@@ -342,8 +342,7 @@ ON SCHEDULE EVERY 1 DAY
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 1 HOUR)
 DO
 BEGIN
-    DELETE FROM daily_api_pokemon_stats
-    WHERE day = CURDATE() - INTERVAL 1 DAY;
+    TRUNCATE TABLE daily_api_pokemon_stats;
 
     INSERT INTO daily_api_pokemon_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
@@ -373,8 +372,7 @@ ON SCHEDULE EVERY 1 WEEK
 STARTS ADDDATE(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '01:15:00')
 DO
 BEGIN
-	DELETE FROM weekly_api_pokemon_stats
-	WHERE day = CURDATE() - INTERVAL 7 DAY;
+	TRUNCATE TABLE weekly_api_pokemon_stats;
 
     INSERT INTO weekly_api_pokemon_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
@@ -404,8 +402,7 @@ ON SCHEDULE EVERY 1 MONTH
 STARTS ADDDATE(LAST_DAY(CURRENT_DATE) + INTERVAL 1 DAY, '02:10:00')
 DO
 BEGIN
-	DELETE FROM monthly_api_pokemon_stats
-	WHERE day = CURDATE() - INTERVAL 1 MONTH;
+	TRUNCATE TABLE monthly_api_pokemon_stats;
 
     INSERT INTO monthly_api_pokemon_stats(day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
@@ -435,8 +432,7 @@ ON SCHEDULE EVERY 1 DAY
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL 1 HOUR)
 DO
 BEGIN
-    DELETE FROM daily_api_pokemon_stats
-    WHERE day = CURDATE() - INTERVAL 1 DAY;
+    TRUNCATE TABLE daily_total_api_pokemon_stats;
 
     INSERT INTO daily_total_api_pokemon_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
     SELECT
