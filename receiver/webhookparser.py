@@ -62,7 +62,7 @@ async def startup_event():
         geofences = await fetch_geofences()
         geofence_cache['geofences'] = geofences
         logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
-        # Cancel existing refrsh tasks before creating a new one
+        # Cancel existing refresh tasks before creating a new one
         if refresh_task:
             refresh_task.cancel()
         refresh_task = asyncio.create_task(refresh_geofences())
