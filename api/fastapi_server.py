@@ -15,15 +15,22 @@ from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_poke
 
 # Create a custom logger
 logger = logging.getLogger("my_logger")
-logger.setLevel(app_config.api_log_level)
+
+log_level_str = app_config.api_log_level.upper()
+
+if log_level_str == "OFF":
+    logger.setLevel(logging.NOTSET)
+else:
+    log_level = getattr(logging, log_level_str, logging.INFO)
+    logger.setLevel(log_level)
 
 # Create a file handler that logs even debug messages
 file_handler = RotatingFileHandler(app_config.api_log_file, maxBytes=app_config.api_log_max_bytes, backupCount=app_config.api_max_log_files)
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(log_level)
 
 # Console logger
 console_handler = StreamHandler()
-console_handler.setLevel(logging.INFO)
+console_handler.setLevel(log_level)
 
 # Create and set the formatter
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

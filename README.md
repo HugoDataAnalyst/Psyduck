@@ -1,14 +1,25 @@
-## GolbatWebhookStats
+## Psyduck
 
-The idea behind this project is to easily access detailed statistics through this API, backed by high-performance database storage for optimal reliability and efficiency!
+Welcome to **PsyyyPsyPsyyyyyduckk** - a multifaceted project designed to streamline data handling and analysis.
+
+This 3-in-1 solution encompasses:
+- A **WebhookReceiver** for efficient data collection with advanced filtering capabilities.
+- Robust **DataCube Database** storage, ensuring secure and scalable data management.
+- A high-speed **API**, facilitating quick and easy access to detailed statistics.
+
+**PsyyyPsyPsyyyyyduckk** is built for performance and reliability, mirroring the unexpected power of Psyduck from the Pokémon universe. Just as Psyduck releases formidable psychic powers when its headaches peak, this project tackles the "headaches" of data analysis by efficiently processing and interpreting large volumes of information. 
+
+It's the perfect tool for anyone looking to burst through data-heavy challenges with speed and precision. Dive in and experience a new wave of data management and analysis!
+
+![Psyduck Flex](Image/psyduck-flex.gif)
 
 ## Requirements:
 
-- MySQL Database;
+- MySQL Database 8.0.0+;
 - Koji;
 - Golbat;
 - Python 3.10.13, untested on previous/highers versions;
-- Redis 5.0.7.
+- Redis Server 5.0.7.
 
 Python3 Libraries:
 
@@ -59,7 +70,7 @@ Change the port if you want, default is 6379:
 
 #### Key considerations:
 
-##### **"LOGS"**:
+#### **"logs"**:
 
 - "LOG_LEVEL" INFO/DEBUG/WARNING/ERROR/CRITICAL/OFF choose one.
 
@@ -69,7 +80,7 @@ Change the port if you want, default is 6379:
 
 - "MAX_LOG_FILES" how many log files it should create (rotating).
 
-##### **"receiver" Section:**
+#### **"receiver" Section:**
 
 - "ALLOW_WEBHOOK_HOST" your golbat IP.
 
@@ -81,25 +92,25 @@ Change the port if you want, default is 6379:
 
 - "RETRY_DELAY" time between each attempt on failure.
 
-- "MAX_SIZE_GEOFENCE" 
+- "MAX_SIZE_GEOFENCE" If you have say 10 geofences, set to 15. Ensuring you have room for more without having to tweak this value often.
 
-- "CACHE_GEOFENCES"
+- "CACHE_GEOFENCES" Time in seconds that it will cache the Geofences.
 
-- "REFRESH_GEOFENCES"
+- "REFRESH_GEOFENCES" Time in seconds that it will refresh the cache for the Geofences, should be the same as the above.
 
-- "MAX_TRIES_GEOFENCES"
+- "MAX_TRIES_GEOFENCES" Number of attempts on failure.
 
-- "RETRY_DELAY_MULT_GEOFENCES"
+- "RETRY_DELAY_MULT_GEOFENCES" Number of retries multipled on failure. Example with 5 Max Tries and 2 Retry Delay: 1 sec * 2, 2 * 2, so on.
 
-##### **"database" Section:**
+#### **"database" Section:**
 
 - "CLEAN" is set to true, only set to false if you know what you're doing. Will only run once to create it.
 
-##### **"celery" Section:**
+#### **"celery" Section:**
 
 - "WORKERS" is set to 1, only ever touch this if you know what you're doing otherwise it might lead to unexpected consumption of resources.
 
-##### **"api" Section:**
+#### **"api" Section:**
 
 - "HEADER_NAME" It's up to you if you want to change the Header Name, but I recommend you do.
 

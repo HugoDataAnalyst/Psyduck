@@ -11,9 +11,14 @@ import redis
 
 celery_logger = get_task_logger(__name__)
 
-log_level = getattr(logging, app_config.celery_log_level.upper(), None)
-log_file = app_config.celery_log_file
+log_level_str = app_config.celery_log_level.upper()
 
+if log_level_str == "OFF":
+    log_level = logging.NOTSET
+else:
+    log_level = getattr(logging, log_level_str, logging.INFO)
+
+log_file = app_config.celery_log_file
 
 # Create logs directory if it doesn't exist
 if not os.path.exists(os.path.dirname(log_file)):

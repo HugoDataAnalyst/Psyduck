@@ -31,7 +31,12 @@ data_queue_lock = asyncio.Lock()
 
 # Configure logger
 logger = logging.getLogger("webhook_logger")
-log_level = getattr(logging, app_config.webhook_log_level.upper(), None)
+log_level_str = app_config.webhook_log_level.upper()
+if log_level_str == "OFF":
+    log_level = logging.NOTSET
+else:
+    log_level = getattr(logging, log_level_str, logging.INFO)
+
 log_file = app_config.webhook_log_file
 max_bytes = app_config.webhook_log_max_bytes
 backup_count = app_config.webhook_max_log_files
