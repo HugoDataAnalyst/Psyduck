@@ -2,6 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from logging import StreamHandler
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from starlette.responses import JSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
@@ -33,7 +34,19 @@ console_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
+async def check_ip_middleware(request: Request, call_next):
+    client_host = request.client.host
+    if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
+        logger.info(f"Access denied for IP: {client_host}")
+        # Return a 403 Forbidden response
+        return JSONResponse(status_code=403, content={"detail": "Access denied"})
+
+    logger.info(f"Access from IP: {client_host} allowed.")
+    return await call_next(request)
+
 fastapi = FastAPI()
+
+fastapi.middleware('http')(check_ip_middleware)
 
 @fastapi.on_event("startup")
 async def startup():
@@ -41,6 +54,8 @@ async def startup():
     redis = aioredis.from_url(app_config.redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     logger.info("FastAPI cache initialized with Redis backend")
+
+
 
 async def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
     if not secret or secret != app_config.api_secret_header_key:
