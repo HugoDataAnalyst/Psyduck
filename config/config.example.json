@@ -15,7 +15,7 @@
 		"RETRY_DELAY": "5",
 		"LOG_LEVEL": "INFO",
 		"LOG_FILE": "logs/receiver_logger.log",
-		"LOG_MAX_BYTES": "10485760",
+		"LOG_MAX_BYTES": "1048576",
 		"MAX_LOG_FILES": "5",
 		"MAX_SIZE_GEOFENCE": "100",
 		"CACHE_GEOFENCES": "3600",
@@ -32,13 +32,13 @@
 		"CLEAN": "true",
 		"MIGRATION_LOG_LEVEL": "INFO",
 		"MIGRATION_LOG_FILE": "logs/migration.log",
-		"MIGRATION_LOG_MAX_BYTES": "10485760",
+		"MIGRATION_LOG_MAX_BYTES": "1048576",
 		"MIGRATION_MAX_LOG_FILES": "5"
 	},
 	"celery": {
 		"LOG_LEVEL": "INFO",
 		"LOG_FILE": "logs/celery_logger.log",
-		"LOG_MAX_BYTES": "10485760",
+		"LOG_MAX_BYTES": "1048576",
 		"MAX_LOG_FILES": "5",
 		"WORKERS": "1"
 	},
@@ -51,7 +51,7 @@
 	"api": {
 		"LOG_LEVEL": "INFO",
 		"LOG_FILE": "logs/api.log",
-		"LOG_MAX_BYTES": "10485760",
+		"LOG_MAX_BYTES": "1048576",
 		"MAX_LOG_FILES": "5",
 		"HEADER_NAME": "X-Stats-Api-Secret",
 		"SECRET_KEY": "mysecret",

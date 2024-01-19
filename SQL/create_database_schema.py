@@ -406,7 +406,7 @@ BEGIN
 
     INSERT INTO monthly_api_pokemon_stats(day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
     SELECT
-    	CURTDATE() - INTERVAL 1 MONTH as day,
+    	CURDATE() - INTERVAL 1 MONTH as day,
         pokemon_id,
         form,
         avg_lat,
