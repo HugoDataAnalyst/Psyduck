@@ -16,3 +16,4 @@ pymysql
 cachetools
 backoff
 httpx
+starlette

@@ -21,8 +21,8 @@ import backoff
 # Setup the FastAPI app
 webhook_processor = FastAPI()
 
-# Caching geofences -- MISSING add configurable options
-geofence_cache = TTLCache(maxsize=100, ttl=3600)
+# Caching geofences
+geofence_cache = TTLCache(maxsize=app_config.max_size_geofence, ttl=app_config.cache_geofences)
 
 # Data processing queue
 is_processing_queue = False
@@ -69,8 +69,8 @@ async def startup_event():
     except httpx.HTTPError as e:
         logger.error(f"Failed to fetch geofences: {e}")
 
-# MISSING -- Add configurable options for retry system
-@backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=5, jitter=None, factor=2)
+
+@backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=app_config.max_tries_geofences, jitter=None, factor=app_config.retry_delay_mult_geofences)
 async def fetch_geofences():
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
@@ -80,7 +80,7 @@ async def fetch_geofences():
         else:
             logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
             raise httpx.HTTPError(f"Failed to fetch geofences. Status Code: {response.status_code}")
-# MISSING - Add configurable option for the sleep
+
 async def refresh_geofences():
     while True:
         try:
@@ -89,8 +89,7 @@ async def refresh_geofences():
             logger.info(f"Successfully refreshed {len(geofences)} geofences.")
         except httpx.HTTPError as e:
             logger.error(f"Failed to refresh geofences: {e}")
-        # Wait for a specified time before next refresh (e.g., 3600 seconds)
-        await asyncio.sleep(3600)
+        await asyncio.sleep(app_config.refresh_geofences)
 
 
 def is_inside_geofence(lat, lon, geofences):

@@ -34,19 +34,41 @@ console_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
-async def check_ip_middleware(request: Request, call_next):
-    client_host = request.client.host
-    if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
-        logger.info(f"Access denied for IP: {client_host}")
-        # Return a 403 Forbidden response
-        return JSONResponse(status_code=403, content={"detail": "Access denied"})
+ALLOWED_PATHS = [
+    "/api/daily-area-pokemon-stats",
+    "/api/weekly-area-pokemon-stats",
+    "/api/monthly-area-pokemon-stats",
+    "/api/hourly-total-pokemon-stats",
+    "/api/daily-total-pokemon-stats",
+    "/api/total-pokemon-stats",
+    "/api/surge-daily-stats",
+    "/api/surge-weekly-stats",
+    "/api/surge-monthly-stats"
+]
 
-    logger.info(f"Access from IP: {client_host} allowed.")
+async def check_path_middleware(request: Request, call_next):
+    if app_config.api_path_restriction:
+        if request.url.path not in ALLOWED_PATHS:
+            logger.warning(f"Access denied for path: {request.url.path}")
+            return JSONResponse(status_code=403, content={"detail": "Forbidden"})
+    
+    return await call_next(request)
+
+async def check_ip_middleware(request: Request, call_next):
+    if app_config.api_ip_restriction:
+        client_host = request.client.host
+        if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
+            logger.info(f"Access denied for IP: {client_host}")
+            # Return a 403 Forbidden response
+            return JSONResponse(status_code=403, content={"detail": "Access denied"})
+
+        logger.info(f"Access from IP: {client_host} allowed.")
     return await call_next(request)
 
 fastapi = FastAPI()
 
 fastapi.middleware('http')(check_ip_middleware)
+fastapi.middleware('http')(check_path_middleware)
 
 @fastapi.on_event("startup")
 async def startup():

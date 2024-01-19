@@ -23,6 +23,11 @@ class AppConfig:
         self.webhook_log_file = config['receiver']['LOG_FILE']
         self.webhook_log_max_bytes = int(config['receiver']['LOG_MAX_BYTES'])
         self.webhook_max_log_files = int(config['receiver']['MAX_LOG_FILES'])
+        self.max_size_geofence = int(config['receiver']['MAX_SIZE_GEOFENCE'])
+        self.cache_geofences = int(config['receiver']['CACHE_GEOFENCES'])
+        self.refresh_geofences = int(config['receiver']['REFRESH_GEOFENCES'])
+        self.max_tries_geofences = int(config['receiver']['MAX_TRIES_GEOFENCES'])
+        self.retry_delay_mult_geofences = int(config['receiver']['RETRY_DELAY_MULT_GEOFENCES'])
         self.db_host = config['database']['HOST']
         self.db_port = int(config['database']['PORT'])
         self.db_name = config['database']['NAME']
@@ -65,5 +70,6 @@ class AppConfig:
         self.api_ip_restriction = config['api']['IP_RESTRICTION'].lower() == 'true'
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']
+        self.api_path_restriction = config['api']['PATH_RESTRICTION'].lower() == 'true'
 
 app_config = AppConfig()

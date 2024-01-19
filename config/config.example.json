@@ -16,7 +16,12 @@
 		"LOG_LEVEL": "INFO",
 		"LOG_FILE": "logs/receiver_logger.log",
 		"LOG_MAX_BYTES": "10485760",
-		"MAX_LOG_FILES": "5"
+		"MAX_LOG_FILES": "5",
+		"MAX_SIZE_GEOFENCE": "100",
+		"CACHE_GEOFENCES": "3600",
+		"REFRESH_GEOFENCES": "3600",
+		"MAX_TRIES_GEOFENCES": "5",
+		"RETRY_DELAY_MULT_GEOFENCES": "4"
 	},
 	"database": {
 		"HOST": "db_host",
@@ -64,7 +69,7 @@
 		"SURGE_WEEKLY_CACHE": "3600",
 		"SURGE_MONTHLY_CACHE": "3600",
 		"IP_RESTRICTION": "true",
-		"ALLOWED_IPS": "127.0.0.1, 192.168.1.100, 192.168.1.105"
-
+		"ALLOWED_IPS": "127.0.0.1, 192.168.1.100, 192.168.1.105",
+		"PATH_RESTRICTION": "true"
 	}
 }
