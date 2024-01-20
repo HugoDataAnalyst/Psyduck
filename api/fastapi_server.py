@@ -11,14 +11,14 @@ from celery.result import AsyncResult
 from celery import Celery
 from config.app_config import app_config
 from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats, query_daily_surge_api_pokemon_stats, query_weekly_surge_api_pokemon_stats, query_monthly_surge_api_pokemon_stats
-
+import os
 
 # Configuration values
 console_log_level_str = app_config.api_console_log_level.upper()
 log_level_str = app_config.api_log_level.upper()
 log_file = app_config.api_log_file
 max_bytes = app_config.api_log_max_bytes
-backupcount = app_config.api_max_log_files
+backup_count = app_config.api_max_log_files
 
 # Console logger
 console_logger = logging.getLogger("api_console_logger")
