@@ -10,49 +10,39 @@ import hashlib
 import json
 import redis
 
+
+# Retrieve configuration values
+console_log_level_str = app_config.celery_console_log_level.upper()
+log_level_str = app_config.celery_log_level.upper()
+log_file = app_config.celery_log_file
+max_bytes = app_config.celery_log_max_bytes
+backup_count = app_config.celery_max_log_files
+
+# Celery logger
 celery_logger = get_task_logger(__name__)
 
-# Console log level
-console_log_level_str = app_config.celery_console_log_level.upper()
+# Console logger setup
 if console_log_level_str == "OFF":
-    console_log_level = logging.NOTSET
+    celery_logger.disabled = True
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(console_log_level)
+    console_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    console_handler.setFormatter(console_formatter)
+    celery_logger.addHandler(console_handler)
 
-# Log file level
-log_level_str = app_config.celery_log_level.upper()
-if log_level_str == "OFF":
-    log_level = logging.NOTSET
-else:
+# File logger setup
+if log_level_str != "OFF":
     log_level = getattr(logging, log_level_str, logging.INFO)
-
-log_file = app_config.celery_log_file
-
-# Create logs directory if it doesn't exist
-if not os.path.exists(os.path.dirname(log_file)):
-    os.makedirs(os.path.dirname(log_file))
-
-# Set up file handler
-file_handler = logging.handlers.RotatingFileHandler(
-    log_file, maxBytes=app_config.celery_log_max_bytes, backupCount=app_config.celery_max_log_files
-)
-file_handler.setLevel(log_level)
-
-# Set up formatter
-formatter = logging.Formatter(
-    '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-)
-file_handler.setFormatter(formatter)
-
-# Add console handler
-console_handler = logging.StreamHandler()
-console_handler.setLevel(console_log_level)
-console_handler.setFormatter(formatter)
-
-# Add handler to the logger
-celery_logger.addHandler(file_handler)
-celery_logger.setLevel(log_level)
-celery_logger.addHandler(console_handler)
+    celery_logger.setLevel(log_level)
+    if not os.path.exists(os.path.dirname(log_file)):
+        os.makedirs(os.path.dirname(log_file))
+    file_handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
+    file_handler.setLevel(log_level)
+    file_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    file_handler.setFormatter(file_formatter)
+    celery_logger.addHandler(file_handler)
 
 # Database configuration
 db_config = {
