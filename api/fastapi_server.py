@@ -111,12 +111,16 @@ async def validate_secret_header(secret: str = Header(None, alias=app_config.api
     file_logger.info("Secret header validated successfully.")
 
 async def validate_secret(secret: str = None):
-    if not secret or secret != app_config.api_secret_key:
-        console_logger.warning("Unauthorized access attempt with wrong secret")
-        file_logger.warning("Unauthorized access attempt with wrong secret")
-        raise HTTPException(status_code=403, detail="Unauthorized access")
-    console_logger.info("Secret validated successfully.")
-    file_logger.info("Secret validated successfully.")
+    if app_config.api_secret_key:
+        if secret != app_config.api_secret_key:
+            console_logger.warning("Unauthorized access attempt with wrong secret")
+            file_logger.warning("Unauthorized access attempt with wrong secret")
+            raise HTTPException(status_code=403, detail="Unauthorized access")
+        console_logger.info("Secret validated successfully.")
+        file_logger.info("Secret validated successfully.")
+    else:
+        console_logger.info("No API secret key set, skipping secret validation.")
+        file_logger.info("No API secret key set, skipping secret validation.")        
 
 async def validate_ip(request: Request):
     client_host = request.client.host
