@@ -23,7 +23,7 @@ backupcount = app_config.api_max_log_files
 # Console logger
 console_logger = logging.getLogger("api_console_logger")
 if console_log_level_str == "OFF":
-    logger.setLevel(logging.NOTSET)
+    console_log_level = logging.NOTSET
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
     

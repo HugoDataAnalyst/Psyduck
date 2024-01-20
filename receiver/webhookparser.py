@@ -63,8 +63,11 @@ else:
 file_logger.setLevel(log_level)
 if not os.path.exists(os.path.dirname(log_file)):
     os.makedirs(os.path.dirname(log_file))
+
+#handler
 file_handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
 file_handler.setLevel(log_level)
+# Formatter
 file_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 file_logger.addHandler(file_handler)
