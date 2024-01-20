@@ -10,6 +10,11 @@ class AppConfig:
 
         self.geofence_api_url = config['koji']['GEOFENCE_API_URL']
         self.bearer_token = config['koji']['BEARER_TOKEN']
+        self.max_size_geofence = int(config['koji']['MAX_SIZE_GEOFENCE'])
+        self.cache_geofences = int(config['koji']['CACHE_GEOFENCES'])
+        self.refresh_geofences = int(config['koji']['REFRESH_GEOFENCES'])
+        self.max_tries_geofences = int(config['koji']['MAX_TRIES_GEOFENCES'])
+        self.retry_delay_mult_geofences = int(config['receiver']['RETRY_DELAY_MULT_GEOFENCES'])        
         self.allow_webhook_host = config['receiver']['ALLOW_WEBHOOK_HOST']
         self.receiver_host = config['receiver']['HOST']
         self.receiver_port = int(config['receiver']['PORT'])
@@ -19,15 +24,11 @@ class AppConfig:
         self.flush_interval = int(config['receiver']['EXTRA_FLUSH_INTERVAL'])
         self.max_retries = int(config['receiver']['MAX_RETRIES'])
         self.retry_delay = int(config['receiver']['RETRY_DELAY'])
+        self.webhook_console_log_level = config['receiver']['LOG_LEVEL']
         self.webhook_log_level = config['receiver']['LOG_LEVEL']
         self.webhook_log_file = config['receiver']['LOG_FILE']
         self.webhook_log_max_bytes = int(config['receiver']['LOG_MAX_BYTES'])
         self.webhook_max_log_files = int(config['receiver']['MAX_LOG_FILES'])
-        self.max_size_geofence = int(config['receiver']['MAX_SIZE_GEOFENCE'])
-        self.cache_geofences = int(config['receiver']['CACHE_GEOFENCES'])
-        self.refresh_geofences = int(config['receiver']['REFRESH_GEOFENCES'])
-        self.max_tries_geofences = int(config['receiver']['MAX_TRIES_GEOFENCES'])
-        self.retry_delay_mult_geofences = int(config['receiver']['RETRY_DELAY_MULT_GEOFENCES'])
         self.db_host = config['database']['HOST']
         self.db_port = int(config['database']['PORT'])
         self.db_name = config['database']['NAME']
@@ -40,6 +41,7 @@ class AppConfig:
         self.migration_max_log_files = int(config['database']['MIGRATION_MAX_LOG_FILES'])
         self.celery_broker_url = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.celery_result_backend = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
+        self.celery_console_log_level = config['celery']['CONSOLE_LOG_LEVEL']
         self.celery_log_level = config['celery']['LOG_LEVEL']
         self.celery_log_file = config['celery']['LOG_FILE']
         self.celery_log_max_bytes = int(config['celery']['LOG_MAX_BYTES'])
@@ -50,6 +52,7 @@ class AppConfig:
         self.redis_db = config['redis']['DB']
         self.redis_url = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
         self.api_log_level = config['api']['LOG_LEVEL']
+        self.api_console_log_level = config['api']['CONSOLE_LOG_LEVEL']
         self.api_log_file = config['api']['LOG_FILE']
         self.api_log_max_bytes = int(config['api']['LOG_MAX_BYTES'])
         self.api_max_log_files = int(config['api']['MAX_LOG_FILES'])

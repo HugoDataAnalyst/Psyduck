@@ -18,7 +18,7 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 - MySQL Database 8.0.0+;
 - Koji;
 - Golbat;
-- Python 3.10.13, untested on previous/highers versions;
+- Python 3.10.13, untested on previous/higher versions;
 - Redis Server 5.0.7.
 
 Python3 Libraries:

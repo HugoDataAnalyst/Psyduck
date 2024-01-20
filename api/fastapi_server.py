@@ -18,6 +18,15 @@ logger = logging.getLogger("my_logger")
 
 log_level_str = app_config.api_log_level.upper()
 
+# Console logger
+console_log_level_str = app_config.api_console_log_level.upper()
+if console_log_level_str == "OFF":
+    logger.setLevel(logging.NOTSET)
+else:
+    console_log_level = getattr(logging, console_log_level_str, logging.INFO)
+    logger.setLevel(console_log_level)
+
+# Log file logger
 if log_level_str == "OFF":
     logger.setLevel(logging.NOTSET)
 else:
@@ -30,7 +39,7 @@ file_handler.setLevel(log_level)
 
 # Console logger
 console_handler = StreamHandler()
-console_handler.setLevel(log_level)
+console_handler.setLevel(console_log_level)
 
 # Create and set the formatter
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

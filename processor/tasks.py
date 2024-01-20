@@ -11,8 +11,15 @@ import redis
 
 celery_logger = get_task_logger(__name__)
 
-log_level_str = app_config.celery_log_level.upper()
+# Console log level
+console_log_level_str = app_config.celery_console_log_level.upper()
+if console_log_level_str == "OFF":
+    console_log_level = logging.NOTSET
+else:
+    console_log_level = getattr(logging, console_log_level_str, logging.INFO)
 
+# Log file level
+log_level_str = app_config.celery_log_level.upper()
 if log_level_str == "OFF":
     log_level = logging.NOTSET
 else:
@@ -36,9 +43,15 @@ formatter = logging.Formatter(
 )
 file_handler.setFormatter(formatter)
 
+# Add console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(console_log_level)
+console_handler.setFormatter(formatter)
+
 # Add handler to the logger
 celery_logger.addHandler(file_handler)
 celery_logger.setLevel(log_level)
+celery_logger.addHandler(console_handler)
 
 # Database configuration
 db_config = {

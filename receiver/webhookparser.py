@@ -29,8 +29,19 @@ is_processing_queue = False
 data_queue = []
 data_queue_lock = asyncio.Lock()
 
-# Configure logger
+# Configure logging
 logger = logging.getLogger("webhook_logger")
+
+# Console logger
+
+console_log_level_str = app_config.webhook_console_log_level.upper()
+if console_log_level_str == "OFF":
+    console_log_level = logging.NOTSET
+else:
+    console_log_level = getattr(logging, console_log_level_str, logging.INFO)
+
+# Configure logger
+
 log_level_str = app_config.webhook_log_level.upper()
 if log_level_str == "OFF":
     log_level = logging.NOTSET

@@ -12,6 +12,6 @@ if __name__ == "__main__":
 
     worker = celery.Worker(
         concurrency=app_config.celery_workers,
-        loglevel=app_config.celery_log_level
+        loglevel=app_config.celery_console_log_level
     )
     worker.start()
