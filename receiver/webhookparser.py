@@ -40,7 +40,7 @@ backup_count = app_config.webhook_max_log_files
 # Console Logger
 console_logger = logging.getLogger("webhook_console_logger")
 if console_log_level_str == "OFF":
-    console_log_level == logging.NOTSET
+    console_log_level = logging.NOTSET
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
 
@@ -68,9 +68,6 @@ file_handler.setLevel(log_level)
 file_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 file_logger.addHandler(file_handler)
-
-console_logger.info("This message goes to the console")
-file_logger.info("This message goes to the file")
 
 refresh_task = None
 
