@@ -1,5 +1,6 @@
 from .celery_app import celery
 import logging
+from logging.handlers import RotatingFileHandler
 from celery.utils.log import get_task_logger
 from config.app_config import app_config
 import pymysql
