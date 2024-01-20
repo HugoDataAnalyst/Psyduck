@@ -27,7 +27,7 @@ if console_log_level_str == "OFF":
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
     
-logger.setLevel(console_log_level)
+console_logger.setLevel(console_log_level)
 #handler
 console_handler = logging.StreamHandler()
 console_handler.setLevel(console_log_level)
