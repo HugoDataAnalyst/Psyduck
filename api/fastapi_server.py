@@ -16,8 +16,6 @@ from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_poke
 # Create a custom logger
 logger = logging.getLogger("my_logger")
 
-log_level_str = app_config.api_log_level.upper()
-
 # Console logger
 console_log_level_str = app_config.api_console_log_level.upper()
 if console_log_level_str == "OFF":
@@ -26,29 +24,36 @@ else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
     logger.setLevel(console_log_level)
 
+    # Console logger handler
+    console_handler = StreamHandler()
+    console_handler.setLevel(console_log_level)
+
+    # Console formatter
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+
+    # Add console logger
+    logger.addHandler(console_handler)
+
 # Log file logger
+log_level_str = app_config.api_log_level.upper()
 if log_level_str == "OFF":
     logger.setLevel(logging.NOTSET)
 else:
     log_level = getattr(logging, log_level_str, logging.INFO)
     logger.setLevel(log_level)
 
-# Create a file handler that logs even debug messages
-file_handler = RotatingFileHandler(app_config.api_log_file, maxBytes=app_config.api_log_max_bytes, backupCount=app_config.api_max_log_files)
-file_handler.setLevel(log_level)
+    # Create a file handler that logs even debug messages
+    file_handler = RotatingFileHandler(app_config.api_log_file, maxBytes=app_config.api_log_max_bytes, backupCount=app_config.api_max_log_files)
+    file_handler.setLevel(log_level)
 
-# Console logger
-console_handler = StreamHandler()
-console_handler.setLevel(console_log_level)
+    # Create and set the formatter
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    
+    # Add the handler to the logger
+    logger.addHandler(file_handler)
 
-# Create and set the formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
-console_handler.setFormatter(formatter)
-
-# Add the handler to the logger
-logger.addHandler(file_handler)
-logger.addHandler(console_handler)
 
 ALLOWED_PATHS = [
     "/api/daily-area-pokemon-stats",
