@@ -24,7 +24,7 @@ class AppConfig:
         self.flush_interval = int(config['receiver']['EXTRA_FLUSH_INTERVAL'])
         self.max_retries = int(config['receiver']['MAX_RETRIES'])
         self.retry_delay = int(config['receiver']['RETRY_DELAY'])
-        self.webhook_console_log_level = config['receiver']['LOG_LEVEL']
+        self.webhook_console_log_level = config['receiver']['CONSOLE_LOG_LEVEL']
         self.webhook_log_level = config['receiver']['LOG_LEVEL']
         self.webhook_log_file = config['receiver']['LOG_FILE']
         self.webhook_log_max_bytes = int(config['receiver']['LOG_MAX_BYTES'])
