@@ -23,18 +23,17 @@ backup_count = app_config.api_max_log_files
 # Console logger
 console_logger = logging.getLogger("api_console_logger")
 if console_log_level_str == "OFF":
-    console_log_level = logging.NOTSET
+    console_logger.disabled = True
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
-    
-console_logger.setLevel(console_log_level)
-#handler
-console_handler = logging.StreamHandler()
-console_handler.setLevel(console_log_level)
-# Formatter
-console_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
-console_handler.setFormatter(console_formatter)
-console_logger.addHandler(console_handler)
+    console_logger.setLevel(console_log_level)
+    #handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(console_log_level)
+    # Formatter
+    console_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    console_handler.setFormatter(console_formatter)
+    console_logger.addHandler(console_handler)
 
 # File logger
 file_logger = logging.getLogger("api_file_logger")
@@ -103,12 +102,17 @@ async def startup():
 
 
 async def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
-    if not secret or secret != app_config.api_secret_header_key:
-        console_logger.warning("Unauthorized access attempt with wrong secret header")
-        file_logger.warning("Unauthorized access attempt with wrong secret header")
-        raise HTTPException(status_code=403, detail="Unauthorized access")
-    console_logger.info("Secret header validated successfully.")
-    file_logger.info("Secret header validated successfully.")
+    if app_config.api_secret_header_key:
+        if secret != app_config.api_secret_header_key:
+    #if not secret or secret != app_config.api_secret_header_key:
+            console_logger.warning("Unauthorized access attempt with wrong secret header")
+            file_logger.warning("Unauthorized access attempt with wrong secret header")
+            raise HTTPException(status_code=403, detail="Unauthorized access")
+        console_logger.info("Secret header validated successfully.")
+        file_logger.info("Secret header validated successfully.")
+    else:
+        console_logger.info("No API secret header key set, skipping secret validation.")
+        file_logger.info("No API secret header key set, skipping secret validation.")
 
 async def validate_secret(secret: str = None):
     if app_config.api_secret_key:
