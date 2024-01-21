@@ -219,7 +219,6 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
     try:
         # Fetching data from each API task
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        console_logger.info(f"API raw data for daily area stats: {daily_area_stats}")
         weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
         weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
         monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
@@ -234,8 +233,8 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
-        console_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
-        file_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
+        console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+        file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
 
         formatted_weekly_stats = format_results_to_victoria(weekly_stats)
         console_logger.info(f"Formatted weekly stats for VictoriaMetrics")
@@ -258,7 +257,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
 
         formatted_total_stats = format_results_to_victoria(total_stats)
-        console_logger.info(f"Formatted total stats for VictoriaMetrics")
+        console_logger.info(f"Formatted total stats for VictoriaMetrics: {formatted_total_stats}")
         file_logger.info(f"Formatted total stats for VictoriaMetrics")
 
         formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'surge_daily')
@@ -321,7 +320,7 @@ def format_results_to_victoria_by_hour(data, metric_prefix):
         for row in stats_list:
             # Extract the hour and use it as a label
             hour_formatted = str(hour).zfill(2)
-            hour_label = "hour=\"" + {hour} +"\""
+            hour_label = "hour=\"" + {hour_formatted} +"\""
 
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
