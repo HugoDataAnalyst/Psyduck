@@ -155,7 +155,9 @@ def query_hourly_total_api_pokemon_stats(self):
     try:
         results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
         if app_config.api_victoriametrics:
-            return format_results_to_victoria(results)
+            formatted_data = format_results_to_victoria(results)
+            celery_logger.info(f"Formatted VictoriaMetrics data : {formatted_data}")
+            return formatted_data
         else:
             return organize_results(results)
     except Exception as e:
@@ -227,7 +229,7 @@ def format_results_to_victoria(results):
     prometheus_metrics = []
     for row in results:
         area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        area_label = f"area='{area_name}'"
+        area_label = f"area={area_name}"
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
