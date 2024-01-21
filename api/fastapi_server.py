@@ -320,7 +320,7 @@ def format_results_to_victoria_by_hour(data, metric_prefix):
         for row in stats_list:
             # Extract the hour and use it as a label
             hour_formatted = str(hour).zfill(2)
-            hour_label = "hour=\"" + {hour_formatted} +"\""
+            hour_label = f"hour=\"{hour_formatted}\""
 
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
