@@ -219,14 +219,14 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
     try:
         # Fetching data from each API task
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
-        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
-        total_stats = get_task_result(query_total_api_pokemon_stats)
-        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
-        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
+        #weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        #monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        #hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        #daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        #total_stats = get_task_result(query_total_api_pokemon_stats)
+        #surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
+        #surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        #surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
         console_logger.info(f"Fetched all API tasks sucessfuly")
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
@@ -235,49 +235,49 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
         file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
 
-        formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
-        console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
+        #formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
+        #console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
 
-        formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
-        console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
+        #formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
+        #console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
 
-        formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
-        console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
+        #console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
 
-        formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
-        console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
+        #formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
+        #console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
 
-        formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
-        console_logger.info(f"Formatted total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted total stats for VictoriaMetrics")
+        #formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
+        #console_logger.info(f"Formatted total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted total stats for VictoriaMetrics")
 
-        formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
-        console_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
+        #formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
+        #console_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
 
-        formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
-        console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
+        #formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
+        #console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
 
-        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
-        console_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
+        #formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
+        #console_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats,
-            formatted_weekly_area_stats,
-            formatted_monthly_area_stats,
-            formatted_hourly_total_stats,
-            formatted_daily_total_stats,
-            formatted_total_stats,
-            formatted_surge_daily_stats,
-            formatted_surge_weekly_stats,
-            formatted_surge_monthly_stats
+            formatted_daily_area_stats
+            #formatted_weekly_area_stats,
+            #formatted_monthly_area_stats,
+            #formatted_hourly_total_stats,
+            #formatted_daily_total_stats,
+            #formatted_total_stats,
+            #formatted_surge_daily_stats,
+            #formatted_surge_weekly_stats,
+            #formatted_surge_monthly_stats
         ])
 
         # Return as plain text
@@ -296,17 +296,25 @@ def format_results_to_victoria(data, metric_prefix):
             for row in stats_list:
                 area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
                 area_label = "area=\"" + area_name_formatted +"\""
-                day_formatted = row['day'].replace('-', '_')
-                day_label = "day=\"" + day_formatted +"\""
+
+                day_label = ""
+                if 'day' in row:
+                    day_formatted = row['day'].replace('-', '_')
+                    day_label = "day=\"" + day_formatted +"\""
+                else:
+                    print(f"Day noy found in row: {row}")
 
                 # Create a Victoria metric line for each column (now key) in the row
                 for key, value in row.items():
                     if key in ['area_name', 'day']:
                         continue
                     if value is None  or (isinstance(value, str) and not value.isdigit()):
+                        print(f"Non-digit value found for key {key}: {value}")
                         continue
+
                     metric_name = f'{metric_prefix}_{key}'
-                    prometheus_metric_line = f'{metric_name}{{{area_label}, {day_label}}} {value}'
+                    labels = f"{area_label}{', ' + day_label if day_label else ''}"
+                    prometheus_metric_line = f'{metric_name}{{{labels}}} {value}'
                     prometheus_metrics.append(prometheus_metric_line)
 
     except Exception as e:
