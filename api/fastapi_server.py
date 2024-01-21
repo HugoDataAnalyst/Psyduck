@@ -12,6 +12,7 @@ from celery import Celery
 from config.app_config import app_config
 from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats, query_daily_surge_api_pokemon_stats, query_weekly_surge_api_pokemon_stats, query_monthly_surge_api_pokemon_stats
 import os
+import json
 
 # Configuration values
 console_log_level_str = app_config.api_console_log_level.upper()
