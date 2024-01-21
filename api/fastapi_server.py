@@ -218,16 +218,16 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats = json.loads(get_task_result(query_daily_api_pokemon_stats))
-        weekly_stats = json.loads(get_task_result(query_weekly_api_pokemon_stats))
-        weekly_area_stats = json.loads(get_task_result(query_weekly_api_pokemon_stats))
-        monthly_area_stats = json.loads(get_task_result(query_monthly_api_pokemon_stats))
-        hourly_total_stats = json.loads(get_task_result(query_hourly_total_api_pokemon_stats))
-        daily_total_stats = json.loads(get_task_result(query_daily_total_api_pokemon_stats))
-        total_stats = json.loads(get_task_result(query_total_api_pokemon_stats))
-        surge_daily_stats = json.loads(get_task_result(query_daily_surge_api_pokemon_stats))
-        surge_weekly_stats = json.loads(get_task_result(query_weekly_surge_api_pokemon_stats))
-        surge_monthly_stats = json.loads(get_task_result(query_monthly_surge_api_pokemon_stats))
+        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
+        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        total_stats = get_task_result(query_total_api_pokemon_stats)
+        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
+        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
@@ -266,20 +266,18 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 def format_results_to_victoria(results):
     prometheus_metrics = []
     for row in results:
-        area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
+        area_name = row.get('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
         area_label = "area=\"" + area_name +"\""
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
-            if value is None  or isinstance(value, str) and not value.isdigit():
+            if value is None  or (isinstance(value, str) and not value.isdigit()):
                 continue
             metric_name = f'pokemon_stats_{key}'
             prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
             prometheus_metrics.append(prometheus_metric_line)
-            celery_logger.info(f"Processed metric line: {prometheus_metric_line}")
 
     formatted_metrics = '\n'.join(prometheus_metrics)
-    celery_logger.info(f"Formatted VictoriaMetrics data: {formatted_metrics}")
     return formatted_metrics
 
 # Organises Hour for VictoriaMetrics
@@ -287,13 +285,13 @@ def format_results_to_victoria_by_hour(results, metric_prefix):
     prometheus_metrics = []
     for row in results:
         # Extract the hour and use it as a label
-        hour = row.pop('hour', 'unknown').replace('-', '_').replace(' ', '_').lower()
+        hour = str(row.get('hour', 'unknown')).zfill(2)
         hour_label = "hour=\"" + {hour} +"\""
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
             # Skip the hour key since it's already used as a label
-            if value is None  or isinstance(value, str) and not value.isdigit():
+            if value is None  or (isinstance(value, str) and not value.isdigit()):
                 continue
             if key != 'hour':
                 metric_name = f'{metric_prefix}_{key}'
