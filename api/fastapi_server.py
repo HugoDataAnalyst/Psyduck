@@ -216,9 +216,9 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 
 @fastapi.get("/metrics")
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    try:
+    #try:
         # Fetching data from each API task
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+    daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
         #weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
         #monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
         #hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
@@ -227,13 +227,13 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         #surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
         #surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
         #surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
-        console_logger.info(f"Fetched all API tasks sucessfuly")
-        file_logger.info(f"Fetched all API tasks sucessfuly")
+    console_logger.info(f"Fetched all API tasks sucessfuly")
+    file_logger.info(f"Fetched all API tasks sucessfuly")
 
         # Format each result set
-        formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
-        file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+    formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
+    console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+    file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
 
         #formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
         #console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
@@ -268,8 +268,8 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         #file_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
 
         # Combine all formatted metrics
-        prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats
+    prometheus_metrics = '\n'.join([
+        formatted_daily_area_stats
             #formatted_weekly_area_stats,
             #formatted_monthly_area_stats,
             #formatted_hourly_total_stats,
@@ -278,14 +278,14 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
             #formatted_surge_daily_stats,
             #formatted_surge_weekly_stats,
             #formatted_surge_monthly_stats
-        ])
+    ])
 
         # Return as plain text
-        return Response(content=prometheus_metrics, media_type="text/plain")
-    except Exception as e:
-        console_logger.info(f"Error generating metrics: {e}")
-        file_logger.info(f"Error generating metrics: {e}")
-        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+    return Response(content=prometheus_metrics, media_type="text/plain")
+    #except Exception as e:
+        #console_logger.info(f"Error generating metrics: {e}")
+        #file_logger.info(f"Error generating metrics: {e}")
+        #return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 
 # Organises for VictoriaMetrics
