@@ -221,7 +221,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
         #weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
         #monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        #hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
         #daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
         #total_stats = get_task_result(query_total_api_pokemon_stats)
         #surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
@@ -243,9 +243,9 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         #console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
         #file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
 
-        formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
-        console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
+        #console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
 
         #formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
         #console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
@@ -269,10 +269,10 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats,
+            formatted_daily_area_stats
             #formatted_weekly_area_stats,
             #formatted_monthly_area_stats,
-            formatted_hourly_total_stats
+            #formatted_hourly_total_stats,
             #formatted_daily_total_stats,
             #formatted_total_stats,
             #formatted_surge_daily_stats,
