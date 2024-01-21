@@ -232,7 +232,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+        console_logger.info(f"Formatted daily area stats for VictoriaMetrics: {daily_area_stats}.")
         file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
 
         formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
@@ -256,8 +256,8 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         file_logger.info(f"Formatted total stats for VictoriaMetrics")
 
         formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
-        console_logger.info(f"Formatted surge daily stats for VictoriaMetrics: {formatted_surge_daily_stats}")
-        file_logger.info(f"Formatted surge daily stats for VictoriaMetrics: {formatted_surge_daily_stats}")
+        console_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
+        file_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
 
         #formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
         #console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
@@ -298,9 +298,9 @@ def format_results_to_victoria(data, metric_prefix):
 
             # Handle float date
             date_label = ""
-            if 'date' in row:
-                date_formmatted = row['date'].replace('-', '_')
-                date_label = ",date=\"" + date_formmatted +"\""
+            if 'day' in row:
+                date_formmatted = row['day'].replace('-', '_')
+                date_label = ",day=\"" + date_formmatted +"\""
 
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
