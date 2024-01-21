@@ -298,7 +298,7 @@ def format_results_to_victoria(data, metric_prefix):
 
             day_label = ""
             if 'day' in row:
-                day_formatted = str(['day']).replace('-', '_')
+                day_formatted = str(row['day']).replace('-', '_')
                 day_label = "day=\"" + day_formatted +"\""
 
             # Create a Victoria metric line for each column (now key) in the row
