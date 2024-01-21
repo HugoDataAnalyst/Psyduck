@@ -226,7 +226,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         total_stats = get_task_result(query_total_api_pokemon_stats)
         surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
         surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
+        #surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
         console_logger.info(f"Fetched all API tasks sucessfuly")
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
@@ -263,21 +263,21 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
         file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
 
-        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
-        console_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
+        #formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
+        #console_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats, 
-            formatted_weekly_area_stats, 
+            formatted_daily_area_stats,
+            formatted_weekly_area_stats,
             formatted_monthly_area_stats,
-            formatted_hourly_total_stats, 
-            formatted_daily_total_stats, 
+            formatted_hourly_total_stats,
+            formatted_daily_total_stats,
             formatted_total_stats,
             formatted_surge_daily_stats,
-            formatted_surge_weekly_stats, 
-            formatted_surge_monthly_stats
+            formatted_surge_weekly_stats
+            #formatted_surge_monthly_stats
         ])
 
         # Return as plain text
