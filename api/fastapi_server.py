@@ -218,43 +218,43 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
-        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        #daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        #weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
+        #weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        #monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        #hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        #daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
         total_stats = get_task_result(query_total_api_pokemon_stats)
         surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
-        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
+        #surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        #surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
         console_logger.info(f"Fetched all API tasks sucessfuly")
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
         # Format each result set
-        formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
-        console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
-        file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+        #formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
+        #console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+        #file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
 
-        formatted_weekly_stats = format_results_to_victoria(weekly_stats)
-        console_logger.info(f"Formatted weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted weekly stats for VictoriaMetrics")
+        #formatted_weekly_stats = format_results_to_victoria(weekly_stats)
+        #console_logger.info(f"Formatted weekly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted weekly stats for VictoriaMetrics")
 
-        formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats)
-        console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
+        #formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats)
+        #console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
 
-        formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats)
-        console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
+        #formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats)
+        #console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
 
-        formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats)
-        console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats)
+        #console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
 
-        formatted_daily_total_stats = format_results_to_victoria(daily_total_stats)
-        console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
+        #formatted_daily_total_stats = format_results_to_victoria(daily_total_stats)
+        #console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
 
         formatted_total_stats = format_results_to_victoria(total_stats)
         console_logger.info(f"Formatted total stats for VictoriaMetrics: {formatted_total_stats}")
@@ -264,26 +264,26 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         console_logger.info(f"Formatted surge daily stats for VictoriaMetrics: {formatted_surge_daily_stats}")
         file_logger.info(f"Formatted surge daily stats for VictoriaMetrics: {formatted_surge_daily_stats}")
 
-        formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'surge_weekly')
-        console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
+        #formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'surge_weekly')
+        #console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
 
-        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'surge_monthly')
-        console_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
+        #formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'surge_monthly')
+        #console_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
+        #file_logger.info(f"Formatted monthly weekly stats for VictoriaMetrics")
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats, 
-            formatted_weekly_stats, 
-            formatted_weekly_area_stats, 
-            formatted_monthly_area_stats,
-            formatted_hourly_total_stats, 
-            formatted_daily_total_stats, 
+            #formatted_daily_area_stats, 
+            #formatted_weekly_stats, 
+            #formatted_weekly_area_stats, 
+            #formatted_monthly_area_stats,
+            #formatted_hourly_total_stats, 
+            #formatted_daily_total_stats, 
             formatted_total_stats,
-            formatted_surge_daily_stats, 
-            formatted_surge_weekly_stats, 
-            formatted_surge_monthly_stats
+            formatted_surge_daily_stats
+            #formatted_surge_weekly_stats, 
+            #formatted_surge_monthly_stats
         ])
 
         # Return as plain text
