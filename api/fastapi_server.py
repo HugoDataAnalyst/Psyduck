@@ -298,7 +298,7 @@ def format_results_to_victoria(data, metric_prefix):
 
             day_label = ""
             if 'day' in row:
-                day_formatted = row['day'].replace('-', '_')
+                day_formatted = day.replace('-', '_')
                 day_label = "day=\"" + day_formatted +"\""
             else:
                 console_logger.info(f"Day noy found in row: {row}")
