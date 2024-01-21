@@ -217,16 +217,16 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
-        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
-        total_stats = get_task_result(query_total_api_pokemon_stats)
-        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
-        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)    
+        daily_area_stats = json.loads(get_task_result(query_daily_api_pokemon_stats))
+        weekly_stats = json.loads(get_task_result(query_weekly_api_pokemon_stats))
+        weekly_area_stats = json.loads(get_task_result(query_weekly_api_pokemon_stats))
+        monthly_area_stats = json.loads(get_task_result(query_monthly_api_pokemon_stats))
+        hourly_total_stats = json.loads(get_task_result(query_hourly_total_api_pokemon_stats))
+        daily_total_stats = json.loads(get_task_result(query_daily_total_api_pokemon_stats))
+        total_stats = json.loads(get_task_result(query_total_api_pokemon_stats))
+        surge_daily_stats = json.loads(get_task_result(query_daily_surge_api_pokemon_stats))
+        surge_weekly_stats = json.loads(get_task_result(query_weekly_surge_api_pokemon_stats))
+        surge_monthly_stats = json.loads(get_task_result(query_monthly_surge_api_pokemon_stats))
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
@@ -257,7 +257,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         # Return as plain text
         return Response(content=prometheus_metrics, media_type="text/plain")
     except Exception as e:
-        console_logger.error(f"Error generating metrics: {e}")
+        console_logger.info(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 
