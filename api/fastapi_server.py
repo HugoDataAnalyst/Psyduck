@@ -296,8 +296,10 @@ def format_results_to_victoria(data, metric_prefix):
             for row in stats_list:
                 area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
                 area_label = "area=\"" + area_name_formatted +"\""
-                day_formatted = row['day'].replace('-', '_')
-                day_label = "day=\"" + day_formmatted +"\""
+                day_label = ""
+                if 'day' in row:
+                    day_formatted = row['day'].replace('-', '_')
+                    day_label = ",day=\"" + day_formmatted +"\""
 
                 # Create a Victoria metric line for each column (now key) in the row
                 for key, value in row.items():
@@ -306,7 +308,8 @@ def format_results_to_victoria(data, metric_prefix):
                     if value is None  or (isinstance(value, str) and not value.isdigit()):
                         continue
                     metric_name = f'{metric_prefix}_{key}'
-                    prometheus_metric_line = f'{metric_name}{{{area_label}, {day_label}}} {value}'
+                    labels = f"{area_label}{',' + day_label if day_label else ''}"
+                    prometheus_metric_line = f'{metric_name}{{{labels}}} {value}'
                     prometheus_metrics.append(prometheus_metric_line)
 
     except Exception as e:
