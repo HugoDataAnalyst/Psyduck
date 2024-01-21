@@ -316,8 +316,8 @@ def format_results_to_victoria(data, metric_prefix):
                 prometheus_metric_line = f'{metric_name}{{{labels}}} {value}'
                 prometheus_metrics.append(prometheus_metric_line)
 
-formatted_metrics = '\n'.join(prometheus_metrics)
-return formatted_metrics
+    formatted_metrics = '\n'.join(prometheus_metrics)
+    return formatted_metrics
 
 # Organises Hour for VictoriaMetrics
 def format_results_to_victoria_by_hour(data, metric_prefix):
