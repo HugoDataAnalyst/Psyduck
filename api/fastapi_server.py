@@ -218,8 +218,8 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats_raw = get_task_result(query_daily_api_pokemon_stats)
-        console_logger.info(f"API raw data for daily area stats: {daily_area_stats_raw}")
+        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        console_logger.info(f"API raw data for daily area stats: {daily_area_stats}")
         weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
         weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
         monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
@@ -233,8 +233,6 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
         # Format each result set
-        daily_area_stats = json.loads(daily_area_stats_raw) if isinstance(daily_area_stats_raw, str) else daily_area_stats_raw
-        console_logger.info(f"Json loaded data: {daily_area_stats}")
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
         console_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
         file_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
@@ -298,37 +296,38 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
 
 # Organises for VictoriaMetrics
-def format_results_to_victoria(results):
+def format_results_to_victoria(data):
     prometheus_metrics = []
-    for row in results:
-        area_name = row.get('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        area_label = "area=\"" + area_name +"\""
+    for area_name, stats_list in data.items():
+        for row in stats_list:
+            area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
+            area_label = "area=\"" + area_name_formatted +"\""
 
-        # Create a Victoria metric line for each column (now key) in the row
-        for key, value in row.items():
-            if value is None  or (isinstance(value, str) and not value.isdigit()):
-                continue
-            metric_name = f'pokemon_stats_{key}'
-            prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
-            prometheus_metrics.append(prometheus_metric_line)
+            # Create a Victoria metric line for each column (now key) in the row
+            for key, value in row.items():
+                if key == 'area_name' or value is None  or (isinstance(value, str) and not value.isdigit()):
+                    continue
+                metric_name = f'pokemon_stats_{key}'
+                prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
+                prometheus_metrics.append(prometheus_metric_line)
 
     formatted_metrics = '\n'.join(prometheus_metrics)
     return formatted_metrics
 
 # Organises Hour for VictoriaMetrics
-def format_results_to_victoria_by_hour(results, metric_prefix):
+def format_results_to_victoria_by_hour(data, metric_prefix):
     prometheus_metrics = []
-    for row in results:
-        # Extract the hour and use it as a label
-        hour = str(row.get('hour', 'unknown')).zfill(2)
-        hour_label = "hour=\"" + {hour} +"\""
+    for hour, stats_list in data.items():
+        for row in stats_list:
+            # Extract the hour and use it as a label
+            hour_formatted = str(hour).zfill(2)
+            hour_label = "hour=\"" + {hour} +"\""
 
-        # Create a Victoria metric line for each column (now key) in the row
-        for key, value in row.items():
-            # Skip the hour key since it's already used as a label
-            if value is None  or (isinstance(value, str) and not value.isdigit()):
-                continue
-            if key != 'hour':
+            # Create a Victoria metric line for each column (now key) in the row
+            for key, value in row.items():
+                # Skip the hour key since it's already used as a label
+                if value is None  or (isinstance(value, str) and not value.isdigit()):
+                    continue
                 metric_name = f'{metric_prefix}_{key}'
                 prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
                 prometheus_metrics.append(prometheus_metric_line)
