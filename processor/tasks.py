@@ -152,6 +152,7 @@ def query_monthly_api_pokemon_stats(self):
 # API Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_hourly_total_api_pokemon_stats(self):
+    try:
         results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
         return organize_results(results)
     except Exception as e:
