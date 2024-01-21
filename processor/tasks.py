@@ -236,10 +236,11 @@ def format_results_to_victoria(results):
             metric_name = f'pokemon_stats_{key}'
             prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
             prometheus_metrics.append(prometheus_metric_line)
-            formatted_metrics = '\n'.join(prometheus_metrics)
-            console_logger
+            celery_logger.info(f"Processed metric line: {prometheus_metric_line}")
 
-    return '\n'.join(prometheus_metrics)
+    formatted_metrics = '\n'.join(prometheus_metrics)
+    celery_logger.info(f"Formatted VictoriaMetrics data: {formatted_metrics}")
+    return formatted_metrics
 
 # Organises Hour for VictoriaMetrics
 def format_results_to_victoria_by_hour(results, metric_prefix):
