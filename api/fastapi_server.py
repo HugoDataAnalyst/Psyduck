@@ -98,6 +98,8 @@ async def startup():
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     console_logger.info("FastAPI cache initialized with Redis backend")
     file_logger.info("FastAPI cache initialized with Redis backend")
+    # Clear the cache on startup
+    await FastAPICache.clear(namespace="fastapi-cache")
 
 
 
