@@ -270,8 +270,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
             formatted_daily_area_stats, 
-            formatted_weekly_stats, 
-            #formatted_weekly_area_stats, 
+            formatted_weekly_area_stats, 
             #formatted_monthly_area_stats,
             #formatted_hourly_total_stats, 
             #formatted_daily_total_stats, 
