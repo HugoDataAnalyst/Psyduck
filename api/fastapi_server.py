@@ -218,7 +218,8 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        daily_area_stats_raw = get_task_result(query_daily_api_pokemon_stats)
+        console_logger.info(f"API raw data for daily area stats: {daily_area_stats_raw}")
         weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
         weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
         monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
@@ -232,6 +233,8 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
         # Format each result set
+        daily_area_stats = json.loads(daily_area_stats_raw) if isinstance(daily_area_stats_raw, str) else daily_area_stats_raw
+        console_logger.info(f"Json loaded data: {daily_area_stats}")
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
         console_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
         file_logger.info(f"Formatted daily area stats for VictoriaMetrics: {formatted_daily_area_stats}")
