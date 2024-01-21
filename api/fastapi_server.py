@@ -291,37 +291,33 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 # Organises for VictoriaMetrics
 def format_results_to_victoria(data, metric_prefix):
     prometheus_metrics = []
-    try:
-        for area_name, stats_list in data.items():
-            for row in stats_list:
-                area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
-                area_label = "area=\"" + area_name_formatted +"\""
+    for area_name, stats_list in data.items():
+        for row in stats_list:
+            area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
+            area_label = "area=\"" + area_name_formatted +"\""
 
-                day_label = ""
-                if 'day' in row:
-                    day_formatted = row['day'].replace('-', '_')
-                    day_label = "day=\"" + day_formatted +"\""
-                else:
-                    print(f"Day noy found in row: {row}")
+            day_label = ""
+            if 'day' in row:
+                day_formatted = row['day'].replace('-', '_')
+                day_label = "day=\"" + day_formatted +"\""
+            else:
+                console_logger.info(f"Day noy found in row: {row}")
 
-                # Create a Victoria metric line for each column (now key) in the row
-                for key, value in row.items():
-                    if key in ['area_name', 'day']:
-                        continue
-                    if value is None  or (isinstance(value, str) and not value.isdigit()):
-                        print(f"Non-digit value found for key {key}: {value}")
-                        continue
+            # Create a Victoria metric line for each column (now key) in the row
+            for key, value in row.items():
+                if key in ['area_name', 'day']:
+                    continue
+                if value is None  or (isinstance(value, str) and not value.isdigit()):
+                    console_logger.info(f"Non-digit value found for key {key}: {value}")
+                    continue
 
-                    metric_name = f'{metric_prefix}_{key}'
-                    labels = f"{area_label}{', ' + day_label if day_label else ''}"
-                    prometheus_metric_line = f'{metric_name}{{{labels}}} {value}'
-                    prometheus_metrics.append(prometheus_metric_line)
+                metric_name = f'{metric_prefix}_{key}'
+                labels = f"{area_label}{', ' + day_label if day_label else ''}"
+                prometheus_metric_line = f'{metric_name}{{{labels}}} {value}'
+                prometheus_metrics.append(prometheus_metric_line)
 
-    except Exception as e:
-        print(f"Error processing metrics: {e}")
-
-    formatted_metrics = '\n'.join(prometheus_metrics)
-    return formatted_metrics
+formatted_metrics = '\n'.join(prometheus_metrics)
+return formatted_metrics
 
 # Organises Hour for VictoriaMetrics
 def format_results_to_victoria_by_hour(data, metric_prefix):
