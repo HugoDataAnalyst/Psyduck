@@ -187,7 +187,7 @@ def query_daily_surge_api_pokemon_stats(self):
 def query_weekly_surge_api_pokemon_stats(self):
     try:
         results = execute_query("SELECT * FROM weekly_surge_pokemon_stats")
-        return organized_results_by_hour(results)
+        return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
@@ -195,7 +195,7 @@ def query_weekly_surge_api_pokemon_stats(self):
 def query_monthly_surge_api_pokemon_stats(self):
     try:
         results = execute_query("SELECT * FROM monthly_surge_pokemon_stats")
-        return organized_results_by_hour(results)
+        return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
