@@ -154,7 +154,10 @@ def query_monthly_api_pokemon_stats(self):
 def query_hourly_total_api_pokemon_stats(self):
     try:
         results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
-        return organize_results(results)
+        if app_config.api_victoriametrics:
+            return format_results_to_victoria(results)
+        else:
+            return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
@@ -218,3 +221,36 @@ def organize_results_by_hour(results):
             organized_results_by_hour[hour] = []
         organized_results_by_hour[hour].append(row)
     return organized_results_by_hour
+
+# Organises for VictoriaMetrics
+def format_results_to_victoria(results):
+    prometheus_metrics = []
+    for row in results:
+        area_name = row.pop('area_name', 'unknown').replace("-", "_").replace(" ", "_").lower()
+        area_label = f'area="{area_name}"'
+
+        # Create a Victoria metric line for each column (now key) in the row
+        for key, value in row.items():
+            metric_name = f'pokemon_stats_{key}'
+            prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
+            prometheus_metrics.append(prometheus_metric_line)
+
+    return '\n'.join(prometheus_metrics)
+
+# Organises Hour for VictoriaMetrics
+def format_results_to_victoria_by_hour(results, metric_prefix):
+    prometheus_metrics = []
+    for row in results:
+        # Extract the hour and use it as a label
+        hour = row.pop('hour', 'unknown')
+        hour_label = f'hour="{hour}"'
+
+        # Create a Victoria metric line for each column (now key) in the row
+        for key, value in row.items():
+            # Skip the hour key since it's already used as a label
+            if key != 'hour':
+                metric_name = f'{metric_prefix}_{key}'
+                prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
+                prometheus_metrics.append(prometheus_metric_line)
+
+    return '\n'.join(prometheus_metrics)

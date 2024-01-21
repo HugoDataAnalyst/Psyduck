@@ -74,5 +74,6 @@ class AppConfig:
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']
         self.api_path_restriction = config['api']['PATH_RESTRICTION'].lower() == 'true'
+        self.api_victoriametrics = config['api']['VICTORIA_METRICS'].lower() == 'true'
 
 app_config = AppConfig()
