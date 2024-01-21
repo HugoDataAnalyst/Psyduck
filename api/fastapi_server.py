@@ -306,7 +306,6 @@ def format_results_to_victoria(data, metric_prefix):
                 if key in ['area_name', 'day']:
                     continue
                 if value is None  or (isinstance(value, str) and not value.isdigit()):
-                    console_logger.info(f"Non-digit value found for key {key}: {value}")
                     continue
 
                 metric_name = f'{metric_prefix}_{key}'
