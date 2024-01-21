@@ -227,7 +227,7 @@ def format_results_to_victoria(results):
     prometheus_metrics = []
     for row in results:
         area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        area_label = f'area="{area_name}"'
+        area_label = f"area='{area_name}'"
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
@@ -236,6 +236,8 @@ def format_results_to_victoria(results):
             metric_name = f'pokemon_stats_{key}'
             prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
             prometheus_metrics.append(prometheus_metric_line)
+            formatted_metrics = '\n'.join(prometheus_metrics)
+            console_logger
 
     return '\n'.join(prometheus_metrics)
 
