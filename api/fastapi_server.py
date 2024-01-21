@@ -252,7 +252,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         #file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
 
         formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
-        console_logger.info(f"Formatted total stats for VictoriaMetrics: {formatted_total_stats}")
+        console_logger.info(f"Formatted total stats for VictoriaMetrics")
         file_logger.info(f"Formatted total stats for VictoriaMetrics")
 
         formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
@@ -300,7 +300,7 @@ def format_results_to_victoria(data, metric_prefix):
             date_label = ""
             if 'date' in row:
                 date_formmatted = row['date'].replace('-', '_')
-                date_label = f" ,date='{date_formmatted}'"
+                date_label = ",date=\"" + date_formmatted +"\""
 
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
