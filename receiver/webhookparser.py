@@ -146,8 +146,8 @@ async def receive_data(request: Request):
     file_logger.debug(f"Received request on path: {request.url.path}")
     global data_queue, is_processing_queue, geofence_cache
     await validate_remote_addr(request)
-    console_logger.info(f"Queue size before processing: {len(data_queue)}")
-    file_logger.info(f"Queue size before processing: {len(data_queue)}")
+    console_logger.debug(f"Queue size before processing: {len(data_queue)}")
+    file_logger.debug(f"Queue size before processing: {len(data_queue)}")
     async with data_queue_lock: 
         data = await request.json()
  
@@ -241,8 +241,8 @@ def process_full_queue():
             batch_unique_id = generate_unique_id(current_batch_ids)
 
             insert_data_task.delay(current_batch_data, batch_unique_id)
-            console_logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
-            file_logger.info(f"Processed full queue with unique_id: {batch_unique_id}")
+            console_logger.debug(f"Processed full queue with unique_id: {batch_unique_id}")
+            file_logger.debug(f"Processed full queue with unique_id: {batch_unique_id}")
             data_queue = data_queue[app_config.max_queue_size:]
             break
         except Exception as e:
@@ -260,8 +260,8 @@ def process_full_queue():
 
 def process_remaining_queue_on_shutdown():
     global data_queue
-    console_logger.info("Processing remaining items in queue before shutdown.")
-    file_logger.info("Processing remaining items in queue before shutdown.")
+    console_logger.debug("Processing remaining items in queue before shutdown.")
+    file_logger.debug("Processing remaining items in queue before shutdown.")
     while data_queue:
         try:
             current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
@@ -269,11 +269,13 @@ def process_remaining_queue_on_shutdown():
             batch_unique_id = generate_unique_id(current_batch_ids)
 
             insert_data_task.delay(current_batch_data, batch_unique_id)
-            console_logger.info(f"Processed batch with unique_id: {batch_unique_id}")
-            file_logger.info(f"Processed batch with unique_id: {batch_unique_id}")
+            console_logger.debug(f"Processed batch with unique_id: {batch_unique_id}")
+            file_logger.debug(f"Processed batch with unique_id: {batch_unique_id}")
 
             # Remove processed items from the queue
             data_queue = data_queue[app_config.max_queue_size:]
+            console_logger.info(f"Processed and cleaned queue -- Goodbye")
+            file_logger.info(f"Processed and cleaned queue -- Goodbye")
 
         except Exception as e:
             console_logger.error(f"Error processing batch during shutdown: {e}")

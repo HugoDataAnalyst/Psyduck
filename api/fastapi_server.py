@@ -77,8 +77,8 @@ async def check_ip_middleware(request: Request, call_next):
     if app_config.api_ip_restriction:
         client_host = request.client.host
         if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
-            console_logger.info(f"Access denied for IP: {client_host}")
-            file_logger.info(f"Access denied for IP: {client_host}")
+            console_logger.warning(f"Access denied for IP: {client_host}")
+            file_logger.warning(f"Access denied for IP: {client_host}")
             # Return a 403 Forbidden response
             return JSONResponse(status_code=403, content={"detail": "Access denied"})
 
@@ -115,11 +115,11 @@ async def validate_secret_header(secret: str = Header(None, alias=app_config.api
             console_logger.warning("Unauthorized access attempt with wrong secret header")
             file_logger.warning("Unauthorized access attempt with wrong secret header")
             raise HTTPException(status_code=403, detail="Unauthorized access")
-        console_logger.info("Secret header validated successfully.")
-        file_logger.info("Secret header validated successfully.")
+        console_logger.debug("Secret header validated successfully.")
+        file_logger.debug("Secret header validated successfully.")
     else:
-        console_logger.info("No API secret header key set, skipping secret validation.")
-        file_logger.info("No API secret header key set, skipping secret validation.")
+        console_logger.debug("No API secret header key set, skipping secret validation.")
+        file_logger.debug("No API secret header key set, skipping secret validation.")
 
 async def validate_secret(secret: str = None):
     if app_config.api_secret_key:
@@ -127,24 +127,24 @@ async def validate_secret(secret: str = None):
             console_logger.warning("Unauthorized access attempt with wrong secret")
             file_logger.warning("Unauthorized access attempt with wrong secret")
             raise HTTPException(status_code=403, detail="Unauthorized access")
-        console_logger.info("Secret validated successfully.")
-        file_logger.info("Secret validated successfully.")
+        console_logger.debug("Secret validated successfully.")
+        file_logger.debug("Secret validated successfully.")
     else:
-        console_logger.info("No API secret key set, skipping secret validation.")
-        file_logger.info("No API secret key set, skipping secret validation.")        
+        console_logger.debug("No API secret key set, skipping secret validation.")
+        file_logger.debug("No API secret key set, skipping secret validation.")        
 
 async def validate_ip(request: Request):
     client_host = request.client.host
     if app_config.api_ip_restriction and client_host not in app_config.api_allowed_ips:
-        console_logger.info(f"Access denied for IP: {client_host}")
-        file_logger.info(f"Access denied for IP: {client_host}")
+        console_logger.warning(f"Access denied for IP: {client_host}")
+        file_logger.warning(f"Access denied for IP: {client_host}")
         raise HTTPException(status_code=403, detail="Access denied")
-    console_logger.info(f"Access from IP: {client_host} allowed.")
-    file_logger.info(f"Access from IP: {client_host} allowed.")
+    console_logger.debug(f"Access from IP: {client_host} allowed.")
+    file_logger.debug(f"Access from IP: {client_host} allowed.")
 
 def get_task_result(task_function, *args, **kwargs):
-    console_logger.info(f"Fetching task result for {task_function.__name__}")
-    file_logger.info(f"Fetching task result for {task_function.__name__}")
+    console_logger.debug(f"Fetching task result for {task_function.__name__}")
+    file_logger.debug(f"Fetching task result for {task_function.__name__}")
     result = task_function.delay(*args, **kwargs)
     return result.get(timeout=50)
 
@@ -152,69 +152,88 @@ def get_task_result(task_function, *args, **kwargs):
 @fastapi.get("/api/daily-area-pokemon-stats")
 @cache(expire=app_config.api_daily_pokemon_cache)
 async def daily_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for daily Pokemon stats")
-    file_logger.info("Request received for daily Pokemon stats")
+    console_logger.debug("Request received for daily Pokemon stats")
+    file_logger.debug("Request received for daily Pokemon stats")
     return get_task_result(query_daily_api_pokemon_stats)
+    console_logger.info("Successfully obtained daily Pokemon stats")
+    file_logger.info("Sucessfully obtained daily Pokemon stats")
 
 @fastapi.get("/api/weekly-area-pokemon-stats")
 @cache(expire=app_config.api_weekly_pokemon_cache)
 async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for weekly Pokemon stats")
-    file_logger.info("Request received for weekly Pokemon stats")
+    console_logger.debug("Request received for weekly Pokemon stats")
+    file_logger.debug("Request received for weekly Pokemon stats")
     return get_task_result(query_weekly_api_pokemon_stats)
+    console_logger.info("Successfully obtained weekly Pokemon stats")
+    file_logger.info("Successfully obtained weekly Pokemon stats")    
 
 @fastapi.get("/api/monthly-area-pokemon-stats")
 @cache(expire=app_config.api_monthly_pokemon_cache)
 async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for monthly Pokemon stats")
-    file_logger.info("Request received for monthly Pokemon stats")
+    console_logger.debug("Request received for monthly Pokemon stats")
+    file_logger.debug("Request received for monthly Pokemon stats")
     return get_task_result(query_monthly_api_pokemon_stats)
+    console_logger.info("Sucessfully obtained monthly Pokemon stats")
+    file_logger.info("Sucessfully obtained monthly Pokemon stats")
 
 # API Totals
 @fastapi.get("/api/hourly-total-pokemon-stats")
 @cache(expire=app_config.api_hourly_total_pokemon_cache)
 async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-        console_logger.info("Request received for hourly total Pokemon stats")
-        file_logger.info("Request received for hourly total Pokemon stats")
+        console_logger.debug("Request received for hourly total Pokemon stats")
+        file_logger.debug("Request received for hourly total Pokemon stats")
         return get_task_result(query_hourly_total_api_pokemon_stats)
+        console_logger.info("Successfully obtained hourly total Pokemon stats")
+        file_logger.info("Successfully obtained hourly total Pokemon stats")
 
 @fastapi.get("/api/daily-total-pokemon-stats")
 @cache(expire=app_config.api_daily_total_pokemon_cache)
 async def daily_total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for daily total Pokemon stats")
-    file_logger.info("Request received for daily total Pokemon stats")
+    console_logger.debug("Request received for daily total Pokemon stats")
+    file_logger.debug("Request received for daily total Pokemon stats")
     return get_task_result(query_daily_total_api_pokemon_stats)
+    console_logger.info("Successfully obtained daily total Pokemon stats")
+    file_logger.info("Successfully obtained daily total Pokemon stats")
 
 @fastapi.get("/api/total-pokemon-stats")
 @cache(expire=app_config.api_total_pokemon_cache)
 async def total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for total Pokemon stats")
-    file_logger.info("Request received for total Pokemon stats")
+    console_logger.debug("Request received for total Pokemon stats")
+    file_logger.debug("Request received for total Pokemon stats")
     return get_task_result(query_total_api_pokemon_stats)
+    console_logger.info("Sucessfuly obtained total Pokemon stats")
+    file_logger.info("Sucessfully obtained total Pokemon stats")    
 
 # API Surge's
 @fastapi.get("/api/surge-daily-stats")
 @cache(expire=app_config.api_surge_daily_cache)
 async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for Surge Pokemon Daily Stats")
-    file_logger.info("Request received for Surge Pokemon Daily Stats")
+    console_logger.debug("Request received for Surge Daily Pokemon Stats")
+    file_logger.debug("Request received for Surge Daily Pokemon Stats")
     return get_task_result(query_daily_surge_api_pokemon_stats)
+    console_logger.info("Sucessfully obtained Surge Daily Pokemon Stats")
+    file_logger.info("Sucessfully obtained Surge Daily Pokemon Stats")
 
 @fastapi.get("/api/surge-weekly-stats")
 @cache(expire=app_config.api_surge_weekly_cache)
 async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for Surge Pokemon Weekly Stats")
-    file_logger.info("Request received for Surge Pokemon Weekly Stats")
+    console_logger.debug("Request received for Surge Weekly Pokemon Stats")
+    file_logger.debug("Request received for Surge Weekly Pokemon Stats")
     return get_task_result(query_weekly_surge_api_pokemon_stats)
+    console_logger.info("Sucessfully obtained Surge Weekly Pokemon Stats")
+    file_logger.info("Sucessfully obtained Surge Weekly Pokemon Stats")
 
 @fastapi.get("/api/surge-monthly-stats")
 @cache(expire=app_config.api_surge_monthly_cache)
 async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for Surge Pokemon Monthly Stats")
-    file_logger.info("Request received for Surge Pokemon Monthly Stats")
+    console_logger.debug("Request received for Surge Monthly Pokemon Stats")
+    file_logger.debug("Request received for Surge Monthly Pokemon Stats")
     return get_task_result(query_monthly_surge_api_pokemon_stats)
+    console_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
+    file_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
 
 @fastapi.get("/metrics")
+@cache(expire=app_config.api_metrics_cache)
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
@@ -232,40 +251,40 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
-        file_logger.info(f"Formatted daily area stats for VictoriaMetrics.")
+        console_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
+        file_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
 
         formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
-        console_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted weekly area stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
 
         formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
-        console_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
-        file_logger.info(f"Formatted monthly area stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
 
         formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
-        console_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted hourly total stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
 
         formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
-        console_logger.info(f"Formatted daily total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted daily total stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
 
         formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
-        console_logger.info(f"Formatted total stats for VictoriaMetrics")
-        file_logger.info(f"Formatted total stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted total stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted total stats for VictoriaMetrics")
 
         formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
-        console_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge daily stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
 
         formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
-        console_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge weekly stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
 
         formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
-        console_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
-        file_logger.info(f"Formatted surge monthly stats for VictoriaMetrics")
+        console_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
@@ -282,9 +301,10 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Return as plain text
         return Response(content=prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all APIs for VictoriaMetrics")
     except Exception as e:
-        console_logger.info(f"Error generating metrics: {e}")
-        file_logger.info(f"Error generating metrics: {e}")
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 

@@ -62,10 +62,10 @@ def generate_unique_id(data):
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def insert_data_task(self, data_batch, unique_id):
-    celery_logger.info  (f"Task received with unique_id: {unique_id}")
+    celery_logger.debug(f"Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
-        celery_logger.info(f"Duplicate task skipped: {unique_id}")
+        celery_logger.debug(f"Duplicate task skipped: {unique_id}")
         return "Duplicate task skipped"
 
     redis_client.set(unique_id, 'locked', ex=600)
@@ -74,7 +74,7 @@ def insert_data_task(self, data_batch, unique_id):
     try:
         conn = pymysql.connect(**db_config)
         cursor = conn.cursor()
-        celery_logger.info(f"Inserting data for unique_id: {unique_id}")
+        celery_logger.debug(f"Inserting data for unique_id: {unique_id}")
 
         insert_query = '''
         INSERT INTO pokemon_sightings (pokemon_id, form, latitude, longitude, iv,
@@ -99,10 +99,10 @@ def insert_data_task(self, data_batch, unique_id):
         try:
             # Retry with exponential backoff
             retry_delay = app_config.retry_delay * (2 ** self.request.retries)
-            celery_logger.info(f"Retrying in {retry_delay} seconds...")
+            celery_logger.debug(f"Retrying in {retry_delay} seconds...")
             self.retry(countdown=retry_delay)
         except self.MaxRetriesExceededError:
-            celery_logger.error("Max retries exceeded. Giving up.")
+            celery_logger.debug("Max retries exceeded. Giving up.")
     finally:
         if conn is not None and conn.open:
             cursor.close()
@@ -181,7 +181,7 @@ def query_daily_surge_api_pokemon_stats(self):
         results = execute_query("SELECT * FROM daily_surge_pokemon_stats")
         return organize_results_by_hour(results)
     except Exception as e:
-        self.retry(exc=e, countodwn=app_config.retry_delay)
+        self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_weekly_surge_api_pokemon_stats(self):
@@ -218,44 +218,3 @@ def organize_results_by_hour(results):
             organized_results_by_hour[hour] = []
         organized_results_by_hour[hour].append(row)
     return organized_results_by_hour
-
-# Organises for VictoriaMetrics
-def format_results_to_victoria(results):
-    prometheus_metrics = []
-    for row in results:
-        area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        area_label = "area=\"" + area_name +"\""
-
-        # Create a Victoria metric line for each column (now key) in the row
-        for key, value in row.items():
-            if value is None  or isinstance(value, str) and not value.isdigit():
-                continue
-            metric_name = f'pokemon_stats_{key}'
-            prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
-            prometheus_metrics.append(prometheus_metric_line)
-            celery_logger.info(f"Processed metric line: {prometheus_metric_line}")
-
-    formatted_metrics = '\n'.join(prometheus_metrics)
-    celery_logger.info(f"Formatted VictoriaMetrics data: {formatted_metrics}")
-    return formatted_metrics
-
-# Organises Hour for VictoriaMetrics
-def format_results_to_victoria_by_hour(results, metric_prefix):
-    prometheus_metrics = []
-    for row in results:
-        # Extract the hour and use it as a label
-        hour = row.pop('hour', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        hour_label = "hour=\"" + {hour} +"\""
-
-        # Create a Victoria metric line for each column (now key) in the row
-        for key, value in row.items():
-            # Skip the hour key since it's already used as a label
-            if value is None  or isinstance(value, str) and not value.isdigit():
-                continue
-            if key != 'hour':
-                metric_name = f'{metric_prefix}_{key}'
-                prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
-                prometheus_metrics.append(prometheus_metric_line)
-
-    formatted_metrics = '\n'.join(prometheus_metrics)
-    return formatted_metrics
