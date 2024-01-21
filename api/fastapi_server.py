@@ -60,7 +60,8 @@ ALLOWED_PATHS = [
     "/api/total-pokemon-stats",
     "/api/surge-daily-stats",
     "/api/surge-weekly-stats",
-    "/api/surge-monthly-stats"
+    "/api/surge-monthly-stats",
+    "/metrics"
 ]
 
 async def check_path_middleware(request: Request, call_next):
@@ -172,12 +173,6 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
 @fastapi.get("/api/hourly-total-pokemon-stats")
 @cache(expire=app_config.api_hourly_total_pokemon_cache)
 async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    if app_config.api_victoriametrics:
-        console_logger.info("Request received for VictoriaMetrics hourly total Pokemon stats")
-        file_logger.info("Request received for VictoriaMetrics hourly total Pokemon stats")
-        results = get_task_result(query_hourly_total_api_pokemon_stats)
-        return Response(content=results, media_type="text/plain")
-    else:
         console_logger.info("Request received for hourly total Pokemon stats")
         file_logger.info("Request received for hourly total Pokemon stats")
         return get_task_result(query_hourly_total_api_pokemon_stats)
@@ -217,3 +212,92 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     console_logger.info("Request received for Surge Pokemon Monthly Stats")
     file_logger.info("Request received for Surge Pokemon Monthly Stats")
     return get_task_result(query_monthly_surge_api_pokemon_stats)
+
+@fastapi.get("/metrics")
+async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetching data from each API task
+        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        weekly_stats = get_task_result(query_weekly_api_pokemon_stats)
+        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        total_stats = get_task_result(query_total_api_pokemon_stats)
+        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
+        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)    
+
+        # Format each result set
+        formatted_daily_area_stats = format_results_to_victoria(daily_area_stats)
+        formatted_weekly_stats = format_results_to_victoria(weekly_stats)
+        formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats)
+        formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats)
+        formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats)
+        formatted_daily_total_stats = format_results_to_victoria(daily_total_stats)
+        formatted_total_stats = format_results_to_victoria(total_stats)
+        formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'surge_daily')
+        formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'surge_weekly')
+        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'surge_monthly')
+
+        # Combine all formatted metrics
+        prometheus_metrics = '\n'.join([
+            formatted_daily_area_stats, 
+            formatted_weekly_stats, 
+            formatted_weekly_area_stats, 
+            formatted_monthly_area_stats,
+            formatted_hourly_total_stats, 
+            formatted_daily_total_stats, 
+            formatted_total_stats,
+            formatted_surge_daily_stats, 
+            formatted_surge_weekly_stats, 
+            formatted_surge_monthly_stats
+        ])
+
+        # Return as plain text
+        return Response(content=prometheus_metrics, media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+
+# Organises for VictoriaMetrics
+def format_results_to_victoria(results):
+    prometheus_metrics = []
+    for row in results:
+        area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
+        area_label = "area=\"" + area_name +"\""
+
+        # Create a Victoria metric line for each column (now key) in the row
+        for key, value in row.items():
+            if value is None  or isinstance(value, str) and not value.isdigit():
+                continue
+            metric_name = f'pokemon_stats_{key}'
+            prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'
+            prometheus_metrics.append(prometheus_metric_line)
+            celery_logger.info(f"Processed metric line: {prometheus_metric_line}")
+
+    formatted_metrics = '\n'.join(prometheus_metrics)
+    celery_logger.info(f"Formatted VictoriaMetrics data: {formatted_metrics}")
+    return formatted_metrics
+
+# Organises Hour for VictoriaMetrics
+def format_results_to_victoria_by_hour(results, metric_prefix):
+    prometheus_metrics = []
+    for row in results:
+        # Extract the hour and use it as a label
+        hour = row.pop('hour', 'unknown').replace('-', '_').replace(' ', '_').lower()
+        hour_label = "hour=\"" + {hour} +"\""
+
+        # Create a Victoria metric line for each column (now key) in the row
+        for key, value in row.items():
+            # Skip the hour key since it's already used as a label
+            if value is None  or isinstance(value, str) and not value.isdigit():
+                continue
+            if key != 'hour':
+                metric_name = f'{metric_prefix}_{key}'
+                prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
+                prometheus_metrics.append(prometheus_metric_line)
+
+    formatted_metrics = '\n'.join(prometheus_metrics)
+    return formatted_metrics

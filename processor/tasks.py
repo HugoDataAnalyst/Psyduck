@@ -152,14 +152,8 @@ def query_monthly_api_pokemon_stats(self):
 # API Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_hourly_total_api_pokemon_stats(self):
-    try:
         results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
-        if app_config.api_victoriametrics:
-            formatted_data = format_results_to_victoria(results)
-            celery_logger.info(f"Formatted VictoriaMetrics data : {formatted_data}")
-            return formatted_data
-        else:
-            return organize_results(results)
+        return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
@@ -229,7 +223,7 @@ def format_results_to_victoria(results):
     prometheus_metrics = []
     for row in results:
         area_name = row.pop('area_name', 'unknown').replace('-', '_').replace(' ', '_').lower()
-        area_label = f'area={area_name}'
+        area_label = "area=\"" + area_name +"\""
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
@@ -249,15 +243,18 @@ def format_results_to_victoria_by_hour(results, metric_prefix):
     prometheus_metrics = []
     for row in results:
         # Extract the hour and use it as a label
-        hour = row.pop('hour', 'unknown')
-        hour_label = f'hour="{hour}"'
+        hour = row.pop('hour', 'unknown').replace('-', '_').replace(' ', '_').lower()
+        hour_label = "hour=\"" + {hour} +"\""
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
             # Skip the hour key since it's already used as a label
+            if value is None  or isinstance(value, str) and not value.isdigit():
+                continue
             if key != 'hour':
                 metric_name = f'{metric_prefix}_{key}'
                 prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
                 prometheus_metrics.append(prometheus_metric_line)
 
-    return '\n'.join(prometheus_metrics)
+    formatted_metrics = '\n'.join(prometheus_metrics)
+    return formatted_metrics
