@@ -231,7 +231,7 @@ def format_results_to_victoria(results):
 
         # Create a Victoria metric line for each column (now key) in the row
         for key, value in row.items():
-            if value is None:
+            if value is None  or isinstance(value, str) and not value.isdigit()::
                 continue
             metric_name = f'pokemon_stats_{key}'
             prometheus_metric_line = f'{metric_name}{{{area_label}}} {value}'

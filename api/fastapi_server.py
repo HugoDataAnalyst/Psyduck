@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from logging import StreamHandler
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from starlette.responses import JSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -69,7 +69,6 @@ async def check_path_middleware(request: Request, call_next):
             console_logger.warning(f"Access denied for path: {request.url.path}")
             file_logger.warning(f"Access denied for path: {request.url.path}")
             return JSONResponse(status_code=403, content={"detail": "Forbidden"})
-    
     return await call_next(request)
 
 async def check_ip_middleware(request: Request, call_next):
@@ -94,13 +93,17 @@ fastapi.middleware('http')(check_path_middleware)
 async def startup():
     console_logger.info("Starting up the application")
     file_logger.info("Starting up the application")
+
+    # Initiliaze Redis
     redis = aioredis.from_url(app_config.redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     console_logger.info("FastAPI cache initialized with Redis backend")
     file_logger.info("FastAPI cache initialized with Redis backend")
+    
     # Clear the cache on startup
     await FastAPICache.clear(namespace="fastapi-cache")
-
+    console_logger.info("Previous cache cleared on startup")
+    file_logger.info("Previous cache cleared on startup")
 
 
 async def validate_secret_header(secret: str = Header(None, alias=app_config.api_header_name)):
@@ -169,9 +172,15 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
 @fastapi.get("/api/hourly-total-pokemon-stats")
 @cache(expire=app_config.api_hourly_total_pokemon_cache)
 async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Request received for hourly total Pokemon stats")
-    file_logger.info("Request received for hourly total Pokemon stats")
-    return get_task_result(query_hourly_total_api_pokemon_stats)
+    if app_config.api_victoriametrics:
+        console_logger.info("Request received for VictoriaMetrics hourly total Pokemon stats")
+        file_logger.info("Request received for VictoriaMetrics hourly total Pokemon stats")
+        results = get_task_result(query_hourly_total_api_pokemon_stats)
+        return Response(content=results, media_type="text/plain")
+    else:
+        console_logger.info("Request received for hourly total Pokemon stats")
+        file_logger.info("Request received for hourly total Pokemon stats")
+        return get_task_result(query_hourly_total_api_pokemon_stats)
 
 @fastapi.get("/api/daily-total-pokemon-stats")
 @cache(expire=app_config.api_daily_total_pokemon_cache)
