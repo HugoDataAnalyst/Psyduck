@@ -302,6 +302,12 @@ def format_results_to_victoria(data):
             area_name_formatted = area_name.replace('-', '_').replace(' ', '_').lower()
             area_label = "area=\"" + area_name_formatted +"\""
 
+            # Handle float date
+            date_label = ""
+            if 'date' in row:
+                date_formmatted = row['date'].replace('-', '_')
+                date_label = f" ,date='{date_formmatted}'"
+
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
                 if key == 'area_name' or value is None  or (isinstance(value, str) and not value.isdigit()):
@@ -320,7 +326,7 @@ def format_results_to_victoria_by_hour(data, metric_prefix):
         for row in stats_list:
             # Extract the hour and use it as a label
             hour_formatted = str(hour).zfill(2)
-            hour_label = f"hour=\"{hour_formatted}\""
+            hour_label = f"hour='{hour_formatted}'"
 
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
