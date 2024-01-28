@@ -1,3 +1,4 @@
 # Ignore configuration files that contain sensitive information
 config/config.json
 ecosystem.config.js
+docker-compose.yml

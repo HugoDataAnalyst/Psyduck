@@ -13,9 +13,32 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 
 ![Psyduck Flex](Image/psyduck-flex.gif)
 
+## Special Thanks:
+- [FABIO](https://github.com/Fabio1988)
+Gave the guidance to use webhooks to process the raw data.
+
+- [ROOT](https://github.com/tchavei)
+Developed all the Dockerfiles.
+
+## API paths:
+
+- /api/daily-area-pokemon-stats
+- /api/weekly-area-pokemon-stats
+- /api/monthly-area-pokemon-stats
+- /api/hourly-total-pokemon-stats
+- /api/daily-total-pokemon-stats
+- /api/total-pokemon-stats
+- /api/surge-daily-stats
+- /api/surge-weekly-stats
+- /api/surge-monthly-stats
+- /metrics
+
+Metrics is only for Prometheus/VictoriaMetrics types (plaintext) and calls all of the API's above.
+
 ## Requirements:
 
 - MySQL Database 8.0.0+;
+- MariaDB 11.2.2;
 - Koji;
 - Golbat;
 - Python 3.10.13, untested on previous/higher versions;
@@ -41,6 +64,14 @@ Python3 Libraries:
 ```python3.10 -m pip install -r requirements.txt```
 
 ```sudo apt install redis-server```
+
+## Docker:
+
+```sudo cp example.docker-compose.yml docker-compose.yml``` 
+
+Fill in the details to your preference.
+
+```sudo docker-compose up -d```
 
 ## Configuration:
 

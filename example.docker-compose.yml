@@ -1,4 +1,21 @@
  # Psyduck stack
+  psyduck-db:
+    image: mariadb:latest
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --binlog-expire-logs-seconds=86400
+    container_name: psyduck-db
+    ports: 
+      - 3306:3306
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: psyyypsyyyyyyyduck
+      MYSQL_DATABASE: psyduck
+      MYSQL_USER: IamPsyduck
+      MYSQL_PASSWORD: thebestpsyduck
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - ./mysql_data/mariadb.cnf:/etc/mysql/mariadb.cnf
+      - ./mysql_data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
 
   psyduck-redis:
     image: redis:latest
@@ -15,6 +32,8 @@
       context: .psyduck
       dockerfile: celery.Dockerfile
     restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   psyduck-webhook:
     container_name: psyduck-webhook
@@ -24,6 +43,8 @@
       context: .psyduck
       dockerfile: webhook.Dockerfile
     restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   # API to provide parsed data
   # Default container port 5001
@@ -38,3 +59,5 @@
     restart: unless-stopped
     ports:
       - 5001:5001
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
