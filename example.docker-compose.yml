@@ -29,7 +29,7 @@
       - database
       - psyduck-redis
     build:
-      context: .psyduck
+      context: .
       dockerfile: celery.Dockerfile
     restart: unless-stopped
     volumes:
@@ -40,7 +40,7 @@
     depends_on:
       - psyduck-redis
     build:
-      context: .psyduck
+      context: .
       dockerfile: webhook.Dockerfile
     restart: unless-stopped
     volumes:
@@ -54,7 +54,7 @@
     depends_on:
       - psyduck-redis
     build:
-      context: .psyduck
+      context: .
       dockerfile: api.Dockerfile
     restart: unless-stopped
     ports:

@@ -14,10 +14,10 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 ![Psyduck Flex](Image/psyduck-flex.gif)
 
 ## Special Thanks:
-- [FABIO](https://github.com/Fabio1988)
+- [Fabio](https://github.com/Fabio1988)
 Gave the guidance to use webhooks to process the raw data.
 
-- [ROOT](https://github.com/tchavei)
+- [Root@tchavei](https://github.com/tchavei)
 Developed all the Dockerfiles.
 
 ## API paths:
@@ -59,19 +59,26 @@ Python3 Libraries:
 - httpx;
 - starlette.
 
-## Installation:
-
-```python3.10 -m pip install -r requirements.txt```
-
-```sudo apt install redis-server```
-
 ## Docker:
+```cd Psyduck ```
+
+```sudo cp example.celery.Dockerfile celery.Dockerfile```
+
+```sudo cp  example.webhook.Dockerfile webhook.Dockerfile```
+
+```sudo cp example.api.Dockerfile api.Dockerfile```
 
 ```sudo cp example.docker-compose.yml docker-compose.yml``` 
 
 Fill in the details to your preference.
 
 ```sudo docker-compose up -d```
+
+## Installation:
+
+```python3.10 -m pip install -r requirements.txt```
+
+```sudo apt install redis-server```
 
 ## Configuration:
 
@@ -101,9 +108,23 @@ Change the port if you want, default is 6379:
 
 #### Key considerations:
 
-#### **"logs"**:
+#### **"koji"**:
+
+- "MAX_SIZE_GEOFENCE" If you have say 10 geofences, set to 15. Ensuring you have room for more without having to tweak this value often.
+
+- "CACHE_GEOFENCES" Time in seconds that it will cache the Geofences.
+
+- "REFRESH_GEOFENCES" Time in seconds that it will refresh the cache for the Geofences, should be the same as the above.
+
+- "MAX_TRIES_GEOFENCES" Number of attempts on failure.
+
+- "RETRY_DELAY_MULT_GEOFENCES" Number of retries multipled on failure. Example with 5 Max Tries and 2 Retry Delay: 1 sec * 2, 2 * 2, so on.
+
+#### **"logs for any section"**:
 
 - "LOG_LEVEL" INFO/DEBUG/WARNING/ERROR/CRITICAL/OFF choose one.
+
+- "CONSOLE_LOG_LEVEL" INFO/DEBUG/WARNING/ERROR/CRITICAL/OFF choose one.
 
 - "LOG_FILE" the path inside the repository you want your logs and their names.
 
@@ -115,23 +136,13 @@ Change the port if you want, default is 6379:
 
 - "ALLOW_WEBHOOK_HOST" your golbat IP.
 
-- "MAX_QUEUE_SIZE" when to flush the data to the database.
+- "MAX_QUEUE_SIZE" when to flush the data to the database, you could edit this value to be higher to create less stress in the database. Example: 5000.
 
-- "WORKERS" is set to 1, which by nature is more then enough to process Medium sized Maps.
+- "WORKERS" is set to 1, which by nature is more then enough to process up to 10 Million Raw Data a day.
 
 - "MAX_RETRIES" number of attempts on failure.
 
 - "RETRY_DELAY" time between each attempt on failure.
-
-- "MAX_SIZE_GEOFENCE" If you have say 10 geofences, set to 15. Ensuring you have room for more without having to tweak this value often.
-
-- "CACHE_GEOFENCES" Time in seconds that it will cache the Geofences.
-
-- "REFRESH_GEOFENCES" Time in seconds that it will refresh the cache for the Geofences, should be the same as the above.
-
-- "MAX_TRIES_GEOFENCES" Number of attempts on failure.
-
-- "RETRY_DELAY_MULT_GEOFENCES" Number of retries multipled on failure. Example with 5 Max Tries and 2 Retry Delay: 1 sec * 2, 2 * 2, so on.
 
 #### **"database" Section:**
 
