@@ -15,11 +15,14 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 
 ## Special Thanks:
 - [Fabio](https://github.com/Fabio1988)
-Gave the guidance to use webhooks to process the raw data.
+
+	Gave the guidance to use webhooks to process the raw data.
 
 - [Root@tchavei](https://github.com/tchavei)
-Developed all the Dockerfiles.
-Helped a lot with testing and gave suggestions for security measures and new features such as VictoriaMetrics.
+
+	Developed all the Dockerfiles.
+
+	Helped a lot with testing and gave suggestions for security measures and new features such as VictoriaMetrics.
 
 ## API paths:
 
