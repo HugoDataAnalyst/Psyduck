@@ -2,3 +2,6 @@
 config/config.json
 ecosystem.config.js
 docker-compose.yml
+api.Dockerfile
+celery.Dockerfile
+webhook.Dockerfile
