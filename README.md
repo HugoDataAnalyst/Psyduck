@@ -208,7 +208,8 @@ Edit ecosystem.config.js as you prefer and run:
 
 ```sudo docker-compose up```
 
-Psyduck stack
+```
+#Psyduck stack
 services:
   psyduck-schema-setup:
     build:
@@ -216,7 +217,7 @@ services:
       dockerfile: database.Dockerfile
     depends_on:
       - psyduck-db
-
+```
 Remove this section from the docker-compose.yml after running it the first time.
 
 ```sudo docker-compose up -d```
