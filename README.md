@@ -198,6 +198,8 @@ Edit ecosystem.config.js as you prefer and run:
 ## Docker:
 ```cd Psyduck ```
 
+```sudo cp example.database.Dockerfile database.Dockerfile```
+
 ```sudo cp example.celery.Dockerfile celery.Dockerfile```
 
 ```sudo cp  example.webhook.Dockerfile webhook.Dockerfile```
