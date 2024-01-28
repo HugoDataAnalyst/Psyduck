@@ -1,6 +1,3 @@
 # Ignore configuration files that contain sensitive information
 config/config.json
-Dockerfile
-.dockerignore
-docker-compose.yml
 ecosystem.config.js

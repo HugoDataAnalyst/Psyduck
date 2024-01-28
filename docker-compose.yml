@@ -1,0 +1,40 @@
+ # Psyduck stack
+
+  psyduck-redis:
+    image: redis:latest
+    restart: unless-stopped
+    container_name: psyduck-redis
+    command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
+
+  psyduck-celery:
+    container_name: psyduck-celery
+    depends_on:
+      - database
+      - psyduck-redis
+    build:
+      context: .psyduck
+      dockerfile: celery.Dockerfile
+    restart: unless-stopped
+
+  psyduck-webhook:
+    container_name: psyduck-webhook
+    depends_on:
+      - psyduck-redis
+    build:
+      context: .psyduck
+      dockerfile: webhook.Dockerfile
+    restart: unless-stopped
+
+  # API to provide parsed data
+  # Default container port 5001
+
+  psyduck-api:
+    container_name: psyduck-api
+    depends_on:
+      - psyduck-redis
+    build:
+      context: .psyduck
+      dockerfile: api.Dockerfile
+    restart: unless-stopped
+    ports:
+      - 5001:5001
