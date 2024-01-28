@@ -19,6 +19,7 @@ Gave the guidance to use webhooks to process the raw data.
 
 - [Root@tchavei](https://github.com/tchavei)
 Developed all the Dockerfiles.
+Helped a lot with testing and gave suggestions for security measures and new features such as VictoriaMetrics.
 
 ## API paths:
 
@@ -58,21 +59,6 @@ Python3 Libraries:
 - cachetools;
 - httpx;
 - starlette.
-
-## Docker:
-```cd Psyduck ```
-
-```sudo cp example.celery.Dockerfile celery.Dockerfile```
-
-```sudo cp  example.webhook.Dockerfile webhook.Dockerfile```
-
-```sudo cp example.api.Dockerfile api.Dockerfile```
-
-```sudo cp example.docker-compose.yml docker-compose.yml``` 
-
-Fill in the details to your preference.
-
-```sudo docker-compose up -d```
 
 ## Installation:
 
@@ -175,6 +161,8 @@ Change the port if you want, default is 6379:
 
 ### Database:
 
+Take in mind you should allow for the creation of events/procedures in the Database.
+
 ```cd SQL/ && python3.10 create_database_schema.py```
 
 ### Webhook Receiver:
@@ -204,3 +192,28 @@ Edit ecosystem.config.js as you prefer and run:
 
 ```pm2 start ecosystem.config.js```
 
+## Docker:
+```cd Psyduck ```
+
+```sudo cp example.celery.Dockerfile celery.Dockerfile```
+
+```sudo cp  example.webhook.Dockerfile webhook.Dockerfile```
+
+```sudo cp example.api.Dockerfile api.Dockerfile```
+
+```sudo cp example.docker-compose.yml docker-compose.yml``` 
+
+```sudo docker-compose up```
+
+Psyduck stack
+services:
+  psyduck-schema-setup:
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    depends_on:
+      - psyduck-db
+
+Remove this section from the docker-compose.yml after running it the first time.
+
+```sudo docker-compose up -d```
