@@ -35,9 +35,18 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 - /api/surge-daily-stats
 - /api/surge-weekly-stats
 - /api/surge-monthly-stats
-- /metrics
 
-Metrics is only for Prometheus/VictoriaMetrics types (plaintext) and calls all of the API's above.
+- /metrics/daily-area-pokemon
+- /metrics/weekly-area-pokemon
+- /metrics/monthly-area-pokemon
+- /metrics/total-hourly-pokemon
+- /metrics/total-daily-pokemon
+- /metrics/total-pokemon
+- /metrics/surge-daily-stats
+- /metrics/surge-weekly-stats
+- /metrics/surge-monthly-stats
+
+Metrics/ is only for Prometheus/VictoriaMetrics types (plaintext).
 
 ## Requirements:
 
