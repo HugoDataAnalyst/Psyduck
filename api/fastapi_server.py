@@ -243,7 +243,7 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 # API format for VictoriaMetrics/Prometheus
 
 @fastapi.get("/metrics/daily-area-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_daily_area_pokemon_cache)
 async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -270,7 +270,7 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
         return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/weekly-area-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_weekly_area_pokemon_cache)
 async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -297,7 +297,7 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
         return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/monthly-area-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_monthly_area_pokemon_cache)
 async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -324,7 +324,7 @@ async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(v
         return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-hourly-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_hourly_total_pokemon_cache)
 async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -351,7 +351,7 @@ async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(v
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-daily-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_daily_total_pokemon_cache)
 async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -378,7 +378,7 @@ async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(va
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-pokemon")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_total_pokemon_cache)
 async def total_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -405,7 +405,7 @@ async def total_pokemon_metrics(request: Request, secret: str = Depends(validate
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-daily-stats")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_surge_daily_pokemon_cache)
 async def surge_daily_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -432,7 +432,7 @@ async def surge_daily_metrics(request: Request, secret: str = Depends(validate_s
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-weekly-stats")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_surge_weekly_pokemon_cache)
 async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
@@ -459,7 +459,7 @@ async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-monthly-stats")
-@cache(expire=app_config.api_metrics_cache)
+@cache(expire=app_config.api_metrics_surge_monthly_pokemon_cache)
 async def surge_monthly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetch data for metrics
