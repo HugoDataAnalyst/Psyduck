@@ -62,7 +62,8 @@ ALLOWED_PATHS = [
     "/api/surge-daily-stats",
     "/api/surge-weekly-stats",
     "/api/surge-monthly-stats",
-    "/metrics"
+    "/metrics",
+    "/metrics/grouped"
 ]
 
 async def check_path_middleware(request: Request, call_next):
@@ -232,14 +233,47 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     console_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
 
+@fastapi.get("/metrics/grouped")
+@cache(expire=app_config.api_metrics_cache)
+async def grouped_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for grouped metrics
+        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+
+        # Format each result set
+        formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
+        console_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
+        file_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
+
+        formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
+        console_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
+        formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
+        console_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
+
+        # Combine formatted metrics for grouped stats
+        grouped_prometheus_metrics = '\n'.join([
+            formatted_daily_area_stats,
+            formatted_weekly_area_stats,
+            formatted_monthly_area_stats
+        ])
+
+        # Return as plain text
+        return Response(content=grouped_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved grouped APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating grouped metrics: {e}")
+        file_logger.error(f"Error generating grouped metrics: {e}")
+        return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
+
 @fastapi.get("/metrics")
 @cache(expire=app_config.api_metrics_cache)
 async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
         # Fetching data from each API task
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
         hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
         daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
         total_stats = get_task_result(query_total_api_pokemon_stats)
@@ -250,18 +284,6 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
         file_logger.info(f"Fetched all API tasks sucessfuly")
 
         # Format each result set
-        formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
-        file_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
-
-        formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
-        console_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
-
-        formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
-        console_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
-
         formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
         console_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
         file_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
@@ -288,9 +310,6 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Combine all formatted metrics
         prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats,
-            formatted_weekly_area_stats,
-            formatted_monthly_area_stats,
             formatted_hourly_total_stats,
             formatted_daily_total_stats,
             formatted_total_stats,
@@ -301,7 +320,7 @@ async def metrics(request: Request, secret: str = Depends(validate_secret), _ip 
 
         # Return as plain text
         return Response(content=prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
