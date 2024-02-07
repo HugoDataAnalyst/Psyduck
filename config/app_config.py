@@ -70,7 +70,15 @@ class AppConfig:
         self.api_surge_daily_cache = int(config['api']['SURGE_DAILY_CACHE'])
         self.api_surge_weekly_cache = int(config['api']['SURGE_WEEKLY_CACHE'])
         self.api_surge_monthly_cache = int(config['api']['SURGE_MONTHLY_CACHE'])
-        self.api_metrics_cache = int(config['api']['METRICS_CACHE'])
+        self.api_metrics_daily_area_pokemon_cache = int(config['api']['METRICS_DAILY_AREA_POKEMON_CACHE'])
+        self.api_metrics_weekly_area_pokemon_cache = int(config['api']['METRICS_WEEKLY_AREA_POKEMON_CACHE'])
+        self.api_metrics_monthly_area_pokemon_cache = int(config['api']['METRICS_MONTHLY_AREA_POKEMON_CACHE'])
+        self.api_metrics_hourly_total_pokemon_cache = int(config['api']['METRICS_HOURLY_TOTAL_POKEMON_CACHE'])
+        self.api_metrics_daily_total_pokemon_cache = int(config['api']['METRICS_DAILY_TOTAL_POKEMON_CACHE'])
+        self.api_metrics_total_pokemon_cache = int(config['api']['METRICS_TOTAL_POKEMON_CACHE'])
+        self.api_metrics_surge_daily_pokemon_cache = int(config['api']['METRICS_SURGE_DAILY_POKEMON_CACHE'])
+        self.api_metrics_surge_weekly_pokemon_cache = int(config['api']['METRICS_SURGE_WEEKLY_POKEMON_CACHE'])
+        self.api_metrics_surge_monthly_pokemon_cache = int(config['api']['METRICS_SURGE_MONTHLY_POKEMON_CACHE'])
         self.api_ip_restriction = config['api']['IP_RESTRICTION'].lower() == 'true'
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']
