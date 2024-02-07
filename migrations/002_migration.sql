@@ -1,4 +1,5 @@
 -- Properly update event for api_monthly_stats
+
 ALTER EVENT event_update_api_monthly_stats
 ON SCHEDULE EVERY 1 MONTH
 STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 02:10:00'), '%Y-%m-%d %H:%i:%s')
@@ -29,6 +30,7 @@ BEGIN
 END;
 
 -- Correct monthly timer for surge
+
 ALTER EVENT event_update_monthly_surge_stats
 ON SCHEDULE EVERY 1 MONTH
 STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 02:10:00'), '%Y-%m-%d %H:%i:%s')
@@ -36,6 +38,7 @@ DO
 CALL update_monthly_surge_stats();
 
 -- Correct weekly events as well.
+
 ALTER EVENT event_update_api_weekly_stats
 ON SCHEDULE EVERY 1 WEEK
 STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 01:15:00'), '%Y-%m-%d %H:%i:%s')
@@ -66,6 +69,7 @@ BEGIN
 END;
 
 -- surge weekly event
+
 ALTER EVENT event_update_weekly_surge_stats
 ON SCHEDULE EVERY 1 WEEK
 STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 01:15:00'), '%Y-%m-%d %H:%i:%s')
@@ -73,6 +77,7 @@ DO
 CALL update_weekly_surge_stats();
 
 -- Correct procedure for surge monthly
+
 DROP PROCEDURE IF EXISTS update_monthly_surge_stats;
 
 CREATE PROCEDURE update_monthly_surge_stats()
@@ -109,6 +114,7 @@ END;
 
 -- Dynamic hour updates instead of using current date as a start point
 -- Dynamic hour for surge
+
 CREATE PROCEDURE CreateOrUpdateHourlyEvent()
 BEGIN
     
@@ -134,6 +140,7 @@ CALL CreateOrUpdateHourlyEvent();
 DROP PROCEDURE CreateOrUpdateHourlyEvent;
 
 -- Dynamic hour for total stats
+
 CREATE PROCEDURE CreateOrUpdateHourlyEvent2()
 BEGIN
     

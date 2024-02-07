@@ -77,8 +77,13 @@ def run_migrations():
             version = int(file.split('_')[0])
             if version > current_version:
                 apply_migration(cursor, f'migrations/{file}')
-                cursor.execute("INSERT INTO schema_version (version) VALUES (%s)", (version,))
-                conn.commit()
+                logger.info(f"Updating schema_version to {version}")
+                try:
+                    cursor.execute("INSERT INTO schema_version (version) VALUES (%s)", (version,))
+                    conn.commit()
+                except pymysql.Error as e:
+                    logger.info(f"Failed to insert version {version} into schema_version: {e}")
+                    conn.rollback()
                 migrations_applied = True
                 logger.info(f"Applied migration {file}")
 
