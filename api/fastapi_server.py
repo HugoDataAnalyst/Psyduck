@@ -62,7 +62,15 @@ ALLOWED_PATHS = [
     "/api/surge-daily-stats",
     "/api/surge-weekly-stats",
     "/api/surge-monthly-stats",
-    "/metrics"
+    "/metrics/daily-area-pokemon",
+    "/metrics/weekly-area-pokemon",
+    "/metrics/monthly-area-pokemon",
+    "/metrics/total-hourly-pokemon",
+    "/metrics/total-daily-pokemon",
+    "/metrics/total-pokemon",
+    "/metrics/surge-daily-stats",
+    "/metrics/surge-weekly-stats",
+    "/metrics/surge-monthly-stats"
 ]
 
 async def check_path_middleware(request: Request, call_next):
@@ -232,81 +240,250 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     console_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon Stats")
 
-@fastapi.get("/metrics")
-@cache(expire=app_config.api_metrics_cache)
-async def metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+# API format for VictoriaMetrics/Prometheus
+
+@fastapi.get("/metrics/daily-area-pokemon")
+@cache(expire=app_config.api_metrics_daily_area_pokemon_cache)
+async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     try:
-        # Fetching data from each API task
+        # Fetch data for metrics
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
-        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
-        total_stats = get_task_result(query_total_api_pokemon_stats)
-        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
-        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
-        console_logger.info(f"Fetched all API tasks sucessfuly")
-        file_logger.info(f"Fetched all API tasks sucessfuly")
+        console_logger.info(f"Fetched daily grouped pokemon API task sucessfuly")
+        file_logger.info(f"Fetched daily grouped pokemon API tasks sucessfuly")
 
         # Format each result set
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
         console_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
         file_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
 
+        # Combine formatted metrics for area stats
+        daily_area_pokemon_prometheus_metrics = '\n'.join([
+            formatted_daily_area_stats
+        ])
+
+        # Return as plain text
+        return Response(content=daily_area_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved grouped APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating grouped metrics: {e}")
+        file_logger.error(f"Error generating grouped metrics: {e}")
+        return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/weekly-area-pokemon")
+@cache(expire=app_config.api_metrics_weekly_area_pokemon_cache)
+async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        console_logger.info(f"Fetched weekly grouped pokemon API task sucessfuly")
+        file_logger.info(f"Fetched weekly grouped pokemon API tasks sucessfuly")
+
+        # Format the result
         formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
         console_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
         file_logger.debug(f"Formatted weekly area stats for VictoriaMetrics")
 
+        # Combine formatted metrics for grouped stats
+        weekly_area_pokemon_prometheus_metrics = '\n'.join([
+            formatted_weekly_area_stats
+        ])
+
+        # Return as plain text
+        return Response(content=weekly_area_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved grouped-weekly API for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating grouped metrics: {e}")
+        file_logger.error(f"Error generating grouped metrics: {e}")
+        return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/monthly-area-pokemon")
+@cache(expire=app_config.api_metrics_monthly_area_pokemon_cache)
+async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        console_logger.info(f"Fetched monthly grouped pokemon API task sucessfuly")
+        file_logger.info(f"Fetched monthly grouped pokemon API tasks sucessfuly")
+
+        # Format the result
         formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
         console_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
         file_logger.debug(f"Formatted monthly area stats for VictoriaMetrics")
 
+        # Combine formatted metrics for grouped stats
+        monthly_area_pokemon_prometheus_metrics = '\n'.join([
+            formatted_monthly_area_stats
+        ])
+
+        # Return as plain text
+        return Response(content=monthly_area_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved grouped-monthly API for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating grouped metrics: {e}")
+        file_logger.error(f"Error generating grouped metrics: {e}")
+        return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/total-hourly-pokemon")
+@cache(expire=app_config.api_metrics_hourly_total_pokemon_cache)
+async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        console_logger.info(f"Fetched hourly total pokemon API task sucessfuly")
+        file_logger.info(f"Fetched hourly total pokemon API tasks sucessfuly")
+
+        # Format each result set
         formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
         console_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
         file_logger.debug(f"Formatted hourly total stats for VictoriaMetrics")
 
-        formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
-        console_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
-
-        formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
-        console_logger.debug(f"Formatted total stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted total stats for VictoriaMetrics")
-
-        formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
-        console_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
-
-        formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
-        console_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
-
-        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
-        console_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
-        file_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
-
         # Combine all formatted metrics
-        prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats,
-            formatted_weekly_area_stats,
-            formatted_monthly_area_stats,
-            formatted_hourly_total_stats,
-            formatted_daily_total_stats,
-            formatted_total_stats,
-            formatted_surge_daily_stats,
-            formatted_surge_weekly_stats,
-            formatted_surge_monthly_stats
+        total_hourly_pokemon_prometheus_metrics = '\n'.join([
+            formatted_hourly_total_stats
         ])
 
         # Return as plain text
-        return Response(content=prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all APIs for VictoriaMetrics")
+        return Response(content=total_hourly_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
+@fastapi.get("/metrics/total-daily-pokemon")
+@cache(expire=app_config.api_metrics_daily_total_pokemon_cache)
+async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        console_logger.info(f"Fetched daily total pokemon API task sucessfuly")
+        file_logger.info(f"Fetched daily total pokemon API tasks sucessfuly")
+
+        # Format each result set
+        formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
+        console_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted daily total stats for VictoriaMetrics")
+
+        # Combine all formatted metrics
+        total_daily_pokemon_prometheus_metrics = '\n'.join([
+            formatted_daily_total_stats
+        ])
+
+        # Return as plain text
+        return Response(content=total_daily_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/total-pokemon")
+@cache(expire=app_config.api_metrics_total_pokemon_cache)
+async def total_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        total_stats = get_task_result(query_total_api_pokemon_stats)
+        console_logger.info(f"Fetched total pokemon API task sucessfuly")
+        file_logger.info(f"Fetched total pokemon API tasks sucessfuly")
+
+        # Format each result set
+        formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
+        console_logger.debug(f"Formatted total stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted total stats for VictoriaMetrics")
+
+        # Combine all formatted metrics
+        total_pokemon_prometheus_metrics = '\n'.join([
+            formatted_total_stats
+        ])
+
+        # Return as plain text
+        return Response(content=total_pokemon_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/surge-daily-stats")
+@cache(expire=app_config.api_metrics_surge_daily_pokemon_cache)
+async def surge_daily_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
+        console_logger.info(f"Fetched surge daily API task sucessfuly")
+        file_logger.info(f"Fetched surge daily API tasks sucessfuly")
+
+        # Format each result set
+        formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
+        console_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge daily stats for VictoriaMetrics")
+
+        # Combine all formatted metrics
+        surge_daily_prometheus_metrics = '\n'.join([
+            formatted_surge_daily_stats
+        ])
+
+        # Return as plain text
+        return Response(content=surge_daily_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/surge-weekly-stats")
+@cache(expire=app_config.api_metrics_surge_weekly_pokemon_cache)
+async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        console_logger.info(f"Fetched surge weekly API task sucessfuly")
+        file_logger.info(f"Fetched surge weekly API tasks sucessfuly")
+
+        # Format each result set
+        formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
+        console_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge weekly stats for VictoriaMetrics")
+
+        # Combine all formatted metrics
+        surge_weekly_prometheus_metrics = '\n'.join([
+            formatted_surge_weekly_stats
+        ])
+
+        # Return as plain text
+        return Response(content=surge_weekly_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+@fastapi.get("/metrics/surge-monthly-stats")
+@cache(expire=app_config.api_metrics_surge_monthly_pokemon_cache)
+async def surge_monthly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    try:
+        # Fetch data for metrics
+        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
+        console_logger.info(f"Fetched surge monthly API task sucessfuly")
+        file_logger.info(f"Fetched surge monthly API tasks sucessfuly")
+
+        # Format each result set
+        formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
+        console_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
+        file_logger.debug(f"Formatted surge monthly stats for VictoriaMetrics")
+
+        # Combine all formatted metrics
+        surge_monthly_prometheus_metrics = '\n'.join([
+            formatted_surge_monthly_stats
+        ])
+
+        # Return as plain text
+        return Response(content=surge_monthly_prometheus_metrics, media_type="text/plain")
+        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+    except Exception as e:
+        console_logger.error(f"Error generating metrics: {e}")
+        file_logger.error(f"Error generating metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 # Organises for VictoriaMetrics
 def format_results_to_victoria(data, metric_prefix):
