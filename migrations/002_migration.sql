@@ -99,7 +99,7 @@ BEGIN
     TRUNCATE TABLE monthly_surge_pokemon_stats;
 
     INSERT INTO monthly_surge_pokemon_stats (hour, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny)
-    SELECT 
+    SELECT
         hour_of_day,
         sum_total_iv100,
         sum_total_iv0,
@@ -115,15 +115,15 @@ END;
 -- Dynamic hour updates instead of using current date as a start point
 -- Dynamic hour for surge
 
-CREATE PROCEDURE CreateOrUpdateHourlyEvent()
+CREATE PROCEDURE CreateOrUpdateHourlySurgeEvent()
 BEGIN
-    
+
     DECLARE dynamicSQL TEXT;
 
-    
+
     SET @nextFullHour = DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), INTERVAL 1 HOUR);
 
-    
+
     SET dynamicSQL = CONCAT('ALTER EVENT event_update_hourly_surge_stats
                              ON SCHEDULE EVERY 1 HOUR
                              STARTS ''', @nextFullHour, '''
@@ -135,21 +135,21 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END;
 
-CALL CreateOrUpdateHourlyEvent();
+CALL CreateOrUpdateHourlySurgeEvent();
 
-DROP PROCEDURE CreateOrUpdateHourlyEvent;
+DROP PROCEDURE CreateOrUpdateHourlySurgeEvent;
 
 -- Dynamic hour for total stats
 
-CREATE PROCEDURE CreateOrUpdateHourlyEvent2()
+CREATE PROCEDURE CreateOrUpdateHourlyTotalEvent()
 BEGIN
-    
+
     DECLARE dynamicSQL TEXT;
 
-    
+
     SET @nextFullHour = DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), INTERVAL 1 HOUR);
 
-    
+
     SET dynamicSQL = CONCAT('ALTER EVENT event_update_hourly_total_stats
                              ON SCHEDULE EVERY 1 HOUR
                              STARTS ''', @nextFullHour, '''
@@ -161,6 +161,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END;
 
-CALL CreateOrUpdateHourlyEvent2();
+CALL CreateOrUpdateHourlyTotalEvent();
 
-DROP PROCEDURE CreateOrUpdateHourlyEvent2;
+DROP PROCEDURE CreateOrUpdateHourlyTotalEvent;
