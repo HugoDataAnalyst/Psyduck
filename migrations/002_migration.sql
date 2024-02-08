@@ -115,44 +115,18 @@ END;
 -- Dynamic hour updates instead of using current date as a start point
 -- Dynamic hour for surge
 
-CREATE PROCEDURE CreateOrUpdateHourlySurgeEvent()
-BEGIN
+DROP EVENT IF EXISTS event_update_hourly_total_stats;
 
-    DECLARE dynamicSQL TEXT;
+CREATE EVENT IF NOT EXISTS event_update_hourly_total_stats
+ON SCHEDULE EVERY 1 HOUR
+STARTS (CURRENT_TIMESTAMP + INTERVAL 1 HOUR - INTERVAL MINUTE(CURRENT_TIMESTAMP) MINUTE + INTERVAL 2 MINUTE - INTERVAL SECOND(CURRENT_TIMESTAMP) SECOND)
+DO
+  CALL update_hourly_total_stats();
 
+DROP EVENT IF EXISTS event_update_hourly_surge_stats;
 
-    SET @nextFullHour = DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), INTERVAL 1 HOUR);
-
-
-    SET dynamicSQL = CONCAT('ALTER EVENT event_update_hourly_surge_stats
-                             ON SCHEDULE EVERY 1 HOUR
-                             STARTS ''', @nextFullHour, '''
-                             DO
-                             CALL update_hourly_surge_stats();');
-
-    PREPARE stmt FROM @dynamicSQL;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END;
-
--- Dynamic hour for total stats
-
-CREATE PROCEDURE CreateOrUpdateHourlyTotalEvent()
-BEGIN
-
-    DECLARE dynamicSQL TEXT;
-
-
-    SET @nextFullHour = DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), INTERVAL 1 HOUR);
-
-
-    SET dynamicSQL = CONCAT('ALTER EVENT event_update_hourly_total_stats
-                             ON SCHEDULE EVERY 1 HOUR
-                             STARTS ''', @nextFullHour, '''
-                             DO
-                             CALL event_update_hourly_total_stats();');
-
-    PREPARE stmt FROM @dynamicSQL;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END;
+CREATE EVENT IF NOT EXISTS event_update_hourly_surge_stats
+ON SCHEDULE EVERY 1 HOUR
+STARTS (CURRENT_TIMESTAMP + INTERVAL 1 HOUR - INTERVAL MINUTE(CURRENT_TIMESTAMP) MINUTE + INTERVAL 2 MINUTE - INTERVAL SECOND(CURRENT_TIMESTAMP) SECOND)
+DO
+  CALL update_hourly_surge_stats();

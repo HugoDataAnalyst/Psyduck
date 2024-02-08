@@ -1,4 +1,4 @@
-fastapi==0.108.0
+fastapi==0.109.1
 uvicorn==0.25.0
 fastapi-cache2==0.2.1
 redis==4.6.0
@@ -10,4 +10,4 @@ pymysql==1.1.0
 cachetools==5.3.2
 backoff==2.2.1
 httpx==0.26.0
-starlette==0.32.0.post1
+starlette==0.36.2
