@@ -15,6 +15,7 @@ from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_poke
 from utils.time_utils import seconds_until_next_hour, seconds_until_midnight, seconds_until_next_week, seconds_until_next_month
 import os
 import json
+from datetime import date
 
 # Configuration values
 console_log_level_str = app_config.api_console_log_level.upper()
