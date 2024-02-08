@@ -204,7 +204,7 @@ def organize_results(results):
     organized_results = {}
     for row in results:
         # Directly convert the 'day' column to a string in ISO format
-        if 'day' in row and isinstance(row['day'], (datetime.date, datetime.datetime)):
+        if 'day' in row and isinstance(row['day'], (date, datetime)):
             row['day'] = row['day'].isoformat()
 
         area = row['area_name']
