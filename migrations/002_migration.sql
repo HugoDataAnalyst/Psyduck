@@ -135,10 +135,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END;
 
-CALL CreateOrUpdateHourlySurgeEvent();
-
-DROP PROCEDURE CreateOrUpdateHourlySurgeEvent;
-
 -- Dynamic hour for total stats
 
 CREATE PROCEDURE CreateOrUpdateHourlyTotalEvent()
@@ -160,7 +156,3 @@ BEGIN
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END;
-
-CALL CreateOrUpdateHourlyTotalEvent();
-
-DROP PROCEDURE CreateOrUpdateHourlyTotalEvent;
