@@ -104,6 +104,15 @@ fastapi.middleware('http')(check_path_middleware)
 # Initiliaze Redis
 redis_client = redis.StrictRedis.from_url(app_config.redis_url)
 
+# Custom Encoder Class to deal with Dates
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, date):
+            # Format the date as you like
+            return obj.isoformat()
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
 @fastapi.on_event("startup")
 async def startup():
     console_logger.info("Starting up the application")
@@ -175,7 +184,7 @@ async def daily_area_pokemon_stats(request: Request, secret: str = Depends(valid
         cached_result = None
 
     result = get_task_result(query_daily_api_pokemon_stats)
-    serialized_result = json.dumps(result)
+    serialized_result = json.dumps(result, cls=CustomEncoder)
 
     # If cached result is None or different from new result, update the cache
     try:
@@ -210,7 +219,7 @@ async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(vali
         cached_result = None
 
     result = get_task_result(query_weekly_api_pokemon_stats)
-    serialized_result = json.dumps(result)
+    serialized_result = json.dumps(result, cls=CustomEncoder)
 
     # If cached result is None or different from new result, update the cache
     try:
@@ -245,7 +254,7 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
         cached_result = None
 
     result = get_task_result(query_monthly_api_pokemon_stats)
-    serialized_result = json.dumps(result)
+    serialized_result = json.dumps(result, cls=CustomEncoder)
 
     # If cached result is None or different from new result, update the cache
     try:
@@ -317,7 +326,7 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
         cached_result = None
 
     result = get_task_result(query_daily_total_api_pokemon_stats)
-    serialized_result = json.dumps(result)
+    serialized_result = json.dumps(result, cls=CustomEncoder)
 
     # If cached result is None or different from new result, update the cache
     try:
