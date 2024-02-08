@@ -9,7 +9,7 @@ import os
 import hashlib
 import json
 import redis
-
+from datetime import datetime, date
 
 # Retrieve configuration values
 console_log_level_str = app_config.celery_console_log_level.upper()
@@ -203,6 +203,10 @@ def query_monthly_surge_api_pokemon_stats(self):
 def organize_results(results):
     organized_results = {}
     for row in results:
+        # Directly convert the 'day' column to a string in ISO format
+        if 'day' in row and isinstance(row['day'], (datetime.date, datetime.datetime)):
+            row['day'] = row['day'].isoformat()
+
         area = row['area_name']
         if area not in organized_results:
             organized_results[area] = []
