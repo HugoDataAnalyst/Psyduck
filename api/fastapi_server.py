@@ -170,27 +170,30 @@ async def daily_area_pokemon_stats(request: Request, secret: str = Depends(valid
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for daily Pokemon stats")
+            file_logger.info("Cache hit for daily Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for daily Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for daily Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for daily Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for daily Pokemon stats, fetching new data")
     result = get_task_result(query_daily_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # Cache the new data with dynamic TTL
+    ttl = seconds_until_midnight()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_midnight()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new daily Pokemon stats")
-            file_logger.info("Cache updated with new daily Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new daily Pokemon stats")
+        file_logger.info("Cache set with new daily Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for daily Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for daily Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for daily Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for daily Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained daily Pokemon stats")
@@ -205,27 +208,30 @@ async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(vali
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for weekly Pokemon stats")
+            file_logger.info("Cache hit for weekly Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for weekly Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for weekly Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for weekly Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for weekly Pokemon stats, fetching new data")
     result = get_task_result(query_weekly_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # Cache the new data with dynamic TTL
+    ttl = seconds_until_next_week()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_next_week()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new weekly Pokemon stats")
-            file_logger.info("Cache updated with new weekly Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new weekly Pokemon stats")
+        file_logger.info("Cache set with new weekly Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for weekly Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for weekly Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for weekly Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for weekly Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained weekly Pokemon stats")
@@ -240,27 +246,30 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for monthly Pokemon stats")
+            file_logger.info("Cache hit for monthly Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for monthly Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for monthly Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for monthly Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for monthly Pokemon stats, fetching new data")
     result = get_task_result(query_monthly_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # Cache the new data with dynamic TTL
+    ttl = seconds_until_next_month()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_next_month()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new monthly Pokemon stats")
-            file_logger.info("Cache updated with new monthly Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new monthly Pokemon stats")
+        file_logger.info("Cache set with new monthly Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for monthly Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for monthly Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for monthly Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for monthly Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained monthly Pokemon stats")
@@ -276,27 +285,30 @@ async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(val
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for hourly total Pokemon stats")
+            file_logger.info("Cache hit for hourly total Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for hourly total Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for hourly total Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for hourly total Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for hourly total Pokemon stats, fetching new data")
     result = get_task_result(query_hourly_total_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_next_hour()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_next_hour()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new hourly total Pokemon stats")
-            file_logger.info("Cache updated with new hourly total Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new hourly total Pokemon stats")
+        file_logger.info("Cache set with new hourly total Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for hourly total Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for hourly total Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for hourly total Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for hourly total Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained hourly total Pokemon stats")
@@ -312,27 +324,30 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for daily total Pokemon stats")
+            file_logger.info("Cache hit for daily total Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for daily total Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for daily total Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for daily total Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for daily total Pokemon stats, fetching new data")
     result = get_task_result(query_daily_total_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_midnight()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_midnight()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new daily total Pokemon stats")
-            file_logger.info("Cache updated with new daily total Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new daily total Pokemon stats")
+        file_logger.info("Cache set with new daily total Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for daily total Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for daily total Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for daily total Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for daily total Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained daily total Pokemon stats")
@@ -347,27 +362,30 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for total Pokemon stats")
+            file_logger.info("Cache hit for total Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for total Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for total Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for total Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for total Pokemon stats, fetching new data")
     result = get_task_result(query_total_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_midnight()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_midnight()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new total Pokemon stats")
-            file_logger.info("Cache updated with new total Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new total Pokemon stats")
+        file_logger.info("Cache set with new total Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for total Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for total Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for total Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for total Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained total Pokemon stats")
@@ -376,9 +394,6 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
 # API Surge's
 @fastapi.get("/api/surge-daily-stats")
 async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    console_logger.info("Sucessfully obtained Surge Daily Pokemon Stats")
-    file_logger.info("Sucessfully obtained Surge Daily Pokemon Stats")
-
     console_logger.debug("Request received for Surge Daily Pokemon stats")
     file_logger.debug("Request received for Surge Daily Pokemon stats")
 
@@ -386,27 +401,30 @@ async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(valid
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for Surge Daily Pokemon stats")
+            file_logger.info("Cache hit for Surge Daily Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for Surge Daily Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for Surge Daily Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for Surge Daily Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for Surge Daily Pokemon stats, fetching new data")
     result = get_task_result(query_daily_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_midnight()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_midnight()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new Surge Daily Pokemon stats")
-            file_logger.info("Cache updated with new Surge Daily Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new Surge Daily Pokemon stats")
+        file_logger.info("Cache set with new Surge Daily Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for Surge Daily Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for Surge Daily Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for Surge Daily Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for Surge Daily Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Daily Pokemon stats")
@@ -421,27 +439,30 @@ async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(vali
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for Surge Weekly Pokemon stats")
+            file_logger.info("Cache hit for Surge Weekly Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for Surge Weekly Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for Surge Weekly Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for Surge Weekly Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for Surge Weekly Pokemon stats, fetching new data")
     result = get_task_result(query_weekly_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_next_week()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_next_week()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new Surge Weekly Pokemon stats")
-            file_logger.info("Cache updated with new Surge Weekly Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new Surge Weekly Pokemon stats")
+        file_logger.info("Cache set with new Surge Weekly Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for Surge Weekly Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for Surge Weekly Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for Surge Weekly Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for Surge Weekly Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Weekly Pokemon stats")
@@ -456,60 +477,69 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
 
     try:
         cached_result = redis_client.get(cache_key)
+        if cached_result:
+            # If cached result exists, decode it and return
+            console_logger.info("Cache hit for Surge Monthly Pokemon stats")
+            file_logger.info("Cache hit for Surge Monthly Pokemon stats")
+            return JSONResponse(content=json.loads(cached_result.decode("utf-8")))
     except Exception as e:
         console_logger.error(f"Error accessing Redis cache for Surge Monthly Pokemon stats: {e}")
         file_logger.error(f"Error accessing Redis cache for Surge Monthly Pokemon stats: {e}")
-        cached_result = None
 
+    # If no Cache set
+    console_logger.debug("Cache miss for Surge Monthly Pokemon stats, fetching new data")
+    file_logger.debug("Cache miss for Surge Monthly Pokemon stats, fetching new data")
     result = get_task_result(query_monthly_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
-    # If cached result is None or different from new result, update the cache
+    # If cached result is None, update the cache
+    ttl = seconds_until_next_month()
     try:
-        if not cached_result or cached_result != serialized_result:
-            ttl = seconds_until_next_month()
-            redis_client.set(cache_key, serialized_result, ex=ttl)
-            console_logger.info("Cache updated with new Surge Monthly Pokemon stats")
-            file_logger.info("Cache updated with new Surge Monthly Pokemon stats")
-        else:
-            console_logger.debug("Cached data is up-to-date. No update needed.")
-            file_logger.debug("Cached data is up-to-date. No update needed.")
+        redis_client.set(cache_key, serialized_result, ex=ttl)
+        console_logger.info("Cache set with new Surge Monthly Pokemon stats")
+        file_logger.info("Cache set with new Surge Monthly Pokemon stats")
     except Exception as e:
-        console_logger.error(f"Error updating Redis cache for Surge Monthly Pokemon stats: {e}")
-        file_logger.error(f"Error updating Redis cache for Surge Monthly Pokemon stats: {e}")
+        console_logger.error(f"Error setting Redis cache for Surge Monthly Pokemon stats: {e}")
+        file_logger.error(f"Error setting Redis cache for Surge Monthly Pokemon stats: {e}")
 
     return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Monthly Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon stats")
 
-# API format for VictoriaMetrics/Prometheus
-
+# Rework with Redis only for VictoriaMetrics/Prometheus
 @fastapi.get("/metrics/daily-area-pokemon")
-@cache(expire=app_config.api_metrics_daily_area_pokemon_cache)
 async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
-    try:
-        # Fetch data for metrics
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
-        console_logger.info(f"Fetched daily grouped pokemon API task sucessfuly")
-        file_logger.info(f"Fetched daily grouped pokemon API tasks sucessfuly")
+    cache_key = "metrics:daily-area-pokemon"
 
-        # Format each result set
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for daily area Pokemon metrics")
+            file_logger.info("Cache hit for daily area Pokemon metrics")
+            return Response(content=cached_metrics, media_type="text/plain")
+
+        # If cache miss, fetch data and format for VictoriaMetrics
+        console_logger.debug("Cache miss, fetching data for daily area Pokemon metrics")
+        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
-        file_logger.debug(f"Formatted daily area stats for VictoriaMetrics.")
 
         # Combine formatted metrics for area stats
-        daily_area_pokemon_prometheus_metrics = '\n'.join([
-            formatted_daily_area_stats
-        ])
+        daily_area_pokemon_prometheus_metrics = '\n'.join([formatted_daily_area_stats])
 
-        # Return as plain text
+        # Cache the newly fetched and formatted metrics with a dynamic expiration
+        ttl = seconds_until_next_week()  # Adjust based on your needs
+        redis_client.set(cache_key, daily_area_pokemon_prometheus_metrics, ex=ttl)
+
+        console_logger.info("Successfully updated cache for daily area Pokemon metrics")
         return Response(content=daily_area_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved grouped APIs for VictoriaMetrics")
     except Exception as e:
-        console_logger.error(f"Error generating grouped metrics: {e}")
-        file_logger.error(f"Error generating grouped metrics: {e}")
-        return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
+        console_logger.error(f"Error processing metrics: {e}")
+        file_logger.error(f"Error processing metrics: {e}")
+        return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+
+# API format for VictoriaMetrics/Prometheus
 
 @fastapi.get("/metrics/weekly-area-pokemon")
 @cache(expire=app_config.api_metrics_weekly_area_pokemon_cache)
