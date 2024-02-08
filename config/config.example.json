@@ -48,7 +48,8 @@
 		"HOST": "localhost",
 		"PORT": "6379",
 		"DB": "0",
-		"PASSWORD": "your_redis_password"
+		"PASSWORD": "your_redis_password",
+		"CLEAN": "true"
 	},
 	"api": {
 		"CONSOLE_LOG_LEVEL": "INFO",

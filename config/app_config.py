@@ -51,6 +51,7 @@ class AppConfig:
         self.redis_port = int(config['redis']['PORT'])
         self.redis_db = config['redis']['DB']
         self.redis_url = f"redis://:{encoded_redis_password}@{config['redis']['HOST']}:{config['redis']['PORT']}/{config['redis']['DB']}"
+        self.redis_clean = config['redis']['CLEAN'].lower() == 'true'
         self.api_log_level = config['api']['LOG_LEVEL']
         self.api_console_log_level = config['api']['CONSOLE_LOG_LEVEL']
         self.api_log_file = config['api']['LOG_FILE']
