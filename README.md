@@ -107,6 +107,10 @@ Change the port if you want, default is 6379:
 
 #### Key considerations:
 
+#### **"redis"**:
+
+- "CLEAN" Set to true in order to clean the redis db cache on API start up.
+
 #### **"koji"**:
 
 - "MAX_SIZE_GEOFENCE" If you have say 10 geofences, set to 15. Ensuring you have room for more without having to tweak this value often.
