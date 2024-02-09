@@ -49,6 +49,18 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 
 Metrics/ is only for Prometheus/VictoriaMetrics types (plaintext).
 
+## Usage of APIs:
+
+Currently I've setup dynamic caching TTL which means you don't need to ask for the API data more then the setup cache timers per hour/day/weekly/month.
+
+**Timers for each type:**
+
+- Hourly: After minute 1 of each hour;
+- Daily: After 02:00:00 of each day;
+- Weekly: After 02:00:00 of each Monday;
+- Monthly: After 03:00:00 of the first day of each Month;
+- Total: uses Daily timers.
+
 ## Requirements:
 
 - MySQL Database 8.0.0+;
