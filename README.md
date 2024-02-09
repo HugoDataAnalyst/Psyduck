@@ -165,8 +165,6 @@ Change the port if you want, default is 6379:
 
 - "WORKERS" is set to 1, only ever touch this if you know what you're doing otherwise it might lead to unexpected consumption of resources.
 
-- "ANYTYPE_OF_CACHE" (SECONDS) adjust these based on how frequent you intend to request the API for each one.
-
 - "IP_RESTRICTION" Highly recommended if you don't know what your doing. Make sure to fill in "ALLOWED_IPS" "ip1, ip2, ip3" as in the example.
 
 - "ALLOWED_IPS" Requires IP_RESTRICTION = true, set the IPs where you intend to request the API.
