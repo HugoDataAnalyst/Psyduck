@@ -515,23 +515,28 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
         # Attempt to retrieve cached metrics
         cached_metrics = redis_client.get(cache_key)
         if cached_metrics:
-            console_logger.info("Cache hit for daily area Pokemon metrics")
-            file_logger.info("Cache hit for daily area Pokemon metrics")
-            return Response(content=cached_metrics, media_type="text/plain")
+            console_logger.info("Cache hit for daily grouped area Pokemon metrics")
+            file_logger.info("Cache hit for daily grouped area Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for daily grouped area Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for daily grouped area Pokemon metrics: {e}")
 
+    try:
         # If cache miss, fetch data and format for VictoriaMetrics
-        console_logger.debug("Cache miss, fetching data for daily area Pokemon metrics")
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
+        console_logger.debug("Cache miss. Fetched data for daily grouped area Pokemon metrics")
+        file_logger.debug("Cache miss. Fetched data for daily grouped area Pokemon metrics")
 
         # Combine formatted metrics for area stats
         daily_area_pokemon_prometheus_metrics = '\n'.join([formatted_daily_area_stats])
 
         # Cache the newly fetched and formatted metrics with a dynamic expiration
-        ttl = seconds_until_next_week()  # Adjust based on your needs
+        ttl = seconds_until_midnight()
         redis_client.set(cache_key, daily_area_pokemon_prometheus_metrics, ex=ttl)
 
-        console_logger.info("Successfully updated cache for daily area Pokemon metrics")
+        console_logger.info("Successfully set cache for daily area Pokemon metrics")
         return Response(content=daily_area_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error processing metrics: {e}")
@@ -542,13 +547,25 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
 # API format for VictoriaMetrics/Prometheus
 
 @fastapi.get("/metrics/weekly-area-pokemon")
-@cache(expire=app_config.api_metrics_weekly_area_pokemon_cache)
 async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:weekly-area-pokemon"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for weekly grouped area Pokemon metrics")
+            file_logger.info("Cache hit for weekly grouped area Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for weekly grouped area Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for weekly grouped area Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
-        console_logger.info(f"Fetched weekly grouped pokemon API task sucessfuly")
-        file_logger.info(f"Fetched weekly grouped pokemon API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched weekly grouped pokemon API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched weekly grouped pokemon API tasks sucessfuly")
 
         # Format the result
         formatted_weekly_area_stats = format_results_to_victoria(weekly_area_stats, 'psyduck_weekly_area_stats')
@@ -560,9 +577,11 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
             formatted_weekly_area_stats
         ])
 
+        ttl = seconds_until_next_week()
+        redis_client.set(cache_key, weekly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=weekly_area_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved grouped-weekly API for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for grouped-weekly API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating grouped metrics: {e}")
         file_logger.error(f"Error generating grouped metrics: {e}")
