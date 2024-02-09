@@ -506,7 +506,7 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     console_logger.info("Successfully obtained Surge Monthly Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon stats")
 
-# Rework with Redis only for VictoriaMetrics/Prometheus
+# API format for VictoriaMetrics/Prometheus with Redis Cache
 @fastapi.get("/metrics/daily-area-pokemon")
 async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
     cache_key = "metrics:daily-area-pokemon"
@@ -526,8 +526,8 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
         # If cache miss, fetch data and format for VictoriaMetrics
         daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
-        console_logger.debug("Cache miss. Fetched data for daily grouped area Pokemon metrics")
-        file_logger.debug("Cache miss. Fetched data for daily grouped area Pokemon metrics")
+        console_logger.info("Cache miss. Fetched data for daily grouped area Pokemon metrics")
+        file_logger.info("Cache miss. Fetched data for daily grouped area Pokemon metrics")
 
         # Combine formatted metrics for area stats
         daily_area_pokemon_prometheus_metrics = '\n'.join([formatted_daily_area_stats])
@@ -542,9 +542,6 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
         console_logger.error(f"Error processing metrics: {e}")
         file_logger.error(f"Error processing metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
-
-
-# API format for VictoriaMetrics/Prometheus
 
 @fastapi.get("/metrics/weekly-area-pokemon")
 async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -588,13 +585,25 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
         return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/monthly-area-pokemon")
-@cache(expire=app_config.api_metrics_monthly_area_pokemon_cache)
 async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:monthly-area-pokemon"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for monthly grouped area Pokemon metrics")
+            file_logger.info("Cache hit for monthly grouped area Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for monthly grouped area Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for monthly grouped area Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
-        console_logger.info(f"Fetched monthly grouped pokemon API task sucessfuly")
-        file_logger.info(f"Fetched monthly grouped pokemon API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched monthly grouped pokemon API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched monthly grouped pokemon API tasks sucessfuly")
 
         # Format the result
         formatted_monthly_area_stats = format_results_to_victoria(monthly_area_stats, 'psyduck_monthly_area_stats')
@@ -606,22 +615,36 @@ async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(v
             formatted_monthly_area_stats
         ])
 
+        ttl = seconds_until_next_month()
+        redis_client.set(cache_key, monthly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=monthly_area_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved grouped-monthly API for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for grouped-monthly API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating grouped metrics: {e}")
         file_logger.error(f"Error generating grouped metrics: {e}")
         return Response(content=f"Error generating grouped metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-hourly-pokemon")
-@cache(expire=app_config.api_metrics_hourly_total_pokemon_cache)
 async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:total-hourly-pokemon"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for hourly total area Pokemon metrics")
+            file_logger.info("Cache hit for hourly total area Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for hourly totald area Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for hourly total area Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
-        console_logger.info(f"Fetched hourly total pokemon API task sucessfuly")
-        file_logger.info(f"Fetched hourly total pokemon API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched hourly total pokemon API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched hourly total pokemon API tasks sucessfuly")
 
         # Format each result set
         formatted_hourly_total_stats = format_results_to_victoria(hourly_total_stats, 'psyduck_hourly_total_stats')
@@ -633,22 +656,37 @@ async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(v
             formatted_hourly_total_stats
         ])
 
+        ttl = seconds_until_next_hour()
+        redis_client.set(cache_key, total_hourly_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=total_hourly_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for hourly total pokemon API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-daily-pokemon")
-@cache(expire=app_config.api_metrics_daily_total_pokemon_cache)
 async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metris:total-daily-pokemon"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for daily total Pokemon metrics")
+            file_logger.info("Cache hit for daily total Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for total Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for total Pokemon metrics: {e}")
+
+
     try:
         # Fetch data for metrics
         daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
-        console_logger.info(f"Fetched daily total pokemon API task sucessfuly")
-        file_logger.info(f"Fetched daily total pokemon API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched daily total pokemon API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched daily total pokemon API tasks sucessfuly")
 
         # Format each result set
         formatted_daily_total_stats = format_results_to_victoria(daily_total_stats, 'psyduck_daily_total_stats')
@@ -660,22 +698,37 @@ async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(va
             formatted_daily_total_stats
         ])
 
+        ttl = seconds_until_midnight()
+        redis_client.set(cache_key, total_daily_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=total_daily_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for daily total pokemon API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/total-pokemon")
-@cache(expire=app_config.api_metrics_total_pokemon_cache)
 async def total_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:total-pokemon"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for total Pokemon metrics")
+            file_logger.info("Cache hit for total Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for total Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for total Pokemon metrics: {e}")
+
+
     try:
         # Fetch data for metrics
         total_stats = get_task_result(query_total_api_pokemon_stats)
-        console_logger.info(f"Fetched total pokemon API task sucessfuly")
-        file_logger.info(f"Fetched total pokemon API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched total pokemon API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched total pokemon API tasks sucessfuly")
 
         # Format each result set
         formatted_total_stats = format_results_to_victoria(total_stats, 'psyduck_total_stats')
@@ -687,22 +740,36 @@ async def total_pokemon_metrics(request: Request, secret: str = Depends(validate
             formatted_total_stats
         ])
 
+        ttl = seconds_until_midnight()
+        redis_client.set(cache_key, total_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=total_pokemon_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for total pokemon API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-daily-stats")
-@cache(expire=app_config.api_metrics_surge_daily_pokemon_cache)
 async def surge_daily_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:surge-daily-stats"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for surge daily Pokemon metrics")
+            file_logger.info("Cache hit for surge daily Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for surge daily Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for surge daily Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
-        console_logger.info(f"Fetched surge daily API task sucessfuly")
-        file_logger.info(f"Fetched surge daily API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched surge daily API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched surge daily API tasks sucessfuly")
 
         # Format each result set
         formatted_surge_daily_stats = format_results_to_victoria_by_hour(surge_daily_stats, 'psyduck_surge_daily')
@@ -714,22 +781,36 @@ async def surge_daily_metrics(request: Request, secret: str = Depends(validate_s
             formatted_surge_daily_stats
         ])
 
+        ttl = seconds_until_midnight()
+        redis_client.set(cache_key, surge_daily_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=surge_daily_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for surge daily Pokemon API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-weekly-stats")
-@cache(expire=app_config.api_metrics_surge_weekly_pokemon_cache)
 async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:surge-weekly-stats"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for weekly Surge Pokemon metrics")
+            file_logger.info("Cache hit for weekly Surge Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for weekly Surge Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for weekly Surge Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
-        console_logger.info(f"Fetched surge weekly API task sucessfuly")
-        file_logger.info(f"Fetched surge weekly API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched surge weekly API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched surge weekly API tasks sucessfuly")
 
         # Format each result set
         formatted_surge_weekly_stats = format_results_to_victoria_by_hour(surge_weekly_stats, 'psyduck_surge_weekly')
@@ -741,22 +822,36 @@ async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_
             formatted_surge_weekly_stats
         ])
 
+        ttl = seconds_until_next_week()
+        redis_client.set(cache_key, surge_weekly_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=surge_weekly_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for Surge Weekly Pokemon for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
 
 @fastapi.get("/metrics/surge-monthly-stats")
-@cache(expire=app_config.api_metrics_surge_monthly_pokemon_cache)
 async def surge_monthly_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
+    cache_key = "metrics:surge-monthly-stats"
+
+    try:
+        # Attempt to retrieve cached metrics
+        cached_metrics = redis_client.get(cache_key)
+        if cached_metrics:
+            console_logger.info("Cache hit for monthly Surge Pokemon metrics")
+            file_logger.info("Cache hit for monthly Surge Pokemon metrics")
+            return Response(content=cached_metrics.decode("utf-8"), media_type="text/plain")
+    except Exception as e:
+        console_logger.error(f"Error accessing Redis cache for monthly Surge Pokemon metrics: {e}")
+        file_logger.error(f"Error accessing Redis cache for monthly Surge Pokemon metrics: {e}")
+
     try:
         # Fetch data for metrics
         surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
-        console_logger.info(f"Fetched surge monthly API task sucessfuly")
-        file_logger.info(f"Fetched surge monthly API tasks sucessfuly")
+        console_logger.info(f"Cache Miss. Fetched surge monthly API task sucessfuly")
+        file_logger.info(f"Cache Miss. Fetched surge monthly API tasks sucessfuly")
 
         # Format each result set
         formatted_surge_monthly_stats = format_results_to_victoria_by_hour(surge_monthly_stats, 'psyduck_surge_monthly')
@@ -768,9 +863,11 @@ async def surge_monthly_metrics(request: Request, secret: str = Depends(validate
             formatted_surge_monthly_stats
         ])
 
+        ttl = seconds_until_next_month()
+        redis_client.set(cache_key, surge_monthly_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=surge_monthly_prometheus_metrics, media_type="text/plain")
-        console_logger.info(f"Successfully retrieved all total and surge APIs for VictoriaMetrics")
+        console_logger.info(f"Successfully set cache for monthly Surge Pokemon API for VictoriaMetrics")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
