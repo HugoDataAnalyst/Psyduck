@@ -1,5 +1,14 @@
 from datetime import datetime, timedelta
 import time
+def seconds_until_half_hour():
+    """Returns the number of seconds remaining until the next half-hour mark."""
+    now = datetime.datetime.now()
+    # Determine if now.minute is closer to 0 or 30 for the next half-hour mark
+    next_half_hour = (now + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
+    if now.minute >= 30:
+        # Adjust to the next hour if now.minute is past 30
+        next_half_hour = next_half_hour.replace(hour=now.hour + 1)
+    return (next_half_hour - now).total_seconds()
 
 def seconds_until_next_hour():
     """Returns the number of seconds remaining until the start of the next hour."""
