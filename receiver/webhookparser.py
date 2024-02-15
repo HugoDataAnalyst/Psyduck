@@ -7,11 +7,11 @@ import json
 from shapely.geometry import Point, Polygon
 import requests
 import os
-import datetime
+from datetime import datetime, timedelta
 import asyncio
 from processor.celery_app import celery
 from config.app_config import app_config
-from processor.tasks import insert_data_task, generate_unique_id
+from processor.tasks import insert_data_task, generate_unique_id, insert_quest_data_task, insert_raid_data_task, insert_invasion_data_task
 from threading import Lock, Thread
 import time
 from cachetools import TTLCache
@@ -45,9 +45,9 @@ invasions_data_queue = []
 invasions_data_queue_lock = asyncio.Lock()
 
 # Time processors
-last_quests_processing_time = []
-last_raids_processing_time = []
-last_invasions_processing_time = []
+last_quests_processing_time = None
+last_raids_processing_time = None
+last_invasions_processing_time = None
 
 # Configuration values
 console_log_level_str = app_config.webhook_console_log_level.upper()
