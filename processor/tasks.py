@@ -95,11 +95,11 @@ def insert_data_task(self, data_batch, unique_id):
         celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} Pokemon records"
     except OperationalError as error:
-        celery_logger.error(f"Failed to insert record into MySQL table: {error}")
+        celery_logger.error(f"Failed to insert Pokemon record into MySQL table: {error}")
         try:
             # Retry with exponential backoff
             retry_delay = app_config.retry_delay * (2 ** self.request.retries)
-            celery_logger.debug(f"Retrying Pokemon in {retry_delay} seconds...")
+            celery_logger.debug(f"Retrying Pokemon Insertion in {retry_delay} seconds...")
             self.retry(countdown=retry_delay)
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Pokemon retries exceeded. Giving up.")
@@ -127,13 +127,21 @@ def insert_quest_data_task(self, data_batch, unique_id)
         celery_logger.debug(f"Inserting Quest data for unique_id: {unique_id}")
 
         insert_query = '''
-        INSERT INTO  ()
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO quest_sightings (pokestop_id, ar_type, normal_type, reward_ar_type, reward_normal_type,
+        reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount,
+        reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
 
         for data in data_batch:
             values = (
-
+                data['pokestop_id'], data.get('ar_type', None), data.get('normal_type', None),
+                data.get('reward_ar_type', None), data.get('reward_normal_type', None),
+                data.get('reward_ar_item_id', None), data.get('reward_ar_item_amount', None),
+                data.get('reward_normal_item_id', None), data.get('reward_normal_item_amount', None),
+                data.get('reward_ar_poke_id', None), data.get('reward_ar_poke_form', None),
+                data.get('reward_normal_poke_id', None), data.get('reward_normal_poke_form', None),
+                data['area_name']
             )
             cursor.execute(insert_query, values)
         conn.commit()
@@ -173,13 +181,20 @@ def insert_raid_data_task(self, data_batch, unique_id)
         celery_logger.debug(f"Inserting Raid data for unique_id: {unique_id}")
 
         insert_query = '''
-        INSERT INTO  ()
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO raid_sightings (gym_id, ex_raid_eligible, is_exclusive, level, pokemon_id, form, costume, area_name)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         '''
 
         for data in data_batch:
             values = (
-
+                data['gym_id'],
+                data['ex_raid_eligible'],
+                data['is_exclusive'],
+                data['level'],
+                data['pokemon_id'],
+                data.get('form', ''),
+                data.get('costume', ''),
+                data['area_name']
             )
             cursor.execute(insert_query, values)
         conn.commit()
@@ -191,7 +206,7 @@ def insert_raid_data_task(self, data_batch, unique_id)
         try:
             # Retry with exponential backoff
             retry_delay = app_config.retry_delay * (2 ** self.request.retries)
-            celery_logger.debug(f"Retrying Raid in {retry_delay} seconds...")
+            celery_logger.debug(f"Retrying Raid Insertion in {retry_delay} seconds...")
             self.retry(countdown=retry_delay)
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Raid retries exceeded. Giving up.")
@@ -219,12 +234,17 @@ def insert_invasion_data_task(self, data_batch, unique_id)
         celery_logger.debug(f"Inserting Invasion data for unique_id: {unique_id}")
 
         insert_query = '''
-        INSERT INTO  ()
+        INSERT INTO invasion_sightings (pokestop_id, display_type, character, confirmed, area_name)
+        VALUES (%s, %s, %s, %s, %s)
         '''
 
         for data in data_batch:
             values = (
-
+                data['pokestop_id'],
+                data['display_type'],
+                data['character'],
+                data['confirmed'],
+                data.get('area_name', '')
             )
             cursor.execute(insert_query, values)
         conn.commit()
@@ -236,7 +256,7 @@ def insert_invasion_data_task(self, data_batch, unique_id)
         try:
             # Retry with exponential backoff
             retry_delay = app_config.retry_delay * (2 ** self.request.retries)
-            celery_logger.debug(f"Retrying Invasion in {retry_delay} seconds...")
+            celery_logger.debug(f"Retrying Invasion Insertion in {retry_delay} seconds...")
             self.retry(countdown=retry_delay)
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Invasion retries exceeded. Giving up.")
