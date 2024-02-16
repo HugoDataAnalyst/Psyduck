@@ -441,8 +441,8 @@ async def receive_data(request: Request):
     now = datetime.now()
 
     # Check Quests Time Condition
-    console_logger.debug("Checking Quests Time Condition...")
-    file_logger.debug("Checking Quests Time Condition...")
+    console_logger.info("Checking Quests Time Condition...")
+    file_logger.info("Checking Quests Time Condition...")
     if not is_quests_processing_queue and len(quests_data_queue) > 0:
         time_since_last_quest_process = (now - last_quests_processing_time).total_seconds()
         if time_since_last_quest_process >= 1800:
@@ -453,16 +453,16 @@ async def receive_data(request: Request):
             file_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_quest_process} seconds.")
         else:
             # When the time condition is not met
-            console_logger.debug(f"Quest Time Condition not met. Time since last process: {time_since_last_quest_process} seconds. Queue size: {len(quests_data_queue)}.")
-            file_logger.debug(f"Quest Time Condition not met. Time since last process: {time_since_last_quest_process} seconds. Queue size: {len(quests_data_queue)}.")
+            console_logger.info(f"Quest Time Condition not met. Time since last process: {time_since_last_quest_process} seconds. Queue size: {len(quests_data_queue)}.")
+            file_logger.info(f"Quest Time Condition not met. Time since last process: {time_since_last_quest_process} seconds. Queue size: {len(quests_data_queue)}.")
     else:
         # When the queue is empty or processing is already in progress
-        console_logger.debug("Quest queue processing skipped. Either processing is already in progress or the queue is empty.")
-        file_logger.debug("Quest queue processing skipped. Either processing is already in progress or the queue is empty.")
+        console_logger.info("Quest queue processing skipped. Either processing is already in progress or the queue is empty.")
+        file_logger.info("Quest queue processing skipped. Either processing is already in progress or the queue is empty.")
 
     # Check Raids Time Condition
-    console_logger.debug("Checking Raids Time Condition...")
-    file_logger.debug("Checking Raids Time Condition...")
+    console_logger.info("Checking Raids Time Condition...")
+    file_logger.info("Checking Raids Time Condition...")
     if not is_raids_processing_queue and len(raids_data_queue) > 0:
         time_since_last_raid_process = (now - last_raids_processing_time).total_seconds()
         if time_since_last_raid_process >= 1800:
@@ -473,16 +473,16 @@ async def receive_data(request: Request):
             file_logger.info(f"Processing Raid queue due to time condition met. Queue size: {len(raids_data_queue)}. Time since last process: {time_since_last_raid_process} seconds.")  
         else:
             # When the time condition is not met
-            console_logger.debug(f"Raid Time Condition not met. Time since last process: {time_since_last_raid_process} seconds. Queue size: {len(raids_data_queue)}.")
-            file_logger.debug(f"Raid Time Condition not met. Time since last process: {time_since_last_raid_process} seconds. Queue size: {len(raids_data_queue)}.")
+            console_logger.info(f"Raid Time Condition not met. Time since last process: {time_since_last_raid_process} seconds. Queue size: {len(raids_data_queue)}.")
+            file_logger.info(f"Raid Time Condition not met. Time since last process: {time_since_last_raid_process} seconds. Queue size: {len(raids_data_queue)}.")
     else:
         # When the queue is empty or processing is already in progress
-        console_logger.debug("Raid queue processing skipped. Either processing is already in progress or the queue is empty.")
-        file_logger.debug("Raid queue processing skipped. Either processing is already in progress or the queue is empty.")
+        console_logger.info("Raid queue processing skipped. Either processing is already in progress or the queue is empty.")
+        file_logger.info("Raid queue processing skipped. Either processing is already in progress or the queue is empty.")
 
     # Check Invasions Time Condition
-    console_logger.debug("Checking Invasions Time Condition...")
-    file_logger.debug("Checking Invasions Time Condition...")
+    console_logger.info("Checking Invasions Time Condition...")
+    file_logger.info("Checking Invasions Time Condition...")
     if not is_invasions_processing_queue and len(invasions_data_queue) > 0:
         time_since_last_invasion_process = (now - last_invasions_processing_time).total_seconds()
         if time_since_last_invasion_process >= 1800:
@@ -493,12 +493,12 @@ async def receive_data(request: Request):
             file_logger.info(f"Processing Invasion queue due to time condition met. Queue size: {len(invasions_data_queue)}. Time since last process: {time_since_last_invasion_process} seconds.")
         else:
             # When the time condition is not met
-            console_logger.debug(f"Invasion Time Condition not met. Time since last process: {time_since_last_invasion_process} seconds. Queue size: {len(invasions_data_queue)}.")
-            file_logger.debug(f"Raid Time Condition not met. Time since last process: {time_since_last_invasion_process} seconds. Queue size: {len(invasions_data_queue)}.")
+            console_logger.info(f"Invasion Time Condition not met. Time since last process: {time_since_last_invasion_process} seconds. Queue size: {len(invasions_data_queue)}.")
+            file_logger.info(f"Raid Time Condition not met. Time since last process: {time_since_last_invasion_process} seconds. Queue size: {len(invasions_data_queue)}.")
     else:
         # When the queue is empty or processing is already in progress
-        console_logger.debug("Invasion queue processing skipped. Either processing is already in progress or the queue is empty.")
-        file_logger.debug("Invasion queue processing skipped. Either processing is already in progress or the queue is empty.")
+        console_logger.info("Invasion queue processing skipped. Either processing is already in progress or the queue is empty.")
+        file_logger.info("Invasion queue processing skipped. Either processing is already in progress or the queue is empty.")
 
     # Pokemon Queue Info
     console_logger.info(f"Pokemon Queue size AFTER processing: {len(data_queue)}")
