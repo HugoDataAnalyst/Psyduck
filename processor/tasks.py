@@ -111,7 +111,7 @@ def insert_data_task(self, data_batch, unique_id):
 
 # Quest Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_quest_data_task(self, data_batch, unique_id)
+def insert_quest_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Quest Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -165,7 +165,7 @@ def insert_quest_data_task(self, data_batch, unique_id)
 
 # Raid Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_raid_data_task(self, data_batch, unique_id)
+def insert_raid_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Raid Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -218,7 +218,7 @@ def insert_raid_data_task(self, data_batch, unique_id)
 
 # Invasion Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_invasion_data_task(self, data_batch, unique_id)
+def insert_invasion_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Invasion Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -234,7 +234,7 @@ def insert_invasion_data_task(self, data_batch, unique_id)
         celery_logger.debug(f"Inserting Invasion data for unique_id: {unique_id}")
 
         insert_query = '''
-        INSERT INTO invasion_sightings (pokestop_id, display_type, character, confirmed, area_name)
+        INSERT INTO invasion_sightings (pokestop_id, display_type, grunt, confirmed, area_name)
         VALUES (%s, %s, %s, %s, %s)
         '''
 

@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS raid_sightings (
 	INDEX idx_inserted_at (inserted_at),
 	INDEX idx_area_name (area_name),
 	INDEX idx_level (level),
-	INDEX idx_pokemon_id (pokemond_id),
-	INDEX idx_all (area_name, inserted_at, pokemond_id, form, level)
+	INDEX idx_pokemon_id (pokemon_id),
+	INDEX idx_all (area_name, inserted_at, pokemon_id, form, level)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raw invasion data
@@ -50,14 +50,14 @@ CREATE TABLE IF NOT EXISTS invasion_sightings (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	pokestop_id VARCHAR(255),
 	display_type TINYINT,
-	character TINYINT,
+	grunt TINYINT,
 	confirmed BOOLEAN,
 	inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	INDEX idx_display (display_type),
-	INDEX idx_character (character),
+	INDEX idx_grunt (grunt),
 	INDEX idx_confirmed (confirmed),
-	INDEX idx_all (area_name, inserted_at, character, confirmed),
-	INDEX idx_area_insert_character (area_name, inserted_at, character),
+	INDEX idx_all (area_name, inserted_at, grunt, confirmed),
+	INDEX idx_area_insert_grunt (area_name, inserted_at, grunt),
 	INDEX idx_area_inserted_confirmed (area_name, inserted_at, confirmed)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
