@@ -586,7 +586,7 @@ def process_full_queue():
     file_logger.info(f"Finished Pokemon queue processing. Updated Pokemon queue size: {len(data_queue)}")
 
 # Pokemon processing queue on shutdown
-def process_remaining_queue_on_shutdown():
+async def process_remaining_queue_on_shutdown():
     global data_queue
     console_logger.debug("Processing remaining items in Pokemon queue before shutdown.")
     file_logger.debug("Processing remaining items in Pokemon queue before shutdown.")
@@ -610,7 +610,7 @@ def process_remaining_queue_on_shutdown():
             file_logger.error(f"Error processing Pokemon batch during shutdown: {e}")
 
 # Quest processing queue on shutdown
-def process_remaining_quest_queue_on_shutdown():
+async def process_remaining_quest_queue_on_shutdown():
     global quests_data_queue
     console_logger.debug("Processing remaining items in Quest queue before shutdown.")
     file_logger.debug("Processing remaining items in Quest queue before shutdown.")
@@ -634,7 +634,7 @@ def process_remaining_quest_queue_on_shutdown():
             file_logger.error(f"Error processing Quest batch during shutdown: {e}")
 
 # Raid processing queue on shutdown
-def process_remaining_raid_queue_on_shutdown():
+async def process_remaining_raid_queue_on_shutdown():
     global raids_data_queue
     console_logger.debug("Processing remaining items in Raid queue before shutdown.")
     file_logger.debug("Processing remaining items in Raid queue before shutdown.")
@@ -658,7 +658,7 @@ def process_remaining_raid_queue_on_shutdown():
             file_logger.error(f"Error processing Raid batch during shutdown: {e}")
 
 # Invasion processing queue on shutdown
-def process_remaining_invasion_queue_on_shutdown():
+async def process_remaining_invasion_queue_on_shutdown():
     global invasions_data_queue
     console_logger.debug("Processing remaining items in Invasion queue before shutdown.")
     file_logger.debug("Processing remaining items in Invasion queue before shutdown.")
