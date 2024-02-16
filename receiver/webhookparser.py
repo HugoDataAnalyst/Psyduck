@@ -398,9 +398,6 @@ async def receive_data(request: Request):
                 else:
                     console_logger.debug("Raid Data did not meet filter criteria")
                     file_logger.debug("Raid Data did not meet filter criteira")
-            else:
-                console_logger.debug(f"Unsupported data type found in Raid payload: {item.get('type')}")
-                file_logger.debug(f"Unsupported data type found in Raid payload: {item.get('type')}")
 
             # Invasion logic
             elif item.get('type') == 'invasion':
