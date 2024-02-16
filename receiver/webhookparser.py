@@ -354,15 +354,16 @@ async def receive_data(request: Request):
                             last_quests_processing_time = now
                             console_logger.info(f"Processing Quest queue because it reached the maximum size of {app_config.max_quest_queue_size}.")
                             file_logger.info(f"Processing Quest queue because it reached the maximum size of {app_config.max_quest_queue_size}.")
-                        elif time_since_last_process >= 1800 and len(quests_data_queue) > 0 and not is_quests_processing_queue:
+                        elif time_since_last_process >= 1800 and not is_quests_processing_queue:
                             is_quests_processing_queue = True
-                            quest_process_full_queue()
+                            if len(quests_data_queue) > 0:
+                                quest_process_full_queue()
+                                console_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                                file_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                            else: 
+                                console_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")
+                                file_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")
                             last_quests_processing_time = now
-                            console_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
-                            file_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
-                        elif time_since_last_process >= 1800 and len(quests_data_queue) == 0:
-                            console_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")
-                            file_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")                     
 
                 else:
                     console_logger.debug("Quest Data did not meet filter criteria")
