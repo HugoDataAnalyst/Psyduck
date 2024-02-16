@@ -323,39 +323,46 @@ async def receive_data(request: Request):
                             'reward_normal_poke_id': None,
                             'reward_normal_poke_form': None,
                         }
-                    # Determine AR or Normal
-                    quest_type_field = 'ar_type' if message.get('with_ar') else 'normal_type'
-                    quest_data_to_store[quest_type_field] = message.get('type')
+                        # Determine AR or Normal
+                        quest_type_field = 'ar_type' if message.get('with_ar') else 'normal_type'
+                        quest_data_to_store[quest_type_field] = message.get('type')
 
-                    # Process rewards
-                    for reward in rewards_extracted:
-                        reward_prefix = 'reward_ar_' if message.get('with_ar') else 'reward_normal_'
-                        if 'pokemon_id' in reward:
-                            quest_data_to_store[f'{reward_prefix}poke_id'] = reward.get('pokemon_id')
-                            quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id')
-                        elif 'item_id' in reward:
-                            quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
-                            quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
-                        # Break if theres more then one reward per quest
-                        break
+                        # Process rewards
+                        for reward in rewards_extracted:
+                            reward_prefix = 'reward_ar_' if message.get('with_ar') else 'reward_normal_'
+                            if 'pokemon_id' in reward:
+                                quest_data_to_store[f'{reward_prefix}poke_id'] = reward.get('pokemon_id')
+                                quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id')
+                            elif 'item_id' in reward:
+                                quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
+                                quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
+                            # Break if theres more then one reward per quest
+                            break
 
-                    # Generate unique ID for quests
-                    quest_unique_id = generate_unique_id(quest_data_to_store)
-                    quests_data_queue.append((quest_data_to_store, quest_unique_id))
+                        # Generate unique ID for quests
+                        quest_unique_id = generate_unique_id(quest_data_to_store)
+                        quests_data_queue.append((quest_data_to_store, quest_unique_id))
 
-                    # Calculate time checker for time based task
-                    now = datetime.now()
-                    time_since_last_process = (now - last_quests_processing_time).total_seconds()
+                        # Calculate time checker for time based task
+                        now = datetime.now()
+                        time_since_last_process = (now - last_quests_processing_time).total_seconds()
 
-                    # Missing logic for timer check on quests_data_queue
-                    if len(quests_data_queue) >= app_config.max_quest_queue_size and not is_quests_processing_queue:
-                        is_quests_processing_queue = True
-                        quest_process_full_queue()
-                        last_quests_processing_time = now
-                    elif time_since_last_process >= 1800 and len(quests_data_queue) > 0 and not is_quests_processing_queue:
-                        is_quests_processing_queue = True
-                        quest_process_full_queue()
-                        last_quests_processing_time = now
+                        # Logic for Queue or Time Based Queue
+                        if len(quests_data_queue) >= app_config.max_quest_queue_size and not is_quests_processing_queue:
+                            is_quests_processing_queue = True
+                            quest_process_full_queue()
+                            last_quests_processing_time = now
+                            console_logger.info(f"Processing Quest queue because it reached the maximum size of {app_config.max_quest_queue_size}.")
+                            file_logger.info(f"Processing Quest queue because it reached the maximum size of {app_config.max_quest_queue_size}.")
+                        elif time_since_last_process >= 1800 and len(quests_data_queue) > 0 and not is_quests_processing_queue:
+                            is_quests_processing_queue = True
+                            quest_process_full_queue()
+                            last_quests_processing_time = now
+                            console_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                            file_logger.info(f"Processing quest queue due to time condition met. Queue size: {len(quests_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                        elif time_since_last_process >= 1800 and len(quests_data_queue) == 0:
+                            console_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")
+                            file_logger.info(f"Time condition for processing quest queue was met, but the queue is empty. No action taken.")                     
 
                 else:
                     console_logger.debug("Quest Data did not meet filter criteria")
@@ -392,10 +399,17 @@ async def receive_data(request: Request):
                             is_raids_processing_queue = True
                             raid_process_full_queue()
                             last_raids_processing_time = now
+                            console_logger.info(f"Processing Raid queue because it reached the maximum size of {app_config.max_raid_queue_size}.")
+                            file_logger.info(f"Processing Raid queue because it reached the maximum size of {app_config.max_raid_queue_size}.")
                         elif time_since_last_process >= 1800 and len(raids_data_queue) > 0 and not is_raids_processing_queue:
                             is_raids_processing_queue = True
                             raid_process_full_queue()
                             last_raids_processing_time = now
+                            console_logger.info(f"Processing Raid queue due to time condition met. Queue size: {len(raids_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                            file_logger.info(f"Processing Raid queue due to time condition met. Queue size: {len(raids_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                        elif time_since_last_process >= 1800 and len(raids_data_queue) == 0:
+                            console_logger.info(f"Time condition for processing Raid queue was met, but the queue is empty. No action taken.")
+                            file_logger.info(f"Time condition for processing Raid queue was met, but the queue is empty. No action taken.")   
                 else:
                     console_logger.debug("Raid Data did not meet filter criteria")
                     file_logger.debug("Raid Data did not meet filter criteira")
@@ -428,10 +442,17 @@ async def receive_data(request: Request):
                             is_invasions_processing_queue = True
                             invasion_process_full_queue()
                             last_invasions_processing_time = now
+                            console_logger.info(f"Processing Invasion queue because it reached the maximum size of {app_config.max_invasion_queue_size}.")
+                            file_logger.info(f"Processing Invasion queue because it reached the maximum size of {app_config.max_invasion_queue_size}.")
                         elif time_since_last_process >= 1800 and len(invasions_data_queue) > 0 and not is_invasions_processing_queue:
                             is_invasions_processing_queue = True
                             invasion_process_full_queue()
                             last_invasions_processing_time = now
+                            console_logger.info(f"Processing Invasion queue due to time condition met. Queue size: {len(invasions_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                            file_logger.info(f"Processing Invasion queue due to time condition met. Queue size: {len(invasions_data_queue)}. Time since last process: {time_since_last_process} seconds.")
+                        elif time_since_last_process >= 1800 and len(invasions_data_queue) == 0:
+                            console_logger.info(f"Time condition for processing Invasion queue was met, but the queue is empty. No action taken.")
+                            file_logger.info(f"Time condition for processing Invasion queue was met, but the queue is empty. No action taken.")   
 
                     else:
                         console_logger.debug("Invasion Data did not meet filter criteria")
