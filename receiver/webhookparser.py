@@ -376,6 +376,7 @@ async def receive_data(request: Request):
                             'pokemon_id': message['pokemon_id'],
                             'form': message['form'],
                             'costume': message['costume'],
+                            'area_name': geofence_name,
                         }
 
                         # Generate unique ID for Raids
@@ -411,6 +412,7 @@ async def receive_data(request: Request):
                             'display_type': message['display_type'],
                             'character': message['character'],
                             'confirmed': message['confirmed'],
+                            'area_name': geofence_name,
                         }
 
                         # Generate unique ID for Invasions
