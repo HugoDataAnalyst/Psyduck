@@ -298,10 +298,6 @@ async def receive_data(request: Request):
                     console_logger.debug("Pokemon Data did not meet filter criteria")
                     file_logger.debug("Pokemon Data did not meet filter criteria")
 
-            else:
-                console_logger.debug(f"Unsupported data type found in Pokemon payload: {item.get('type')}")
-                file_logger.debug(f"Unsupported data type found in Pokemon payload: {item.get('type')}")
-
             # Quest Logic
             elif item.get('type') == 'quest':
                 message = item.get('message', {})
@@ -364,9 +360,6 @@ async def receive_data(request: Request):
                 else:
                     console_logger.debug("Quest Data did not meet filter criteria")
                     file_logger.debug("Quest Data did not meet filter criteira")
-            else:
-                console_logger.debug(f"Unsupported data type found in Quest payload: {item.get('type')}")
-                file_logger.debug(f"Unsupported data type found in Quest payload: {item.get('type')}")
 
             # Raid logic
             elif item.get('type') == 'raid':
@@ -446,8 +439,8 @@ async def receive_data(request: Request):
                         file_logger.debug("Invasion Data did not meet filter criteira")
 
             else:
-                console_logger.debug(f"Unsupported data type found in Invasion payload: {item.get('type')}")
-                file_logger.debug(f"Unsupported data type found in Invasion payload: {item.get('type')}")
+                console_logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
+                file_logger.debug(f"Unsupported data type found in payload: {item.get('type')}")
     else:
         console_logger.error("Received data is not in list format")
         file_logger.error("Received data is not in list format")
