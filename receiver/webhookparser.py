@@ -447,16 +447,16 @@ async def receive_data(request: Request):
     file_logger.info(f"Pokemon Queue size AFTER processing: {len(data_queue)}")
 
     # Quest Queue Info
-    console_logger.info(f"Pokemon Queue size AFTER processing: {len(quests_data_queue)}")
-    file_logger.info(f"Pokemon Queue size AFTER processing: {len(quests_data_queue)}")
+    console_logger.info(f"Quest Queue size AFTER processing: {len(quests_data_queue)}")
+    file_logger.info(f"Quest Queue size AFTER processing: {len(quests_data_queue)}")
 
     # Raid Queue Info
-    console_logger.info(f"Pokemon Queue size AFTER processing: {len(raids_data_queue)}")
-    file_logger.info(f"Pokemon Queue size AFTER processing: {len(raids_data_queue)}")
+    console_logger.info(f"Raids Queue size AFTER processing: {len(raids_data_queue)}")
+    file_logger.info(f"Raids Queue size AFTER processing: {len(raids_data_queue)}")
 
     # Invasion Queue Info
-    console_logger.info(f"Pokemon Queue size AFTER processing: {len(invasions_data_queue)}")
-    file_logger.info(f"Pokemon Queue size AFTER processing: {len(invasions_data_queue)}")
+    console_logger.info(f"Invasions Queue size AFTER processing: {len(invasions_data_queue)}")
+    file_logger.info(f"Invasions Queue size AFTER processing: {len(invasions_data_queue)}")
 
     return {"status": "success"}
 
