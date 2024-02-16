@@ -45,9 +45,9 @@ invasions_data_queue = []
 invasions_data_queue_lock = asyncio.Lock()
 
 # Time processors
-last_quests_processing_time = None
-last_raids_processing_time = None
-last_invasions_processing_time = None
+last_quests_processing_time = datetime.now()
+last_raids_processing_time = datetime.now()
+last_invasions_processing_time = datetime.now()
 
 # Configuration values
 console_log_level_str = app_config.webhook_console_log_level.upper()
