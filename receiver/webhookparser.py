@@ -305,7 +305,7 @@ async def receive_data(request: Request):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
-                        rewards_extracted = extract_quest_rewards(message.get('rewards, []'))
+                        rewards_extracted = extract_quest_rewards(message.get('rewards', []))
                         quest_data_to_store = {
                             'pokestop_id': message.get('pokestop_id'),
                             'area_name': geofence_name,
@@ -336,6 +336,12 @@ async def receive_data(request: Request):
                             elif 'item_id' in reward:
                                 quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
                                 quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
+
+                            # Update reward_ar_type or reward_normal_type based on the reward type and with_ar value
+                            if message.get('with_ar'):
+                                quest_data_to_store['reward_ar_type'] = reward.get('reward_type')
+                            else:
+                                quest_data_to_store['reward_normal_type'] = reward.get('reward_type')
                             # Break if theres more then one reward per quest
                             break
 
