@@ -693,7 +693,7 @@ BEGIN
 	WHERE d.day = CURDATE() - INTERVAL 1 DAY
 	ON DUPLICATE KEY UPDATE
     	ar = quest_total_stats.ar + d.ar,
-    	normal = quest_total_stats.normal + d.normal
+    	normal = quest_total_stats.normal + d.normal;
 END;
 
 -- Raid Section
@@ -759,7 +759,7 @@ BEGIN
 	ON DUPLICATE KEY UPDATE
     	total = raid_total_stats.total + d.total,
     	total_ex_raid = raid_total_stats.total_ex_raid + d.total_ex_raid,
-    	total_exclusive = raid_total_stats.total_exclusive + d.total_exclusive
+    	total_exclusive = raid_total_stats.total_exclusive + d.total_exclusive;
 END;
 
 -- Invasion Section
@@ -825,7 +825,7 @@ BEGIN
 	ON DUPLICATE KEY UPDATE
     	total_grunts = invasion_total_stats.total_grunts + d.total_grunts,
     	total_confirmed = invasion_total_stats.total_confirmed + d.total_confirmed,
-    	total_unconfirmed = invasion_total_stats.total_unconfirmed + d.total_unconfirmed
+    	total_unconfirmed = invasion_total_stats.total_unconfirmed + d.total_unconfirmed;
 END;
 
 
