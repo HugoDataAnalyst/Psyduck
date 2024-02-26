@@ -12,7 +12,7 @@ ADD INDEX idx_grouped (display_type, grunt, area_name),
 ADD INDEX idx_inserted_at (inserted_at);
 
 -- CREATE TABLE for Total_Pokestops from each Area
-CREATE TABLE IF NOT EXISTS total_pokestops (
+CREATE TABLE IF NOT EXISTS total_pokestops(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_stops INTEGER,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS total_pokestops (
 -- Storage for weekly/monthly Grouped
 
 -- Quest
-CREATE TABLE IF NOT EXISTS storage_quest_grouped_stats (
+CREATE TABLE IF NOT EXISTS storage_quest_grouped_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	ar_type SMALLINT,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS storage_quest_grouped_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid
-CREATE TABLE iF NOT EXISTS storage_raid_grouped_stats (
+CREATE TABLE iF NOT EXISTS storage_raid_grouped_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	level TINYINT,
@@ -57,7 +57,7 @@ CREATE TABLE iF NOT EXISTS storage_raid_grouped_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion
-CREATE TABLE IF NOT EXISTS storage_invasion_grouped_stats (
+CREATE TABLE IF NOT EXISTS storage_invasion_grouped_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	display_type TINYINT,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS storage_invasion_grouped_stats (
 
 -- Storage for Totals
 -- Quest
-CREATE TABLE IF NOT EXISTS storage_quest_total_stats (
+CREATE TABLE IF NOT EXISTS storage_quest_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_stops INTEGER,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS storage_quest_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid
-CREATE TABLE IF NOT EXISTS storage_raid_total_stats (
+CREATE TABLE IF NOT EXISTS storage_raid_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS storage_raid_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion
-CREATE TABLE IF NOT EXISTS storage_invasion_total_stats (
+CREATE TABLE IF NOT EXISTS storage_invasion_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_grunts INTEGER,
@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS monthly_invasion_grouped_stats(
 
 -- Totals - REVISIT THIS SECTION
 -- Quest Daily Total
-CREATE TABLE IF NOT EXISTS daily_quest_total_stats (
+CREATE TABLE IF NOT EXISTS daily_quest_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_stops INTEGER,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS daily_quest_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Quest Total of Totals
-CREATE TABLE IF NOT EXISTS quest_total_stats (
+CREATE TABLE IF NOT EXISTS quest_total_stats(
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	ar BIGINT,
 	normal BIGINT,
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS quest_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid Hourly Total
-CREATE TABLE IF NOT EXISTS hourly_raid_total_stats (
+CREATE TABLE IF NOT EXISTS hourly_raid_total_stats(
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total MEDIUMINT,
 	total_ex_raid MEDIUMINT,
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS hourly_raid_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid Daily Total
-CREATE TABLE IF NOT EXISTS daily_raid_total_stats
+CREATE TABLE IF NOT EXISTS daily_raid_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total INTEGER,
@@ -276,7 +276,7 @@ CREATE TABLE IF NOT EXISTS daily_raid_total_stats
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid Total of Totals
-CREATE TABLE IF NOT EXISTS raid_total_stats (
+CREATE TABLE IF NOT EXISTS raid_total_stats(
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total BIGINT,
 	total_ex_raid BIGINT,
@@ -286,7 +286,7 @@ CREATE TABLE IF NOT EXISTS raid_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion Hourly Total
-CREATE TABLE IF NOT EXISTS hourly_invasion_total_stats (
+CREATE TABLE IF NOT EXISTS hourly_invasion_total_stats(
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_grunts MEDIUMINT,
 	total_confirmed MEDIUMINT,
@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS hourly_invasion_total_stats (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion Daily Total
-CREATE TABLE IF NOT EXISTS daily_invasion_total_stats (
+CREATE TABLE IF NOT EXISTS daily_invasion_total_stats(
 	day DATE,
 	area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
 	total_grunts INTEGER,
@@ -522,7 +522,7 @@ BEGIN
     ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC
 END;
 
-CREATE PROCEDURE update_monthly_quest_grouped_stats
+CREATE PROCEDURE update_monthly_quest_grouped_stats()
 BEGIN
 	TRUNCATE TABLE monthly_quest_grouped_stats;
 
