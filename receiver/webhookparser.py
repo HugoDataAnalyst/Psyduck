@@ -368,7 +368,7 @@ async def receive_data(request: Request):
             # Raid logic
             elif item.get('type') == 'raid':
                 message = item.get('message', {})
-                if raid_filter_criteria(message):
+                if raid_filter_criteria(message) and message['pokemon_id'] not in (None, 0):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
