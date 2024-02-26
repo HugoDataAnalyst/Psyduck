@@ -49,18 +49,30 @@ try:
 except Exception as e:
     print(f"Error fetching geofence data: {e}")
 
+# Define the function to check if a point is inside a geofence
+def is_inside_geofence(lat, lon, geofences):
+    point = Point(lon, lat)
+    for geofence in geofences:
+        polygon = Polygon(geofence["geometry"]["coordinates"][0])
+        if point.within(polygon):
+            return True, geofence.get("properties", {}).get("name", "Unknown")
+    return False, None
+
 # Check if each pokestop is inside any geofence
 print("Checking if pokestops are inside any geofence...")
 stops_with_area = []
-for stop in pokestops:
+total_stops = len(pokestops)
+for index, stop in enumerate(pokestops, start=1):
     try:
         inside, area_name = is_inside_geofence(stop[1], stop[2], geofences)
         if inside:
             stops_with_area.append((stop[0], area_name))
+        # Update progress on the same line
+        print(f"\rProcessed {index}/{total_stops} pokestops...", end="")
+        sys.stdout.flush()
     except Exception as e:
-        print(f"Error processing geofence check for stop {stop[0]}: {e}")
-
-print(f"{len(stops_with_area)} pokestops matched with geofences.")
+        print(f"\nError processing geofence check for stop {stop[0]}: {e}")
+print(f"\n{len(stops_with_area)} pokestops matched with geofences.")
 
 # Aggregate the data by area name
 area_counts = Counter(area_name for _, area_name in stops_with_area)
