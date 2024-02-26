@@ -492,7 +492,7 @@ BEGIN
     FROM storage_quest_grouped_stats
     WHERE day = CURDATE() - INTERVAL 1 DAY
     GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name
-	ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC
+	ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
 
 CREATE PROCEDURE update_weekly_quest_grouped_stats()
@@ -519,7 +519,7 @@ BEGIN
     FROM storage_quest_grouped_stats
     WHERE day >= DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) + 6 DAY) AND day < DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) - 1 DAY)
     GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name
-    ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC
+    ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
 
 CREATE PROCEDURE update_monthly_quest_grouped_stats()
@@ -546,7 +546,7 @@ BEGIN
     FROM storage_quest_grouped_stats
     WHERE day >= CURDATE() - INTERVAL 1 MONTH
     GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name
-    ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC
+    ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
 
 -- Raid Section
@@ -568,7 +568,7 @@ BEGIN
     FROM storage_raid_grouped_stats
     WHERE day = CURDATE() - INTERVAL 1 DAY
     GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name
-	ORDER BY area_name, level, pokemon_id ASC
+	ORDER BY area_name, level, pokemon_id ASC;
 END;
 
 CREATE PROCEDURE update_weekly_raid_grouped_stats()
@@ -589,7 +589,7 @@ BEGIN
     FROM storage_raid_grouped_stats
     WHERE day >= DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) + 6 DAY) AND day < DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) - 1 DAY)
     GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name
-	ORDER BY area_name, level, pokemon_id ASC
+	ORDER BY area_name, level, pokemon_id ASC;
 END;
 
 CREATE PROCEDURE update_monthly_raid_grouped_stats()
@@ -610,7 +610,7 @@ BEGIN
     FROM storage_raid_grouped_stats
     WHERE day >= CURDATE() - INTERVAL 1 MONTH
     GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name
-	ORDER BY area_name, level, pokemon_id ASC
+	ORDER BY area_name, level, pokemon_id ASC;
 END;
 
 -- Invasion Section
@@ -628,7 +628,7 @@ BEGIN
     FROM storage_invasion_grouped_stats
     WHERE day = CURDATE() - INTERVAL 1 DAY
     GROUP BY display_type, grunt, area_name
-	ORDER BY area_name, display_type, grunt ASC
+	ORDER BY area_name, display_type, grunt ASC;
 END;
 
 CREATE PROCEDURE update_weekly_invasion_grouped_stats()
@@ -645,7 +645,7 @@ BEGIN
     FROM storage_invasion_grouped_stats
     WHERE day >= DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) + 6 DAY) AND day < DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) - 1 DAY)
     GROUP BY display_type, grunt, area_name
-	ORDER BY area_name, display_type, grunt ASC
+	ORDER BY area_name, display_type, grunt ASC;
 END;
 
 CREATE PROCEDURE update_monthly_invasion_grouped_stats()
@@ -662,7 +662,7 @@ BEGIN
     FROM storage_invasion_grouped_stats
     WHERE day >= CURDATE() - INTERVAL 1 MONTH
     GROUP BY display_type, grunt, area_name
-	ORDER BY area_name, display_type, grunt ASC
+	ORDER BY area_name, display_type, grunt ASC;
 END;
 
 -- CREATE TOTAL PROCEDURES
