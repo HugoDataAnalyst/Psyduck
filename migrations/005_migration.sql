@@ -73,7 +73,7 @@ BEGIN
 
     INSERT INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
     SELECT
-        DATE(NOW() - INTERVAL 1 DAY) as day,
+        DATE(NOW()) as day,
         tqs.area_name,
         (
             SELECT tp.total_stops
@@ -109,7 +109,7 @@ BEGIN
 
     INSERT INTO storage_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
     SELECT
-        CURDATE() - INTERVAL 1 DAY as day,
+        DATE(NOW()) as day,
         area_name,
         COALESCE(ar_type,0) AS ar_type,
         COALESCE(normal_type,0) AS normal_type,
@@ -140,14 +140,14 @@ BEGIN
 
     INSERT INTO daily_quest_total_stats (day, area_name, total_stops, ar, normal, scanned)
     SELECT
-        CURDATE() - INTERVAL 1 DAY AS day,
+        DATE(NOW()) AS day,
         area_name,
         total_stops,
         ar,
         normal,
         scanned
     FROM storage_quest_total_stats
-    WHERE day = CURDATE() - INTERVAL 1 DAY;
+    WHERE day = CURDATE();
 END;
 
 DROP PROCEDURE IF EXISTS update_total_quest_total_stats;
@@ -160,7 +160,7 @@ BEGIN
         d.normal,
         d.scanned
     FROM storage_quest_total_stats d
-    WHERE d.day = CURDATE() - INTERVAL 1 DAY
+    WHERE d.day = CURDATE()
     ON DUPLICATE KEY UPDATE
         ar = quest_total_stats.ar + d.ar,
         normal = quest_total_stats.normal + d.normal;
@@ -175,7 +175,7 @@ BEGIN
 
     INSERT INTO daily_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
     SELECT
-        CURDATE() - INTERVAL 1 DAY as day,
+        DATE(NOW()) as day,
         area_name,
         ar_type,
         normal_type,
@@ -192,7 +192,7 @@ BEGIN
         total,
         scanned
     FROM storage_quest_grouped_stats
-    WHERE day = CURDATE() - INTERVAL 1 DAY
+    WHERE day = CURDATE()
     GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, total, scanned
     ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
@@ -204,7 +204,7 @@ BEGIN
 
     INSERT INTO weekly_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
     SELECT
-        CURDATE() - INTERVAL 1 DAY as day,
+        DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) - 1 DAY) as day,
         area_name,
         ar_type,
         normal_type,
