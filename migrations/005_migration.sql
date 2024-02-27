@@ -312,3 +312,19 @@ BEGIN
     GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name, total
     ORDER BY area_name, level, pokemon_id ASC;
 END;
+
+-- Cleaning Section Quests
+
+DROP PROCEDURE IF EXISTS delete_quest_sightings_batches;
+DROP EVENT IF EXISTS clean_quest_sightings;
+
+CREATE PROCEDURE delete_quest_sightings_batches()
+BEGIN
+  TRUNCATE TABLE quest_sightings;
+END;
+
+CREATE EVENT IF NOT EXISTS clean_quest_sightings
+ON SCHEDULE EVERY 1 DAY
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '16:00:00' HOUR_SECOND)
+DO
+CALL delete_quest_sightings_batches();

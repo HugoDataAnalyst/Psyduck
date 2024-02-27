@@ -10,7 +10,7 @@ db1_settings = {
     "user": "your_user",
     "password": "your_password",
     "db": "your_database",
-    "port": your_port  # Replace with your actual port number
+    "port": your_port
 }
 
 datacube_settings = {
@@ -18,7 +18,7 @@ datacube_settings = {
     "user": "your_user",
     "password": "your_password",
     "db": "DataCube",
-    "port": your_port  # Replace with your actual port number
+    "port": your_port
 }
 
 # API URL for fetching geofence data
@@ -27,7 +27,7 @@ api_headers = {"Authorization": "Bearer your_bearer_token"}
 
 # Connect to Database1 and fetch data
 try:
-    print("Connecting to Database1 to fetch pokestops...")
+    print(f"Connecting to {db1_settings['db']} to fetch pokestops...")
     db1_connection = pymysql.connect(**db1_settings)
     try:
         with db1_connection.cursor() as cursor:
@@ -42,7 +42,7 @@ except Exception as e:
 
 # Fetch geofence data from an API
 try:
-    print("Fetching geofence data from API...")
+    print(f"Fetching geofence data from API...")
     response = requests.get(api_url, headers=api_headers)
     geofences = response.json().get("data", {}).get("features", [])
     print(f"Fetched {len(geofences)} geofences.")
@@ -59,7 +59,7 @@ def is_inside_geofence(lat, lon, geofences):
     return False, None
 
 # Check if each pokestop is inside any geofence
-print("Checking if pokestops are inside any geofence...")
+print(f"Checking if pokestops are inside any geofence...")
 stops_with_area = []
 total_stops = len(pokestops)
 for index, stop in enumerate(pokestops, start=1):
@@ -80,10 +80,10 @@ print(f"Aggregated pokestops by area: {area_counts}")
 
 # Insert the aggregated data into the DataCube database
 try:
-    print("Inserting aggregated data into the DataCube database...")
+    print(f"Inserting aggregated data into the {datacube_settings['db']} database...")
     with pymysql.connect(**datacube_settings) as datacube_connection:
         with datacube_connection.cursor() as cursor:
-            today = datetime.now().date()  # Gets the current date
+            today = datetime.now().date()
             for area_name, total_stops in area_counts.items():
                 sql = """
                     INSERT INTO total_pokestops (day, total_stops, area_name)
@@ -92,6 +92,6 @@ try:
                 """
                 cursor.execute(sql, (today, total_stops, area_name))
             datacube_connection.commit()
-    print("Data inserted into the DataCube database successfully.")
+    print(f"Data inserted into the {datacube_settings['db']} database successfully.")
 except Exception as e:
-    print(f"Error inserting data into DataCube database: {e}")
+    print(f"Error inserting data into {datacube_settings['db']} database: {e}")
