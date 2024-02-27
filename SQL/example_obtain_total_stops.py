@@ -3,6 +3,7 @@ import requests
 from shapely.geometry import Point, Polygon
 from datetime import datetime
 from collections import Counter
+import sys
 
 # Database settings
 db1_settings = {
@@ -88,7 +89,7 @@ try:
                 sql = """
                     INSERT INTO total_pokestops (day, total_stops, area_name)
                     VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE total_stops = total_stops + VALUES(total_stops);
+                    ON DUPLICATE KEY UPDATE total_stops = VALUES(total_stops);
                 """
                 cursor.execute(sql, (today, total_stops, area_name))
             datacube_connection.commit()
