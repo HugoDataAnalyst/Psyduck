@@ -4,8 +4,8 @@ ADD INDEX idx_inserted_at_area_name (inserted_at, area_name);
 
 -- Table for TTH
 -- Storage
-CREATE TABLE IF NOT EXISTS storage_hourly_pokemon_tth_stats (
-    day_hour DATETIME NOT NULL,
+CREATE TABLE IF NOT EXISTS storage_hourly_pokemon_tth_stats(
+    `day_hour` DATETIME NOT NULL,
     area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     tth_5 INT DEFAULT 0,
     tth_10 INT DEFAULT 0,
@@ -19,12 +19,12 @@ CREATE TABLE IF NOT EXISTS storage_hourly_pokemon_tth_stats (
     tth_50 INT DEFAULT 0,
     tth_55 INT DEFAULT 0,
     tth_55_plus INT DEFAULT 0,
-    PRIMARY KEY (area_name, day_hour),
-    INDEX idx_day_hour (day_hour)
+    PRIMARY KEY (area_name, `day_hour`),
+    INDEX idx_day_hour (`day_hour`)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Hourly
-CREATE TABLE IF NOT EXISTS hourly_pokemon_tth_stats (
+CREATE TABLE IF NOT EXISTS hourly_pokemon_tth_stats(
     area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     tth_5 INT DEFAULT 0,
     tth_10 INT DEFAULT 0,
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS hourly_pokemon_tth_stats (
 
 
 -- Daily
-CREATE TABLE IF NOT EXISTS daily_pokemon_tth_stats (
-    hour TINYINT NOT NULL,
+CREATE TABLE IF NOT EXISTS daily_pokemon_tth_stats(
+    hour TINYINT,
     area_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     total_tth_5 INT DEFAULT 0,
     total_tth_10 INT DEFAULT 0,
@@ -71,7 +71,7 @@ BEGIN
     DROP TEMPORARY TABLE IF EXISTS temp_spawn_tth_by_area;
     CREATE TEMPORARY TABLE temp_spawn_tth_by_area AS
     SELECT
-        STR_TO_DATE(DATE_FORMAT(NOW() - INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00'), '%Y-%m-%d %H:%i:%s') AS day_hour,
+        STR_TO_DATE(DATE_FORMAT(NOW() - INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00'), '%Y-%m-%d %H:%i:%s') AS `day_hour`,
         area_name,
         SUM(CASE WHEN despawn_time < 300 THEN 1 ELSE 0 END) AS tth_5,
         SUM(CASE WHEN despawn_time >= 300 AND despawn_time < 600 THEN 1 ELSE 0 END) AS tth_10,
@@ -89,9 +89,9 @@ BEGIN
     WHERE inserted_at >= NOW() - INTERVAL 1 HOUR
     GROUP BY area_name;
 
-    INSERT INTO storage_hourly_pokemon_tth_stats (day_hour, area_name, tth_5, tth_10, tth_15, tth_20, tth_25, tth_30, tth_35, tth_40, tth_45, tth_50, tth_55, tth_55_plus)
+    INSERT INTO storage_hourly_pokemon_tth_stats (`day_hour`, area_name, tth_5, tth_10, tth_15, tth_20, tth_25, tth_30, tth_35, tth_40, tth_45, tth_50, tth_55, tth_55_plus)
     SELECT
-    	day_hour,
+    	`day_hour`,
     	area_name,
     	tth_5,
     	tth_10,
@@ -132,7 +132,7 @@ BEGIN
     	tth_55,
     	tth_55_plus
     FROM storage_hourly_pokemon_tth_stats
-    WHERE day_hour = DATE_FORMAT(NOW() - INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00');
+    WHERE `day_hour` = DATE_FORMAT(NOW() - INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00');
 END;
 -- Daily
 DROP PROCEDURE IF EXISTS update_daily_pokemon_tth_stats;
@@ -141,7 +141,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS temp_daily_pokemon_tth;
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_daily_pokemon_tth AS
 	SELECT
-		HOUR(day_hour) AS hour_of_day,
+		HOUR(`day_hour`) AS hour_of_day,
 		area_name,
 		SUM(tth_5) AS total_tth_5,
 		SUM(tth_10) AS total_tth_10,
@@ -156,7 +156,7 @@ BEGIN
 		SUM(tth_55) AS total_tth_55,
 		SUM(tth_55_plus) AS total_tth_55_plus
 	FROM storage_hourly_pokemon_tth_stats
-	WHERE DATE(day_hour) = CURDATE() - INTERVAL 1 DAY
+	WHERE DATE(`day_hour`) = CURDATE() - INTERVAL 1 DAY
 	GROUP BY hour_of_day, area_name;
 
 	TRUNCATE TABLE daily_pokemon_tth_stats;
