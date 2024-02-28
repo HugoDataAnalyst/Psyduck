@@ -203,7 +203,7 @@ async def receive_data(request: Request):
                 if 'type' in reward and 'info' in reward:
                     info = reward['info']
                     # Each info must have either (pokemon_id and form_id) or (item_id and amount)
-                    if ('pokemon_id' in info and 'form_id' in info) or ('item_id' in info and 'amount' in info):
+                    if ('pokemon_id' in info and 'form_id' in info) or ('pokemon_id' in info) or ('item_id' in info and 'amount' in info) or ('amount' in info):
                         rewards_check = True
                     else:
                         # If any reward does not meet the criteria, fail the check and stop looping
