@@ -64,7 +64,7 @@ BEGIN
     CREATE TEMPORARY TABLE temp_store_total_quest_sightings AS
     SELECT qs.*,
            CASE
-               WHEN HOUR(qs.inserted_at) >= 22 OR HOUR(qs.inserted_at) < 5 THEN 1
+               WHEN HOUR(qs.inserted_at) >= 21 OR HOUR(qs.inserted_at) < 5 THEN 1
                WHEN HOUR(qs.inserted_at) >= 7 AND HOUR(qs.inserted_at) < 14 THEN 2
                ELSE 0
            END AS scanned
@@ -291,8 +291,8 @@ BEGIN
 END;
 
 -- Raid Procedure
-DROP PROCEDURE IF EXISTS udpate_daily_raid_grouped_stats;
-CREATE PROCEDURE udpate_daily_raid_grouped_stats()
+DROP PROCEDURE IF EXISTS update_daily_raid_grouped_stats;
+CREATE PROCEDURE update_daily_raid_grouped_stats()
 BEGIN
     TRUNCATE TABLE daily_raid_grouped_stats;
 
