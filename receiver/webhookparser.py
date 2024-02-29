@@ -332,9 +332,11 @@ async def receive_data(request: Request):
                             reward_prefix = 'reward_ar_' if message.get('with_ar') else 'reward_normal_'
                             if 'pokemon_id' in reward:
                                 quest_data_to_store[f'{reward_prefix}poke_id'] = reward.get('pokemon_id')
-                                quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id')
+                                quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id', None)
                             elif 'item_id' in reward:
                                 quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
+                                quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
+                            elif 'amount' in reward and not ('pokemon_id' in reward or 'item_id' in reward):
                                 quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
 
                             # Update reward_ar_type or reward_normal_type based on the reward type and with_ar value
