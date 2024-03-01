@@ -194,7 +194,7 @@ async def receive_data(request: Request):
     def quest_filter_criteria(message):
         # Check for mandatory fields: type, with_ar, latitude, and longitude
         basic_checks = all(key in message for key in ['type', 'with_ar', 'latitude', 'longitude'])
-    
+
         # Initialize rewards_check to False to ensure it must pass checks to turn True
         rewards_check = False
         if 'rewards' in message and isinstance(message['rewards'], list) and len(message['rewards']) > 0:
@@ -301,6 +301,9 @@ async def receive_data(request: Request):
             # Quest Logic
             elif item.get('type') == 'quest':
                 message = item.get('message', {})
+                # Log the Raw Quest Data
+                console_logger.debug(f"Raw Quest Received: {message}")
+                file_logger.debug(f"Raw Quest received: {message}")
                 if quest_filter_criteria(message):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
@@ -333,9 +336,11 @@ async def receive_data(request: Request):
                             if 'pokemon_id' in reward:
                                 quest_data_to_store[f'{reward_prefix}poke_id'] = reward.get('pokemon_id')
                                 quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id', None)
-                            elif 'amount' in reward and not ('pokemon_id' in reward):
+                            if 'item_id' in reward:
+                                quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
+                                quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount', None)
+                            elif 'amount' in reward and not ('pokemon_id' in reward or 'item_id' in reward):
                                 quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
-                                quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id', None)
 
                             # Update reward_ar_type or reward_normal_type based on the reward type and with_ar value
                             if message.get('with_ar'):
