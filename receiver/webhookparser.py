@@ -203,7 +203,7 @@ async def receive_data(request: Request):
                 if 'type' in reward and 'info' in reward:
                     info = reward['info']
                     # Each info must have either (pokemon_id and form_id) or (item_id and amount)
-                    if ('pokemon_id' in info and 'form_id' in info) or ('pokemon_id' in info) or ('item_id' in info and 'amount' in info) or ('amount' in info):
+                    if ('pokemon_id' in info) or ('item_id' in info and 'amount' in info) or ('amount' in info):
                         rewards_check = True
                     else:
                         # If any reward does not meet the criteria, fail the check and stop looping
@@ -333,11 +333,9 @@ async def receive_data(request: Request):
                             if 'pokemon_id' in reward:
                                 quest_data_to_store[f'{reward_prefix}poke_id'] = reward.get('pokemon_id')
                                 quest_data_to_store[f'{reward_prefix}poke_form'] = reward.get('form_id', None)
-                            elif 'item_id' in reward:
-                                quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id')
+                            elif 'amount' in reward and not ('pokemon_id' in reward):
                                 quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
-                            elif 'amount' in reward and not ('pokemon_id' in reward or 'item_id' in reward):
-                                quest_data_to_store[f'{reward_prefix}item_amount'] = reward.get('amount')
+                                quest_data_to_store[f'{reward_prefix}item_id'] = reward.get('item_id', None)
 
                             # Update reward_ar_type or reward_normal_type based on the reward type and with_ar value
                             if message.get('with_ar'):
