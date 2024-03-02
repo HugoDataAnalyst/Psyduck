@@ -281,7 +281,7 @@ def execute_query(query, params=None):
             cursor.close()
             conn.close()
 
-# API grouped
+# API Pokemon grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_daily_api_pokemon_stats(self):
     try:
@@ -306,7 +306,7 @@ def query_monthly_api_pokemon_stats(self):
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
-# API Totals
+# API Pokemon Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_hourly_total_api_pokemon_stats(self):
     try:
@@ -331,7 +331,7 @@ def query_total_api_pokemon_stats(self):
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
-# API Surge's
+# API Pokemon Surge's
 @celery.task(bind=True, max_retries=app_config.max_retries)
 def query_daily_surge_api_pokemon_stats(self):
     try:
@@ -352,6 +352,167 @@ def query_weekly_surge_api_pokemon_stats(self):
 def query_monthly_surge_api_pokemon_stats(self):
     try:
         results = execute_query("SELECT * FROM monthly_surge_pokemon_stats")
+        return organize_results_by_hour(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Quest Grouped
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_quest_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_quest_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_weekly_quest_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM weekly_quest_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_monthly_quest_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM monthly_quest_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Quest Totals
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_quest_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_quest_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_total_quest_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM quest_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Raids Grouped
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_raid_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_raid_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_weekly_raid_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM weekly_raid_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_monthly_raid_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM monthly_raid_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Raids Totals
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_hourly_raid_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM hourly_raid_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_raid_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_raid_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_total_raid_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM raid_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Invasion Grouped
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_invasion_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_invasion_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_weekly_invasion_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM weekly_invasion_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_monthly_invasion_grouped_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM monthly_invasion_grouped_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Invasion Totals
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_hourly_invasions_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM hourly_invasion_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_invasions_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_invasion_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_total_invasions_total_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM invasion_total_stats")
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+# API Pokemon TTH
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_hourly_pokemon_tth_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM hourly_pokemon_tth_stats")
+        # Hourly is by Area
+        return organize_results(results)
+    except Exception as e:
+        self.retry(exc=e, countdown=app_config.retry_delay)
+
+@celery.task(bind=True, max_retries=app_config.max_retries)
+def query_daily_pokemon_tth_stats_api(self):
+    try:
+        results = execute_query("SELECT * FROM daily_pokemon_tth_stats")
+        # Daily is by hour
         return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)

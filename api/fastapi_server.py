@@ -65,6 +65,30 @@ ALLOWED_PATHS = [
     "/api/surge-daily-stats",
     "/api/surge-weekly-stats",
     "/api/surge-monthly-stats",
+
+    "/api/daily-quest-grouped-stats",
+    "/api/weekly-quest-grouped-stats",
+    "/api/monthly-quest-grouped-stats",
+    "/api/daily-quest-total-stats",
+    "/api/total-quest-total-stats",
+
+    "/api/daily-raid-grouped-stats",
+    "/api/weekly-raid-grouped-stats",
+    "/api/monthly-raid-grouped-stats",
+    "/api/hourly-raid-total-stats",
+    "/api/daily-raid-total-stats",
+    "/api/total-raid-total-stats",
+
+    "/api/daily-invasion-grouped-stats",
+    "/api/weekly-invasion-grouped-stats",
+    "/api/monthly-invasion-grouped-stats",
+    "/api/hourly-invasion-total-stats",
+    "/api/daily-invasion-total-stats",
+    "/api/total-invasion-total-stats",
+
+    "/api/hourly-pokemon-tth-stats",
+    "/api/daily-pokemon-tth-stats",
+
     "/metrics/daily-area-pokemon",
     "/metrics/weekly-area-pokemon",
     "/metrics/monthly-area-pokemon",
@@ -73,7 +97,31 @@ ALLOWED_PATHS = [
     "/metrics/total-pokemon",
     "/metrics/surge-daily-stats",
     "/metrics/surge-weekly-stats",
-    "/metrics/surge-monthly-stats"
+    "/metrics/surge-monthly-stats",
+
+    "/metrics/daily-quest-grouped-stats",
+    "/metrics/weekly-quest-grouped-stats",
+    "/metrics/monthly-quest-grouped-stats",
+    "/metrics/daily-quest-total-stats",
+    "/metrics/total-quest-total-stats",
+
+    "/metrics/daily-raid-grouped-stats",
+    "/metrics/weekly-raid-grouped-stats",
+    "/metrics/monthly-raid-grouped-stats",
+    "/metrics/hourly-raid-total-stats",
+    "/metrics/daily-raid-total-stats",
+    "/metrics/total-raid-total-stats",
+
+    "/metrics/daily-invasion-grouped-stats",
+    "/metrics/weekly-invasion-grouped-stats",
+    "/metrics/monthly-invasion-grouped-stats",
+    "/metrics/hourly-invasion-total-stats",
+    "/metrics/daily-invasion-total-stats",
+    "/metrics/total-invasion-total-stats",
+
+    "/metrics/hourly-pokemon-tth-stats",
+    "/metrics/daily-pokemon-tth-stats"
+
 ]
 
 async def check_path_middleware(request: Request, call_next):
@@ -506,6 +554,14 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     console_logger.info("Successfully obtained Surge Monthly Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon stats")
 
+# Quest Section
+
+# Raid Section
+
+# Invasion Section
+
+# Pokemon TTH Section
+
 # API format for VictoriaMetrics/Prometheus with Redis Cache
 @fastapi.get("/metrics/daily-area-pokemon")
 async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -872,6 +928,15 @@ async def surge_monthly_metrics(request: Request, secret: str = Depends(validate
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
         return Response(content=f"Error generating metrics: {e}", media_type="text/plain", status_code=500)
+
+# Quest Section
+
+# Raid Section
+
+# Invasion Section
+
+# Pokemon TTH Section
+
 
 # Organises for VictoriaMetrics
 def format_results_to_victoria(data, metric_prefix):

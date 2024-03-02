@@ -218,11 +218,11 @@ BEGIN
         reward_ar_poke_form,
         reward_normal_poke_id,
         reward_normal_poke_form,
-        total,
+        SUM(total) AS total,
         scanned
     FROM storage_quest_grouped_stats
     WHERE day >= DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) + 6 DAY) AND day < DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE()) - 1 DAY)
-    GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, total, scanned
+    GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, scanned
     ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
 
@@ -247,30 +247,30 @@ BEGIN
         reward_ar_poke_form,
         reward_normal_poke_id,
         reward_normal_poke_form,
-        total,
+        SUM(total) AS total,
         scanned
     FROM storage_quest_grouped_stats
     WHERE day >= CURDATE() - INTERVAL 1 MONTH
-    GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, total, scanned
+    GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, scanned
     ORDER BY area_name, ar_type, normal_type, reward_ar_item_id, reward_normal_item_id, reward_ar_poke_id, reward_normal_poke_id ASC;
 END;
 
 -- Invasion
 ALTER TABLE storage_invasion_grouped_stats
 DROP PRIMARY KEY,
-ADD PRIMARY KEY (day, area_name, grunt);
+ADD PRIMARY KEY (day, area_name, display_type, grunt);
 
 ALTER TABLE daily_invasion_grouped_stats
 DROP PRIMARY KEY,
-ADD PRIMARY KEY (day, area_name, grunt);
+ADD PRIMARY KEY (day, area_name, display_type, grunt);
 
 ALTER TABLE weekly_invasion_grouped_stats
 DROP PRIMARY KEY,
-ADD PRIMARY KEY (day, area_name, grunt);
+ADD PRIMARY KEY (day, area_name, display_type, grunt);
 
 ALTER TABLE monthly_invasion_grouped_stats
 DROP PRIMARY KEY,
-ADD PRIMARY KEY (day, area_name, grunt);
+ADD PRIMARY KEY (day, area_name, display_type, grunt);
 
 DROP PROCEDURE IF EXISTS update_daily_invasion_grouped_stats;
 CREATE PROCEDURE update_daily_invasion_grouped_stats()
@@ -289,6 +289,23 @@ BEGIN
     GROUP BY display_type, grunt, area_name, total_grunts
     ORDER BY area_name, display_type, grunt ASC;
 END;
+
+-- Raid
+ALTER TABLE storage_raid_grouped_stats
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive);
+
+ALTER TABLE daily_raid_grouped_stats
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive);
+
+ALTER TABLE weekly_raid_grouped_stats
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive);
+
+ALTER TABLE monthly_raid_grouped_stats
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive);
 
 -- Raid Procedure
 DROP PROCEDURE IF EXISTS update_daily_raid_grouped_stats;
