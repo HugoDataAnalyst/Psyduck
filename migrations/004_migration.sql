@@ -53,7 +53,7 @@ CREATE TABLE iF NOT EXISTS storage_raid_grouped_stats(
 	ex_raid_eligible TINYINT,
 	is_exclusive TINYINT,
 	total INTEGER,
-	PRIMARY KEY (day, area_name)
+	PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS daily_raid_grouped_stats(
 	ex_raid_eligible TINYINT,
 	is_exclusive TINYINT,
 	total INTEGER,
-	PRIMARY KEY (day, area_name)
+	PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid Weekly Grouped
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS weekly_raid_grouped_stats(
 	ex_raid_eligible TINYINT,
 	is_exclusive TINYINT,
 	total INTEGER,
-	PRIMARY KEY (day, area_name)
+	PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Raid Monthly Grouped
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS monthly_raid_grouped_stats(
 	ex_raid_eligible TINYINT,
 	is_exclusive TINYINT,
 	total INTEGER,
-	PRIMARY KEY (day, area_name)
+	PRIMARY KEY (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Invasion Daily Grouped
