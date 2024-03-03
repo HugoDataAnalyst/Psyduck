@@ -79,7 +79,6 @@ BEGIN
             SELECT tp.total_stops
             FROM total_pokestops tp
             WHERE tp.area_name = tqs.area_name
-            AND DATE(tp.day) = DATE(NOW() - INTERVAL 1 DAY)
             LIMIT 1
         ) AS total_stops,
         COUNT(tqs.ar_type) AS ar,

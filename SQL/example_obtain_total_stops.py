@@ -84,6 +84,7 @@ try:
     print(f"Inserting aggregated data into the {datacube_settings['db']} database...")
     with pymysql.connect(**datacube_settings) as datacube_connection:
         with datacube_connection.cursor() as cursor:
+            cursor.execute("TRUNCATE TABLE total_pokestops")
             today = datetime.now().date()
             for area_name, total_stops in area_counts.items():
                 sql = """
