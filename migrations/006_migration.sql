@@ -199,6 +199,6 @@ CALL update_hourly_pokemon_tth_stats();
 -- Daily
 CREATE EVENT IF NOT EXISTS event_update_daily_pokemon_tth_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:00:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:00:00' HOUR_SECOND)
 DO
 CALL update_daily_pokemon_tth_stats();

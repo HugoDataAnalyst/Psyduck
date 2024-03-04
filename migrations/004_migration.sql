@@ -906,7 +906,7 @@ CALL update_monthly_quest_grouped_stats();
 -- Daily
 CREATE EVENT IF NOT EXISTS event_update_daily_raid_grouped
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:00:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:00:00' HOUR_SECOND)
 
 DO
 CALL update_daily_raid_grouped_stats();
@@ -914,14 +914,14 @@ CALL update_daily_raid_grouped_stats();
 -- Weekly
 CREATE EVENT IF NOT EXISTS event_update_weekly_raid_grouped
 ON SCHEDULE EVERY 1 WEEK
-STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 02:10:00'), '%Y-%m-%d %H:%i:%s')
+STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 01:15:00'), '%Y-%m-%d %H:%i:%s')
 
 DO
 CALL update_weekly_raid_grouped_stats();
 -- Monthly
 CREATE EVENT IF NOT EXISTS event_update_monthly_raid_grouped
 ON SCHEDULE EVERY 1 MONTH
-STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 03:00:00'), '%Y-%m-%d %H:%i:%s')
+STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 02:10:00'), '%Y-%m-%d %H:%i:%s')
 
 DO
 CALL update_monthly_raid_grouped_stats();
@@ -930,7 +930,7 @@ CALL update_monthly_raid_grouped_stats();
 -- Daily
 CREATE EVENT IF NOT EXISTS event_update_daily_invasion_grouped
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:00:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:00:00' HOUR_SECOND)
 
 DO
 CALL update_daily_invasion_grouped_stats();
@@ -938,7 +938,7 @@ CALL update_daily_invasion_grouped_stats();
 -- Weekly
 CREATE EVENT IF NOT EXISTS event_update_weekly_invasion_grouped
 ON SCHEDULE EVERY 1 WEEK
-STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 02:10:00'), '%Y-%m-%d %H:%i:%s')
+STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 01:15:00'), '%Y-%m-%d %H:%i:%s')
 
 DO
 CALL update_weekly_invasion_grouped_stats();
@@ -946,7 +946,7 @@ CALL update_weekly_invasion_grouped_stats();
 -- Monthly
 CREATE EVENT IF NOT EXISTS event_update_monthly_invasion_grouped
 ON SCHEDULE EVERY 1 MONTH
-STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 03:00:00'), '%Y-%m-%d %H:%i:%s')
+STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 02:10:00'), '%Y-%m-%d %H:%i:%s')
 
 DO
 CALL update_monthly_invasion_grouped_stats();
@@ -980,7 +980,7 @@ CALL update_hourly_raid_total_stats();
 -- Daily
 CREATE EVENT IF NOT EXISTS event_update_daily_raid_total
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:00:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:00:00' HOUR_SECOND)
 
 DO
 CALL update_daily_raid_total_stats();
@@ -988,7 +988,7 @@ CALL update_daily_raid_total_stats();
 -- Total
 CREATE EVENT IF NOT EXISTS event_update_total_raid_total
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:10:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:10:00' HOUR_SECOND)
 
 DO
 CALL update_total_raid_total_stats();
@@ -1005,7 +1005,7 @@ CALL update_hourly_invasion_total_stats();
 -- Daily
 CREATE EVENT IF NOT EXISTS event_update_daily_invasion_total
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:00:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:00:00' HOUR_SECOND)
 
 DO
 CALL update_daily_invasion_total_stats();
@@ -1013,7 +1013,7 @@ CALL update_daily_invasion_total_stats();
 -- Total
 CREATE EVENT IF NOT EXISTS event_update_total_invasion_total
 ON SCHEDULE EVERY 1 DAY
-STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '02:10:00' HOUR_SECOND)
+STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '01:15:00' HOUR_SECOND)
 
 DO
 CALL update_total_invasion_total_stats();
