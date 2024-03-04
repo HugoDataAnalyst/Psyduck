@@ -26,6 +26,8 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 
 ## API paths:
 
+### Pokemon:
+
 - /api/daily-area-pokemon-stats
 - /api/weekly-area-pokemon-stats
 - /api/monthly-area-pokemon-stats
@@ -36,6 +38,38 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 - /api/surge-weekly-stats
 - /api/surge-monthly-stats
 
+### Quests:
+
+- /api/daily-quest-grouped-stats
+- /api/weekly-quest-grouped-stats
+- /api/monthly-quest-grouped-stats
+- /api/daily-quest-total-stats
+- /api/total-quest-total-stats
+
+### Raids:
+
+- /api/daily-raid-grouped-stats
+- /api/weekly-raid-grouped-stats
+- /api/monthly-raid-grouped-stats
+- /api/hourly-raid-total-stats
+- /api/daily-raid-total-stats
+- /api/total-raid-total-stats
+
+### Invasions:
+
+- /api/daily-invasion-grouped-stats
+- /api/weekly-invasion-grouped-stats
+- /api/monthly-invasion-grouped-stats
+- /api/hourly-invasion-total-stats
+- /api/daily-invasion-total-stats
+- /api/total-invasion-total-stats
+
+### Pokemon TTH:
+
+- /api/hourly-pokemon-tth-stats
+- /api/daily-pokemon-tth-stats
+
+### Metrics Pokemon:
 
 - /metrics/daily-area-pokemon
 - /metrics/weekly-area-pokemon
@@ -46,6 +80,37 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 - /metrics/surge-daily-stats
 - /metrics/surge-weekly-stats
 - /metrics/surge-monthly-stats
+
+### Metrics Quests:
+
+- /api/daily-quest-grouped-stats
+- /api/weekly-quest-grouped-stats
+- /api/monthly-quest-grouped-stats
+- /api/daily-quest-total-stats
+- /api/total-quest-total-stats
+
+### Metrics Raids:
+
+- /api/daily-raid-grouped-stats
+- /api/weekly-raid-grouped-stats
+- /api/monthly-raid-grouped-stats
+- /api/hourly-raid-total-stats
+- /api/daily-raid-total-stats
+- /api/total-raid-total-stats
+
+### Metrics Invasions:
+
+- /api/daily-invasion-grouped-stats
+- /api/weekly-invasion-grouped-stats
+- /api/monthly-invasion-grouped-stats
+- /api/hourly-invasion-total-stats
+- /api/daily-invasion-total-stats
+- /api/total-invasion-total-stats
+
+### Metrics Pokemon TTH:
+
+- /api/hourly-pokemon-tth-stats
+- /api/daily-pokemon-tth-stats
 
 Metrics/ is only for Prometheus/VictoriaMetrics types (plaintext).
 
@@ -60,6 +125,13 @@ Currently I've setup dynamic caching TTL which means you don't need to ask for t
 - Weekly: After 02:00:00 of each Monday;
 - Monthly: After 03:00:00 of the first day of each Month;
 - Total: uses Daily timers.
+
+**Quest specific:**
+
+- Daily: After 16:00:00 of each day;
+- Weekly: After 16:00:00 of each Monday;
+- Monthly: After 16:00:00 of the first day of each Month;
+- Total: users Daily Timers.
 
 ## Requirements:
 
@@ -151,7 +223,13 @@ Change the port if you want, default is 6379:
 
 - "ALLOW_WEBHOOK_HOST" your golbat IP.
 
-- "MAX_QUEUE_SIZE" when to flush the data to the database, you could edit this value to be higher to create less stress in the database. Example: 5000.
+- "MAX_QUEUE_SIZE" when to flush the Pokémon data to the database, you could edit this value to be higher to create less stress in the database. Example: 2000.
+
+- "MAX_QUEST_QUEUE_SIZE" when to flush the Quest data to the database, you could edit this value to be higher to create less stress in the database. Example: 500.
+
+- "MAX_RAID_QUEUE_SIZE" when to flush the Raid data to the database, you could edit this value to be higher to create less stress in the database. Example: 500.
+
+- "MAX_INVASION_QUEUE_SIZE" when to flush the Invasion data to the database, you could edit this value to be higher to create less stress in the database. Example: 500.
 
 - "WORKERS" is set to 1, which by nature is more then enough to process up to 10 Million Raw Data a day.
 
@@ -192,17 +270,30 @@ Take in mind you should allow for the creation of events/procedures in the Datab
 
 ```cd SQL/ && python3.10 create_database_schema.py```
 
+### Celery:
+
+Run Celery the task executioner:
+
+```python3.10 celery_worker.py```
+
+**Always run celery first to check for Database Migrations.**
+
+After applying them, you can now populate your **total_pokestops** table, which is used for stats in the quests, by doing the following:
+
+**Important Note: This is a standalone script that should be run once or whenever you want to update your total PokéStops numbers per area.**
+
+```cd SQL && cp example_obtain_total_stops.py obtain_total_stops.py```
+
+Fill in the details for the databases access.
+
+```python3.10 obtain_total_stops.py```
+
 ### Webhook Receiver:
 
 Run the start_webhookparser.py:
 
 ```python3.10 start_webhookparser.py```
 
-### Celery:
-
-Run Celery the task executioner:
-
-```python3.10 celery_worker.py```
 
 ### API:
 
