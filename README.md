@@ -140,7 +140,12 @@ It's current logic works for scans based on normal quest timer (00-01 and 10-11)
 - Quests obtained from 21:00:00 to 5:00:00 = Scanned 1
 - Quests obtained from 07:00:00 to 14:00:00 = Scanned 2
 
-You can change the procedure **store_quest_total_stats** logic to add more or tighten its timers.
+You can change the procedures: 
+
+- **store_quest_total_stats** 
+- **store_quest_grouped_stats**
+
+logic to add more cases or tighten its timers.
 
 ## Requirements:
 
