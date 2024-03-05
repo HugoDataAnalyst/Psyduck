@@ -118,7 +118,7 @@ Metrics/ is only for Prometheus/VictoriaMetrics types (plaintext).
 
 Currently I've setup dynamic caching TTL which means you don't need to ask for the API data more then the setup cache timers per hour/day/weekly/month.
 
-**Timers for each type:**
+### **Timers for each type:**
 
 - Hourly: After minute 1 of each hour;
 - Daily: After 02:00:00 of each day;
@@ -126,12 +126,21 @@ Currently I've setup dynamic caching TTL which means you don't need to ask for t
 - Monthly: After 03:00:00 of the first day of each Month;
 - Total: uses Daily timers.
 
-**Quest specific:**
+### **Quest specific:**
 
 - Daily: After 16:00:00 of each day;
 - Weekly: After 16:00:00 of each Monday;
 - Monthly: After 16:00:00 of the first day of each Month;
 - Total: users Daily Timers.
+
+**Quest also has a parameter called Scanned.**
+
+It's current logic works for scans based on normal quest timer (00-01 and 10-11):
+
+- Quests obtained from 21:00:00 to 5:00:00 = Scanned 1
+- Quests obtained from 07:00:00 to 14:00:00 = Scanned 2
+
+You change the procedure **store_quest_total_stats** logic to add more or tighten its timers.
 
 ## Requirements:
 
