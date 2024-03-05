@@ -83,34 +83,34 @@ It's the perfect tool for anyone looking to burst through data-heavy challenges 
 
 ### Metrics Quests:
 
-- /api/daily-quest-grouped-stats
-- /api/weekly-quest-grouped-stats
-- /api/monthly-quest-grouped-stats
-- /api/daily-quest-total-stats
-- /api/total-quest-total-stats
+- /metrics/daily-quest-grouped-stats
+- /metrics/weekly-quest-grouped-stats
+- /metrics/monthly-quest-grouped-stats
+- /metrics/daily-quest-total-stats
+- /metrics/total-quest-total-stats
 
 ### Metrics Raids:
 
-- /api/daily-raid-grouped-stats
-- /api/weekly-raid-grouped-stats
-- /api/monthly-raid-grouped-stats
-- /api/hourly-raid-total-stats
-- /api/daily-raid-total-stats
-- /api/total-raid-total-stats
+- /metrics/daily-raid-grouped-stats
+- /metrics/weekly-raid-grouped-stats
+- /metrics/monthly-raid-grouped-stats
+- /metrics/hourly-raid-total-stats
+- /metrics/daily-raid-total-stats
+- /metrics/total-raid-total-stats
 
 ### Metrics Invasions:
 
-- /api/daily-invasion-grouped-stats
-- /api/weekly-invasion-grouped-stats
-- /api/monthly-invasion-grouped-stats
-- /api/hourly-invasion-total-stats
-- /api/daily-invasion-total-stats
-- /api/total-invasion-total-stats
+- /metrics/daily-invasion-grouped-stats
+- /metrics/weekly-invasion-grouped-stats
+- /metrics/monthly-invasion-grouped-stats
+- /metrics/hourly-invasion-total-stats
+- /metrics/daily-invasion-total-stats
+- /metrics/total-invasion-total-stats
 
 ### Metrics Pokemon TTH:
 
-- /api/hourly-pokemon-tth-stats
-- /api/daily-pokemon-tth-stats
+- /metrics/hourly-pokemon-tth-stats
+- /metrics/daily-pokemon-tth-stats
 
 Metrics/ is only for Prometheus/VictoriaMetrics types (plaintext).
 
@@ -140,7 +140,7 @@ It's current logic works for scans based on normal quest timer (00-01 and 10-11)
 - Quests obtained from 21:00:00 to 5:00:00 = Scanned 1
 - Quests obtained from 07:00:00 to 14:00:00 = Scanned 2
 
-You change the procedure **store_quest_total_stats** logic to add more or tighten its timers.
+You can change the procedure **store_quest_total_stats** logic to add more or tighten its timers.
 
 ## Requirements:
 
