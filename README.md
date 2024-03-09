@@ -352,3 +352,8 @@ services:
 Remove this section from the docker-compose.yml after running it the first time.
 
 ```sudo docker-compose up -d```
+
+## Geofences in Koji:
+
+Your Geofences cannot overlap each other, so kindly create a project and use it where they do not overlap.
+When I made this as far as my knowledge goes, Koji did not properly support multi polygons and neither did Dragonite.
