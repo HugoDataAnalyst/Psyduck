@@ -2457,13 +2457,22 @@ def format_results_to_victoria_by_hour(data, metric_prefix):
             hour_formatted = str(hour).zfill(2)
             hour_label = "hour=\"" + hour_formatted +"\""
 
+            # Extract area_name if present and format it as a label
+            area_label = f'area_name="{row.get("area_name", "")}"' if 'area_name' in row else ""
+            labels = [hour_label]
+
+            if area_label:
+                labels.append(area_label)
+
+            labels_str = ",".join(labels)
+
             # Create a Victoria metric line for each column (now key) in the row
             for key, value in row.items():
-                # Skip the hour key since it's already used as a label
-                if value is None  or (isinstance(value, str) and not value.isdigit()):
+                # Skip the area_name and  hour key since it's already used as a label
+                if key in ['hour', 'area_name'] or value is None or (isinstance(value, str) and not value.isdigit()):
                     continue
                 metric_name = f'{metric_prefix}_{key}'
-                prometheus_metric_line = f'{metric_name}{{{hour_label}}} {value}'
+                prometheus_metric_line = f'{metric_name}{{{labels_str}}} {value}'
                 prometheus_metrics.append(prometheus_metric_line)
 
     formatted_metrics = '\n'.join(prometheus_metrics)
