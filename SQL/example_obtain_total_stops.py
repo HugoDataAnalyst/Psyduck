@@ -5,7 +5,7 @@ from datetime import datetime
 from collections import Counter
 import sys
 
-# Database settings
+# Golbat Database settings
 db1_settings = {
     "host": "your_host",
     "user": "your_user",
@@ -14,6 +14,7 @@ db1_settings = {
     "port": your_port
 }
 
+# Psyduck Database Settings
 datacube_settings = {
     "host": "your_host",
     "user": "your_user",
