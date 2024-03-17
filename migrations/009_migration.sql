@@ -8,7 +8,7 @@ BEGIN
 
   WHILE NOT done DO
     DELETE FROM pokemon_sightings
-    WHERE inserted_at < CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:00:00')
+    WHERE inserted_at < CURDATE() - INTERVAL 1 DAY
     LIMIT 20000;
 
     IF (ROW_COUNT() = 0) THEN
@@ -26,7 +26,7 @@ BEGIN
 
   WHILE NOT done DO
     DELETE FROM raid_sightings
-    WHERE inserted_at < CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:00:00')
+    WHERE inserted_at < CURDATE() - INTERVAL 1 DAY
     LIMIT 20000;
 
     IF (ROW_COUNT() = 0) THEN
@@ -44,7 +44,7 @@ BEGIN
 
   WHILE NOT done DO
     DELETE FROM invasion_sightings
-    WHERE inserted_at < CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:00:00')
+    WHERE inserted_at < CURDATE() - INTERVAL 1 DAY
     LIMIT 20000;
 
     IF (ROW_COUNT() = 0) THEN
