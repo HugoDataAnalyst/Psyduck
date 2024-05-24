@@ -1,0 +1,51 @@
+from tortoise import fields, models
+
+class PokemonSighting(models.Model):
+    id = fields.IntField(pk=True)
+    pokemon_id = fields.IntField()
+    form = fields.CharField(max_length=50, null=True)
+    latitude = fields.FloatField()
+    longitude = fields.FloatField()
+    iv = fields.FloatField(null=True)
+    pvp_great_rank = fields.IntField(null=True)
+    pvp_little_rank = fields.IntField(null=True)
+    pvp_ultra_rank = fields.IntField(null=True)
+    shiny = fields.BooleanField()
+    area_name = fields.CharField(max_length=100)
+    despawn_time = fields.DatetimeField()
+
+class QuestSighting(models.Model):
+    id = fields.IntField(pk=True)
+    pokestop_id = fields.CharField(max_length=50)
+    ar_type = fields.CharField(max_length=50, null=True)
+    normal_type = fields.CharField(max_length=50, null=True)
+    reward_ar_type = fields.CharField(max_length=50, null=True)
+    reward_normal_type = fields.CharField(max_length=50, null=True)
+    reward_ar_item_id = fields.IntField(null=True)
+    reward_ar_item_amount = fields.IntField(null=True)
+    reward_normal_item_id = fields.IntField(null=True)
+    reward_normal_item_amount = fields.IntField(null=True)
+    reward_ar_poke_id = fields.IntField(null=True)
+    reward_ar_poke_form = fields.CharField(max_length=50, null=True)
+    reward_normal_poke_id = fields.IntField(null=True)
+    reward_normal_poke_form = fields.CharField(max_length=50, null=True)
+    area_name = fields.CharField(max_length=100)
+
+class RaidSighting(models.Model):
+    id = fields.IntField(pk=True)
+    gym_id = fields.CharField(max_length=50)
+    ex_raid_eligible = fields.BooleanField()
+    is_exclusive = fields.BooleanField()
+    level = fields.IntField()
+    pokemon_id = fields.IntField()
+    form = fields.CharField(max_length=50, null=True)
+    costume = fields.CharField(max_length=50, null=True)
+    area_name = fields.CharField(max_length=100)
+
+class InvasionSighting(models.Model):
+    id = fields.IntField(pk=True)
+    pokestop_id = fields.CharField(max_length=50)
+    display_type = fields.CharField(max_length=50)
+    grunt = fields.CharField(max_length=50)
+    confirmed = fields.BooleanField()
+    area_name = fields.CharField(max_length=100)
