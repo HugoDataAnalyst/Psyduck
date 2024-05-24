@@ -1,3 +1,4 @@
+import asyncio
 from .celery_app import celery
 import logging
 from logging.handlers import RotatingFileHandler
@@ -10,6 +11,10 @@ import hashlib
 import json
 import redis
 from datetime import datetime, date
+from orm.queries import DatabaseOperations
+
+# DatabaseOperations Initializer
+db_operations = DatabaseOperations()
 
 # Retrieve configuration values
 console_log_level_str = app_config.celery_console_log_level.upper()
@@ -44,15 +49,6 @@ if log_level_str != "OFF":
     file_handler.setFormatter(file_formatter)
     celery_logger.addHandler(file_handler)
 
-# Database configuration
-db_config = {
-    'host': app_config.db_host,
-    'port': app_config.db_port,
-    'user': app_config.db_user,
-    'password': app_config.db_password,
-    'database': app_config.db_name
-}
-
 redis_client = redis.StrictRedis.from_url(app_config.redis_url)
 
 def generate_unique_id(data):
@@ -61,7 +57,7 @@ def generate_unique_id(data):
 
 # Pokemon Insert task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_data_task(self, data_batch, unique_id):
+async def insert_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Pokemon Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -70,27 +66,8 @@ def insert_data_task(self, data_batch, unique_id):
 
     redis_client.set(unique_id, 'locked', ex=600)
 
-    conn = None
     try:
-        conn = pymysql.connect(**db_config)
-        cursor = conn.cursor()
-        celery_logger.debug(f"Inserting Pokemon data for unique_id: {unique_id}")
-
-        insert_query = '''
-        INSERT INTO pokemon_sightings (pokemon_id, form, latitude, longitude, iv,
-        pvp_great_rank, pvp_little_rank, pvp_ultra_rank, shiny, area_name, despawn_time)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
-
-        for data in data_batch:
-            values = (
-                data['pokemon_id'], data['form'], data['latitude'], data['longitude'],
-                data['iv'], data.get('pvp_great_rank'), data.get('pvp_little_rank'),
-                data.get('pvp_ultra_rank'), data['shiny'], data['area_name'],
-                data['despawn_time']
-            )
-            cursor.execute(insert_query, values)
-        conn.commit()
+        await db_operations.insert_pokemon_data(data_batch)
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} Pokemon records"
@@ -104,14 +81,11 @@ def insert_data_task(self, data_batch, unique_id):
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Pokemon retries exceeded. Giving up.")
     finally:
-        if conn is not None and conn.open:
-            cursor.close()
-            conn.close()
         redis_client.delete(unique_id)
 
 # Quest Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_quest_data_task(self, data_batch, unique_id):
+async def insert_quest_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Quest Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -120,31 +94,8 @@ def insert_quest_data_task(self, data_batch, unique_id):
 
     redis_client.set(unique_id, 'locked', ex=600)
 
-    conn = None
     try:
-        conn = pymysql.connect(**db_config)
-        cursor = conn.cursor()
-        celery_logger.debug(f"Inserting Quest data for unique_id: {unique_id}")
-
-        insert_query = '''
-        INSERT INTO quest_sightings (pokestop_id, ar_type, normal_type, reward_ar_type, reward_normal_type,
-        reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount,
-        reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
-
-        for data in data_batch:
-            values = (
-                data['pokestop_id'], data.get('ar_type', None), data.get('normal_type', None),
-                data.get('reward_ar_type', None), data.get('reward_normal_type', None),
-                data.get('reward_ar_item_id', None), data.get('reward_ar_item_amount', None),
-                data.get('reward_normal_item_id', None), data.get('reward_normal_item_amount', None),
-                data.get('reward_ar_poke_id', None), data.get('reward_ar_poke_form', None),
-                data.get('reward_normal_poke_id', None), data.get('reward_normal_poke_form', None),
-                data['area_name']
-            )
-            cursor.execute(insert_query, values)
-        conn.commit()
+        await db_operations.insert_quest_data(data_batch)
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} Quest records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} Quest records"
@@ -158,14 +109,11 @@ def insert_quest_data_task(self, data_batch, unique_id):
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Quest retries exceeded. Giving up.")
     finally:
-        if conn is not None and conn.open:
-            cursor.close()
-            conn.close()
         redis_client.delete(unique_id)
 
 # Raid Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_raid_data_task(self, data_batch, unique_id):
+async def insert_raid_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Raid Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -174,30 +122,8 @@ def insert_raid_data_task(self, data_batch, unique_id):
 
     redis_client.set(unique_id, 'locked', ex=600)
 
-    conn = None
     try:
-        conn = pymysql.connect(**db_config)
-        cursor = conn.cursor()
-        celery_logger.debug(f"Inserting Raid data for unique_id: {unique_id}")
-
-        insert_query = '''
-        INSERT INTO raid_sightings (gym_id, ex_raid_eligible, is_exclusive, level, pokemon_id, form, costume, area_name)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        '''
-
-        for data in data_batch:
-            values = (
-                data['gym_id'],
-                data['ex_raid_eligible'],
-                data['is_exclusive'],
-                data['level'],
-                data['pokemon_id'],
-                data.get('form', ''),
-                data.get('costume', ''),
-                data['area_name']
-            )
-            cursor.execute(insert_query, values)
-        conn.commit()
+        await db_operations.insert_raid_data(data_batch)
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} Raid records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} Raid records"
@@ -211,14 +137,11 @@ def insert_raid_data_task(self, data_batch, unique_id):
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Raid retries exceeded. Giving up.")
     finally:
-        if conn is not None and conn.open:
-            cursor.close()
-            conn.close()
         redis_client.delete(unique_id)
 
 # Invasion Insert Task
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def insert_invasion_data_task(self, data_batch, unique_id):
+async def insert_invasion_data_task(self, data_batch, unique_id):
     celery_logger.debug(f"Invasion Task received with unique_id: {unique_id}")
 
     if redis_client.get(unique_id):
@@ -227,27 +150,8 @@ def insert_invasion_data_task(self, data_batch, unique_id):
 
     redis_client.set(unique_id, 'locked', ex=600)
 
-    conn = None
     try:
-        conn = pymysql.connect(**db_config)
-        cursor = conn.cursor()
-        celery_logger.debug(f"Inserting Invasion data for unique_id: {unique_id}")
-
-        insert_query = '''
-        INSERT INTO invasion_sightings (pokestop_id, display_type, grunt, confirmed, area_name)
-        VALUES (%s, %s, %s, %s, %s)
-        '''
-
-        for data in data_batch:
-            values = (
-                data['pokestop_id'],
-                data['display_type'],
-                data['character'],
-                data['confirmed'],
-                data.get('area_name', '')
-            )
-            cursor.execute(insert_query, values)
-        conn.commit()
+        await db_operations.insert_invasion_data(data_batch)
         num_records = len(data_batch)
         celery_logger.info(f"Successfully inserted {num_records} Invasion records into the database for unique_id: {unique_id}")
         return f"Inserted {num_records} Invasion records"
@@ -261,257 +165,239 @@ def insert_invasion_data_task(self, data_batch, unique_id):
         except self.MaxRetriesExceededError:
             celery_logger.debug("Max Invasion retries exceeded. Giving up.")
     finally:
-        if conn is not None and conn.open:
-            cursor.close()
-            conn.close()
         redis_client.delete(unique_id)
-
-# API query task
-def execute_query(query, params=None):
-    try:
-        conn = pymysql.connect(**db_config)
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(query, params or ())
-        return cursor.fetchall()
-    except OperationalError as err:
-        celery_logger.error(f"Database query error: {err}")
-        raise
-    finally:
-        if conn and conn.open:
-            cursor.close()
-            conn.close()
 
 # API Pokemon grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_api_pokemon_stats(self):
+async def query_daily_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM daily_api_pokemon_stats ORDER BY area_name, pokemon_id")
+        results = await db_operations.fetch_daily_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_api_pokemon_stats(self):
+async def query_weekly_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM weekly_api_pokemon_stats ORDER BY area_name, pokemon_id")
+        results = await db_operations.fetch_weekly_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_api_pokemon_stats(self):
+async def query_monthly_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM monthly_api_pokemon_stats ORDER BY area_name, pokemon_id")
+        results = await db_operations.fetch_weekly_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Pokemon Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_hourly_total_api_pokemon_stats(self):
+async def query_hourly_total_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM hourly_total_api_pokemon_stats ORDER BY area_name")
+        results = await db_operations.fetch_hourly_total_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_total_api_pokemon_stats(self):
+async def query_daily_total_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM daily_total_api_pokemon_stats ORDER BY area_name")
+        results = await db_operations.fetch_daily_total_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_total_api_pokemon_stats(self):
+async def query_total_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM total_api_pokemon_stats ORDER BY area_name")
+        results = await db_operations.fetch_total_api_pokemon_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Pokemon Surge's
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_surge_api_pokemon_stats(self):
+async def query_daily_surge_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM daily_surge_pokemon_stats")
+        results = await db_operations.fetch_daily_surge_api_pokemon_stats()
         return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_surge_api_pokemon_stats(self):
+async def query_weekly_surge_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM weekly_surge_pokemon_stats")
+        results = db_operations.fetch_weekly_surge_api_pokemon_stats()
         return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_surge_api_pokemon_stats(self):
+async def query_monthly_surge_api_pokemon_stats(self):
     try:
-        results = execute_query("SELECT * FROM monthly_surge_pokemon_stats")
+        results = db_operations.fetch_monthly_surge_api_pokemon_stats()
         return organize_results_by_hour(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Quest Grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_quest_grouped_stats_api(self):
+async def query_daily_quest_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_quest_grouped_stats")
+        results = db_operations.fetch_daily_quest_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_quest_grouped_stats_api(self):
+async def query_weekly_quest_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM weekly_quest_grouped_stats")
+        results = db_operations.fetch_weekly_quest_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_quest_grouped_stats_api(self):
+async def query_monthly_quest_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM monthly_quest_grouped_stats")
+        results = db_operations.fetch_monthly_quest_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Quest Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_quest_total_stats_api(self):
+async def query_daily_quest_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_quest_total_stats")
+        results = db_operations.fetch_daily_quest_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_total_quest_total_stats_api(self):
+async def query_total_quest_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM quest_total_stats")
+        results = db_operations.fetch_total_quest_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Raids Grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_raid_grouped_stats_api(self):
+async def query_daily_raid_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_raid_grouped_stats")
+        results = db_operations.fetch_daily_raid_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_raid_grouped_stats_api(self):
+async def query_weekly_raid_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM weekly_raid_grouped_stats")
+        results = db_operations.fetch_weekly_raid_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_raid_grouped_stats_api(self):
+async def query_monthly_raid_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM monthly_raid_grouped_stats")
+        results = db_operations.fetch_monthly_raid_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Raids Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_hourly_raid_total_stats_api(self):
+async def query_hourly_raid_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM hourly_raid_total_stats")
+        results = db_operations.fetch_hourly_raid_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_raid_total_stats_api(self):
+async def query_daily_raid_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_raid_total_stats")
+        results = db_operations.fetch_daily_raid_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_total_raid_total_stats_api(self):
+async def query_total_raid_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM raid_total_stats")
+        results = db_operations.fetch_total_raid_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Invasion Grouped
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_invasion_grouped_stats_api(self):
+async def query_daily_invasion_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_invasion_grouped_stats")
+        results = db_operations.fetch_daily_invasion_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_weekly_invasion_grouped_stats_api(self):
+async def query_weekly_invasion_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM weekly_invasion_grouped_stats")
+        results = db_operations.fetch_weekly_invasion_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_monthly_invasion_grouped_stats_api(self):
+async def query_monthly_invasion_grouped_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM monthly_invasion_grouped_stats")
+        results = db_operations.fetch_monthly_invasion_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Invasion Totals
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_hourly_invasions_total_stats_api(self):
+async def query_hourly_invasions_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM hourly_invasion_total_stats")
+        results = db_operations.fetch_hourly_invasion_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_invasions_total_stats_api(self):
+async def query_daily_invasions_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_invasion_total_stats")
+        results = db_operations.fetch_daily_invasion_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_total_invasions_total_stats_api(self):
+async def query_total_invasions_total_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM invasion_total_stats")
+        results = db_operations.fetch_total_invasion_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 # API Pokemon TTH
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_hourly_pokemon_tth_stats_api(self):
+async def query_hourly_pokemon_tth_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM hourly_pokemon_tth_stats")
+        results = db_operations.fetch_hourly_pokemon_tth_stats()
         # Hourly is by Area
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
 
 @celery.task(bind=True, max_retries=app_config.max_retries)
-def query_daily_pokemon_tth_stats_api(self):
+async def query_daily_pokemon_tth_stats_api(self):
     try:
-        results = execute_query("SELECT * FROM daily_pokemon_tth_stats")
+        results = db_operations.fetch_daily_pokemon_tth_stats()
         # Daily is by hour
         return organize_results_by_hour(results)
     except Exception as e:
