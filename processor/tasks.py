@@ -171,7 +171,7 @@ async def insert_invasion_data_task(self, data_batch, unique_id):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_daily_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_daily_api_pokemon_stats()
+        results = await db_operations.fetch_daily_pokemon_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
@@ -179,7 +179,7 @@ async def query_daily_api_pokemon_stats(self):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_weekly_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_weekly_api_pokemon_stats()
+        results = await db_operations.fetch_weekly_pokemon_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
@@ -187,7 +187,7 @@ async def query_weekly_api_pokemon_stats(self):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_monthly_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_weekly_api_pokemon_stats()
+        results = await db_operations.fetch_monthly_pokemon_grouped_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
@@ -196,7 +196,7 @@ async def query_monthly_api_pokemon_stats(self):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_hourly_total_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_hourly_total_api_pokemon_stats()
+        results = await db_operations.fetch_hourly_pokemon_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
@@ -204,7 +204,7 @@ async def query_hourly_total_api_pokemon_stats(self):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_daily_total_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_daily_total_api_pokemon_stats()
+        results = await db_operations.fetch_daily_pokemon_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)
@@ -212,7 +212,7 @@ async def query_daily_total_api_pokemon_stats(self):
 @celery.task(bind=True, max_retries=app_config.max_retries)
 async def query_total_api_pokemon_stats(self):
     try:
-        results = await db_operations.fetch_total_api_pokemon_stats()
+        results = await db_operations.fetch_pokemon_total_stats()
         return organize_results(results)
     except Exception as e:
         self.retry(exc=e, countdown=app_config.retry_delay)

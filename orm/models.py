@@ -23,7 +23,7 @@ class PokemonSightings(models.Model):
             ('area_name',)
         ]
 
-class GroupedTotalDailyPokemonStats(models.Model):
+class StoragePokemonGroupedStats(models.Model):
     day = fields.DateField()
     pokemon_id = fields.IntField()
     form = fields.CharField(max_length=15)
@@ -40,10 +40,10 @@ class GroupedTotalDailyPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "grouped_total_daily_pokemon_stats"
+        db_table = "storage_pokemon_grouped_stats"
         unique_together = ("day", "pokemon_id", "form", "area_name")
 
-class DailyTotalStoragePokemonStats(models.Model):
+class StoragePokemonTotalStats(models.Model):
     day = fields.DateField()
     area_name = fields.CharField(max_length=255)
     total = fields.IntField()
@@ -56,10 +56,10 @@ class DailyTotalStoragePokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "daily_total_storage_pokemon_stats"
+        db_table = "storage_pokemon_total_stats"
         unique_together = ("day", "area_name")
 
-class DailyApiPokemonStats(models.Model):
+class DailyPokemonGroupedStats(models.Model):
     day = fields.DateField()
     pokemon_id = fields.IntField()
     form = fields.CharField(max_length=15)
@@ -76,10 +76,10 @@ class DailyApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "daily_api_pokemon_stats"
+        db_table = "daily_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
-class WeeklyApiPokemonStats(models.Model):
+class WeeklyPokemonGroupedStats(models.Model):
     day = fields.DateField()
     pokemon_id = fields.IntField()
     form = fields.CharField(max_length=15)
@@ -96,10 +96,10 @@ class WeeklyApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "weekly_api_pokemon_stats"
+        db_table = "weekly_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
-class MonthlyApiPokemonStats(models.Model):
+class MonthlyPokemonGroupedStats(models.Model):
     day = fields.DateField()
     pokemon_id = fields.IntField()
     form = fields.CharField(max_length=15)
@@ -116,10 +116,10 @@ class MonthlyApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "monthly_api_pokemon_stats"
+        db_table = "monthly_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
-class HourlyTotalApiPokemonStats(models.Model):
+class HourlyPokemonTotalStats(models.Model):
     area_name = fields.CharField(max_length=255)
     total = fields.IntField()
     total_iv100 = fields.IntField()
@@ -131,10 +131,10 @@ class HourlyTotalApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "hourly_total_api_pokemon_stats"
+        db_table = "hourly_pokemon_total_stats"
         unique_together = ("area_name",)
 
-class DailyTotalApiPokemonStats(models.Model):
+class DailyPokemonTotalStats(models.Model):
     day = fields.DateField()
     area_name = fields.CharField(max_length=255)
     total = fields.IntField()
@@ -147,10 +147,10 @@ class DailyTotalApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "daily_total_api_pokemon_stats"
+        db_table = "daily_pokemon_total_stats"
         unique_together = ("day", "area_name")
 
-class TotalApiPokemonStats(models.Model):
+class PokemonTotalStats(models.Model):
     area_name = fields.CharField(max_length=255)
     total = fields.BigIntField()
     total_iv100 = fields.BigIntField()
@@ -162,7 +162,7 @@ class TotalApiPokemonStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "total_api_pokemon_stats"
+        db_table = "pokemon_total_stats"
         unique_together = ("area_name",)
 
 class QuestSightings(models.Model):

@@ -4,12 +4,12 @@ from orm.models import (
     QuestSightings,
     RaidSightings,
     InvasionSightings,
-    DailyApiPokemonStats,
-    WeeklyApiPokemonStats,
-    MonthlyApiPokemonStats,
-    HourlyTotalApiPokemonStats,
-    DailyTotalApiPokemonStats,
-    TotalApiPokemonStats,
+    DailyPokemonGroupedStats,
+    WeeklyPokemonGroupedStats,
+    MonthlyPokemonGroupedStats,
+    HourlyPokemonTotalStats,
+    DailyPokemonTotalStats,
+    PokemonTotalStats,
     DailySurgePokemonStats,
     WeeklySurgePokemonStats,
     MonthlySurgePokemonStats,
@@ -57,23 +57,23 @@ class DatabaseOperations:
             return await model.all().order_by(*order_by)
         return await model.all()
 
-    async def fetch_daily_api_pokemon_stats(self):
-        return await self.fetch_all_records(DailyApiPokemonStats, order_by=["area_name", "pokemon_id"])
+    async def fetch_daily_pokemon_grouped_stats(self):
+        return await self.fetch_all_records(DailyPokemonGroupedStats, order_by=["area_name", "pokemon_id"])
 
-    async def fetch_weekly_api_pokemon_stats(self):
-        return await self.fetch_all_records(WeeklyApiPokemonStats, order_by=["area_name", "pokemon_id"])
+    async def fetch_weekly_pokemon_grouped_stats(self):
+        return await self.fetch_all_records(WeeklyPokemonGroupedStats, order_by=["area_name", "pokemon_id"])
 
-    async def fetch_monthly_api_pokemon_stats(self):
-        return await self.fetch_all_records(MonthlyApiPokemonStats, order_by=["area_name", "pokemon_id"])
+    async def fetch_monthly_pokemon_grouped_stats(self):
+        return await self.fetch_all_records(MonthlyPokemonGroupedStats, order_by=["area_name", "pokemon_id"])
 
-    async def fetch_hourly_total_api_pokemon_stats(self):
-        return await self.fetch_all_records(HourlyTotalApiPokemonStats, order_by=["area_name"])
+    async def fetch_hourly_pokemon_total_stats(self):
+        return await self.fetch_all_records(HourlyPokemonTotalStats, order_by=["area_name"])
 
-    async def fetch_daily_total_api_pokemon_stats(self):
-        return await self.fetch_all_records(DailyTotalApiPokemonStats, order_by=["area_name"])
+    async def fetch_daily_pokemon_total_stats(self):
+        return await self.fetch_all_records(DailyPokemonTotalStats, order_by=["area_name"])
 
-    async def fetch_total_api_pokemon_stats(self):
-        return await self.fetch_all_records(TotalApiPokemonStats, order_by=["area_name"])
+    async def fetch_pokemon_total_stats(self):
+        return await self.fetch_all_records(PokemonTotalStats, order_by=["area_name"])
 
     async def fetch_daily_surge_api_pokemon_stats(self):
         return await self.fetch_all_records(DailySurgePokemonStats)
