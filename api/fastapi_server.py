@@ -237,9 +237,9 @@ async def daily_area_pokemon_stats(request: Request, secret: str = Depends(valid
         console_logger.error(f"Error setting Redis cache for daily Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for daily Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained daily Pokemon stats")
     file_logger.info("Sucessfully obtained daily Pokemon stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/weekly-area-pokemon-stats")
 async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -275,9 +275,9 @@ async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(vali
         console_logger.error(f"Error setting Redis cache for weekly Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for weekly Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained weekly Pokemon stats")
     file_logger.info("Sucessfully obtained weekly Pokemon stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/monthly-area-pokemon-stats")
 async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -313,9 +313,9 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
         console_logger.error(f"Error setting Redis cache for monthly Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for monthly Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained monthly Pokemon stats")
     file_logger.info("Sucessfully obtained monthly Pokemon stats")
+    return JSONResponse(content=result)
 
 # API Totals
 @fastapi.get("/api/hourly-total-pokemon-stats")
@@ -352,10 +352,9 @@ async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(val
         console_logger.error(f"Error setting Redis cache for hourly total Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for hourly total Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained hourly total Pokemon stats")
     file_logger.info("Sucessfully obtained hourly total Pokemon stats")
-
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/daily-total-pokemon-stats")
 async def daily_total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -391,9 +390,9 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
         console_logger.error(f"Error setting Redis cache for daily total Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for daily total Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained daily total Pokemon stats")
     file_logger.info("Sucessfully obtained daily total Pokemon stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/total-pokemon-stats")
 async def total_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -429,9 +428,9 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
         console_logger.error(f"Error setting Redis cache for total Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for total Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained total Pokemon stats")
     file_logger.info("Sucessfully obtained total Pokemon stats")
+    return JSONResponse(content=result)
 
 # API Surge's
 @fastapi.get("/api/surge-daily-stats")
@@ -468,9 +467,9 @@ async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(valid
         console_logger.error(f"Error setting Redis cache for Surge Daily Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for Surge Daily Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Daily Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Daily Pokemon stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/surge-weekly-stats")
 async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -506,9 +505,9 @@ async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(vali
         console_logger.error(f"Error setting Redis cache for Surge Weekly Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for Surge Weekly Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Weekly Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Weekly Pokemon stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/surge-monthly-stats")
 async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -544,9 +543,9 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
         console_logger.error(f"Error setting Redis cache for Surge Monthly Pokemon stats: {e}")
         file_logger.error(f"Error setting Redis cache for Surge Monthly Pokemon stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Surge Monthly Pokemon stats")
     file_logger.info("Sucessfully obtained Surge Monthly Pokemon stats")
+    return JSONResponse(content=result)
 
 # Quest Section
 @fastapi.get("/api/daily-quest-grouped-stats")
@@ -583,9 +582,9 @@ async def daily_quest_grouped_stats(request: Request, secret: str= Depends(valid
         console_logger.error(f"Error setting Redis cache for Daily Quest Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Quest Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Daily Quest Grouped stats")
     file_logger.info("Sucessfully obtained Daily Quest Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/weekly-quest-grouped-stats")
 async def weekly_quest_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -621,9 +620,9 @@ async def weekly_quest_grouped_stats(request: Request, secret: str= Depends(vali
         console_logger.error(f"Error setting Redis cache for Weekly Quest Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Weekly Quest Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Weekly Quest Grouped stats")
     file_logger.info("Sucessfully obtained Weekly Quest Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/monthly-quest-grouped-stats")
 async def monthly_quest_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -659,9 +658,9 @@ async def monthly_quest_grouped_stats(request: Request, secret: str= Depends(val
         console_logger.error(f"Error setting Redis cache for Monthly Quest Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Monthly Quest Grouped stats: {e}")
 
-    return JSONResponse(content=result)
-    console_logger.info("Successfully obtained  stats")
+    console_logger.info("Successfully obtained Monthly Quest Grouped stats")
     file_logger.info("Sucessfully obtained Monthly Quest Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/daily-quest-total-stats")
 async def daily_quest_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -697,9 +696,9 @@ async def daily_quest_total_stats(request: Request, secret: str= Depends(validat
         console_logger.error(f"Error setting Redis cache for Daily Quest Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Quest Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Daily Quest Total stats")
     file_logger.info("Sucessfully obtained Daily Quest Total stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/total-quest-total-stats")
 async def total_quest_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -735,9 +734,9 @@ async def total_quest_total_stats(request: Request, secret: str= Depends(validat
         console_logger.error(f"Error setting Redis cache for Total Quest Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Total Quest Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Total Quest Total stats")
     file_logger.info("Sucessfully obtained Total Quest Total stats")
+    return JSONResponse(content=result)
 
 # Raid Section
 @fastapi.get("/api/daily-raid-grouped-stats")
@@ -774,9 +773,9 @@ async def daily_raid_grouped_stats(request: Request, secret: str= Depends(valida
         console_logger.error(f"Error setting Redis cache for Daily Raid Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Raid Grouped stats: {e}")
 
-    return JSONResponse(content=result)
-    console_logger.info("Successfully obtained  stats")
+    console_logger.info("Successfully obtained Daily Raid Grouped stats")
     file_logger.info("Sucessfully obtained Daily Raid Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/weekly-raid-grouped-stats")
 async def weekly_raid_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -812,9 +811,9 @@ async def weekly_raid_grouped_stats(request: Request, secret: str= Depends(valid
         console_logger.error(f"Error setting Redis cache for Weekly Raid Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Weekly Raid Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Weekly Raid Grouped stats")
     file_logger.info("Sucessfully obtained Weekly Raid Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/monthly-raid-grouped-stats")
 async def monthly_raid_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -850,9 +849,9 @@ async def monthly_raid_grouped_stats(request: Request, secret: str= Depends(vali
         console_logger.error(f"Error setting Redis cache for Monthly Raid Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Monthly Raid Grouped stats: {e}")
 
-    return JSONResponse(content=result)
-    console_logger.info("Successfully obtained  stats")
+    console_logger.info("Successfully obtained Monthly Raid Grouped stats")
     file_logger.info("Sucessfully obtained Monthly Raid Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/hourly-raid-total-stats")
 async def hourly_raid_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -888,9 +887,9 @@ async def hourly_raid_total_stats(request: Request, secret: str= Depends(validat
         console_logger.error(f"Error setting Redis cache for Hourly Raid Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Hourly Raid Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Hourly Raid Total stats")
     file_logger.info("Sucessfully obtained Hourly Raid Total stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/daily-raid-total-stats")
 async def daily_raid_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -926,9 +925,9 @@ async def daily_raid_total_stats(request: Request, secret: str= Depends(validate
         console_logger.error(f"Error setting Redis cache for Daily Raid Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Raid Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Daily Raid Total stats")
     file_logger.info("Sucessfully obtained Daily Raid Total stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/total-raid-total-stats")
 async def total_raid_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -964,9 +963,9 @@ async def total_raid_total_stats(request: Request, secret: str= Depends(validate
         console_logger.error(f"Error setting Redis cache for Total Raid Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Total Raid Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Total Raid Total stats")
     file_logger.info("Sucessfully obtained Total Raid Total stats")
+    return JSONResponse(content=result)
 
 # Invasion Section
 @fastapi.get("/api/daily-invasion-grouped-stats")
@@ -1003,9 +1002,9 @@ async def daily_invasion_grouped_stats(request: Request, secret: str= Depends(va
         console_logger.error(f"Error setting Redis cache for Daily Invasion Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Invasion Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Daily Invasion Grouped stats")
     file_logger.info("Sucessfully obtained Daily Invasion Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/weekly-invasion-grouped-stats")
 async def weekly_invasion_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1041,9 +1040,9 @@ async def weekly_invasion_grouped_stats(request: Request, secret: str= Depends(v
         console_logger.error(f"Error setting Redis cache for Weekly Invasion Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Weekly Invasion Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Weekly Invasion Grouped stats")
     file_logger.info("Sucessfully obtained Weekly Invasion Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/monthly-invasion-grouped-stats")
 async def monthly_invasion_grouped_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1079,9 +1078,9 @@ async def monthly_invasion_grouped_stats(request: Request, secret: str= Depends(
         console_logger.error(f"Error setting Redis cache for Monthly Invasion Grouped stats: {e}")
         file_logger.error(f"Error setting Redis cache for Monthly Invasion Grouped stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Monthly Invasion Grouped stats")
     file_logger.info("Sucessfully obtained Monthly Invasion Grouped stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/hourly-invasion-total-stats")
 async def hourly_invasion_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1117,9 +1116,9 @@ async def hourly_invasion_total_stats(request: Request, secret: str= Depends(val
         console_logger.error(f"Error setting Redis cache for Hourly Invasion Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Hourly Invasion Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Hourly Invasion Total stats")
     file_logger.info("Sucessfully obtained Hourly Invasion Total stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/daily-invasion-total-stats")
 async def daily_invasion_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1155,9 +1154,9 @@ async def daily_invasion_total_stats(request: Request, secret: str= Depends(vali
         console_logger.error(f"Error setting Redis cache for Daily Invasion Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Invasion Total stats: {e}")
 
+    console_logger.info("Successfully obtained Daily Invasion Total stats")
+    file_logger.info("Sucessfully obtained Daily Invasion Total stats")
     return JSONResponse(content=result)
-    console_logger.info("Successfully obtained  stats")
-    file_logger.info("Sucessfully obtained  stats")
 
 @fastapi.get("/api/total-invasion-total-stats")
 async def total_invasion_total_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1193,9 +1192,9 @@ async def total_invasion_total_stats(request: Request, secret: str= Depends(vali
         console_logger.error(f"Error setting Redis cache for Total Invasion Total stats: {e}")
         file_logger.error(f"Error setting Redis cache for Total Invasion Total stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Total Invasion Total stats")
     file_logger.info("Sucessfully obtained Total Invasion Total stats")
+    return JSONResponse(content=result)
 
 # Pokemon TTH Section
 @fastapi.get("/api/hourly-pokemon-tth-stats")
@@ -1232,9 +1231,9 @@ async def hourly_pokemon_tth_stats(request: Request, secret: str= Depends(valida
         console_logger.error(f"Error setting Redis cache for Hourly Pokemon TTH stats: {e}")
         file_logger.error(f"Error setting Redis cache for Hourly Pokemon TTH stats: {e}")
 
-    return JSONResponse(content=result)
     console_logger.info("Successfully obtained Hourly Pokemon TTH stats")
     file_logger.info("Sucessfully obtained Hourly Pokemon TTH stats")
+    return JSONResponse(content=result)
 
 @fastapi.get("/api/daily-pokemon-tth-stats")
 async def daily_pokemon_tth_stats(request: Request, secret: str= Depends(validate_secret), _ip = Depends(validate_ip), _header = Depends(validate_secret_header)):
@@ -1270,9 +1269,9 @@ async def daily_pokemon_tth_stats(request: Request, secret: str= Depends(validat
         console_logger.error(f"Error setting Redis cache for Daily Pokemon TTH stats: {e}")
         file_logger.error(f"Error setting Redis cache for Daily Pokemon TTH stats: {e}")
 
-    return JSONResponse(content=result)
-    console_logger.info("Successfully obtained  stats")
+    console_logger.info("Successfully obtained Daily Pokemon TTH stats")
     file_logger.info("Sucessfully obtained Daily Pokemon TTH stats")
+    return JSONResponse(content=result)
 
 # API format for VictoriaMetrics/Prometheus with Redis Cache
 @fastapi.get("/metrics/daily-area-pokemon")
@@ -1345,8 +1344,8 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
         ttl = seconds_until_next_week()
         redis_client.set(cache_key, weekly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=weekly_area_pokemon_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for grouped-weekly API for VictoriaMetrics")
+        return Response(content=weekly_area_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating grouped metrics: {e}")
         file_logger.error(f"Error generating grouped metrics: {e}")
@@ -1386,8 +1385,8 @@ async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(v
         ttl = seconds_until_next_month()
         redis_client.set(cache_key, monthly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=monthly_area_pokemon_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for grouped-monthly API for VictoriaMetrics")
+        return Response(content=monthly_area_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating grouped metrics: {e}")
         file_logger.error(f"Error generating grouped metrics: {e}")
@@ -1427,8 +1426,8 @@ async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(v
         ttl = seconds_until_next_hour()
         redis_client.set(cache_key, total_hourly_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_hourly_pokemon_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for hourly total pokemon API for VictoriaMetrics")
+        return Response(content=total_hourly_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1469,8 +1468,8 @@ async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(va
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, total_daily_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_daily_pokemon_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for daily total pokemon API for VictoriaMetrics")
+        return Response(content=total_daily_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1511,8 +1510,8 @@ async def total_pokemon_metrics(request: Request, secret: str = Depends(validate
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, total_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_pokemon_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for total pokemon API for VictoriaMetrics")
+        return Response(content=total_pokemon_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1552,8 +1551,8 @@ async def surge_daily_metrics(request: Request, secret: str = Depends(validate_s
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, surge_daily_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=surge_daily_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for surge daily Pokemon API for VictoriaMetrics")
+        return Response(content=surge_daily_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1593,8 +1592,8 @@ async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_
         ttl = seconds_until_next_week()
         redis_client.set(cache_key, surge_weekly_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=surge_weekly_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Surge Weekly Pokemon for VictoriaMetrics")
+        return Response(content=surge_weekly_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1634,8 +1633,8 @@ async def surge_monthly_metrics(request: Request, secret: str = Depends(validate
         ttl = seconds_until_next_month()
         redis_client.set(cache_key, surge_monthly_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=surge_monthly_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for monthly Surge Pokemon API for VictoriaMetrics")
+        return Response(content=surge_monthly_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1676,8 +1675,8 @@ async def daily_quest_grouped_stats_metrics(request: Request, secret: str = Depe
         ttl = seconds_until_fourpm()
         redis_client.set(cache_key, daily_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Quest Grouped API for VictoriaMetrics")
+        return Response(content=daily_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1717,8 +1716,8 @@ async def weekly_quest_grouped_stats_metrics(request: Request, secret: str = Dep
         ttl = seconds_until_next_week_fourpm()
         redis_client.set(cache_key, weekly_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=weekly_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Weekly Quest Grouped API for VictoriaMetrics")
+        return Response(content=weekly_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1758,8 +1757,8 @@ async def monthly_quest_grouped_stats_metrics(request: Request, secret: str = De
         ttl = seconds_until_next_month_fourpm()
         redis_client.set(cache_key, monthly_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=monthly_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Monthly Quest Grouped API for VictoriaMetrics")
+        return Response(content=monthly_quest_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1799,8 +1798,8 @@ async def daily_quest_total_stats_metrics(request: Request, secret: str = Depend
         ttl = seconds_until_fourpm()
         redis_client.set(cache_key, daily_quest_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_quest_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Quest Total API for VictoriaMetrics")
+        return Response(content=daily_quest_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1840,8 +1839,8 @@ async def total_quest_total_stats_metrics(request: Request, secret: str = Depend
         ttl = seconds_until_fourpm()
         redis_client.set(cache_key, total_quest_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_quest_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Total Quest Total API for VictoriaMetrics")
+        return Response(content=total_quest_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1882,8 +1881,8 @@ async def daily_raid_grouped_stats_metrics(request: Request, secret: str = Depen
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, daily_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Raid Grouped API for VictoriaMetrics")
+        return Response(content=daily_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1923,8 +1922,8 @@ async def weekly_raid_grouped_stats_metrics(request: Request, secret: str = Depe
         ttl = seconds_until_next_week()
         redis_client.set(cache_key, weekly_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=weekly_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Weekly Raid Grouped API for VictoriaMetrics")
+        return Response(content=weekly_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -1964,8 +1963,8 @@ async def monthly_raid_grouped_stats_metrics(request: Request, secret: str = Dep
         ttl = seconds_until_next_month()
         redis_client.set(cache_key, monthly_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=monthly_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Monthly Raid Grouped API for VictoriaMetrics")
+        return Response(content=monthly_raid_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2005,8 +2004,8 @@ async def hourly_raid_total_stats_metrics(request: Request, secret: str = Depend
         ttl = seconds_until_next_hour()
         redis_client.set(cache_key, hourly_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=hourly_raid_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Hourly Raid Total API for VictoriaMetrics")
+        return Response(content=hourly_raid_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2046,8 +2045,8 @@ async def daily_raid_total_stats_metrics(request: Request, secret: str = Depends
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, daily_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_raid_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Raid Total API for VictoriaMetrics")
+        return Response(content=daily_raid_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2087,8 +2086,8 @@ async def total_raid_total_stats_metrics(request: Request, secret: str = Depends
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, total_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_raid_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Total Raid Total API for VictoriaMetrics")
+        return Response(content=total_raid_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2129,8 +2128,8 @@ async def daily_invasion_grouped_stats_metrics(request: Request, secret: str = D
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, daily_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Invasion Grouped API for VictoriaMetrics")
+        return Response(content=daily_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2170,8 +2169,8 @@ async def weekly_invasion_grouped_stats_metrics(request: Request, secret: str = 
         ttl = seconds_until_next_week()
         redis_client.set(cache_key, weekly_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=weekly_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Weekly Invasion Grouped API for VictoriaMetrics")
+        return Response(content=weekly_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2211,8 +2210,8 @@ async def monthly_invasion_grouped_stats_metrics(request: Request, secret: str =
         ttl = seconds_until_next_month()
         redis_client.set(cache_key, monthly_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=monthly_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Monthly Invasion Grouped API for VictoriaMetrics")
+        return Response(content=monthly_invasion_grouped_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2252,8 +2251,8 @@ async def hourly_invasions_total_stats_metrics(request: Request, secret: str = D
         ttl = seconds_until_next_hour()
         redis_client.set(cache_key, hourly_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=hourly_invasions_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Hourly Invasion Total API for VictoriaMetrics")
+        return Response(content=hourly_invasions_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2293,8 +2292,8 @@ async def daily_invasions_total_stats_metrics(request: Request, secret: str = De
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, daily_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=daily_invasions_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Daily Invasion Total API for VictoriaMetrics")
+        return Response(content=daily_invasions_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2334,8 +2333,8 @@ async def total_invasions_total_stats_metrics(request: Request, secret: str = De
         ttl = seconds_until_midnight()
         redis_client.set(cache_key, total_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=total_invasions_total_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Total Invasion Total API for VictoriaMetrics")
+        return Response(content=total_invasions_total_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
@@ -2376,8 +2375,8 @@ async def hourly_pokemon_tth_stats_metrics(request: Request, secret: str = Depen
         ttl = seconds_until_next_hour()
         redis_client.set(cache_key, hourly_pokemon_tth_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
-        return Response(content=hourly_pokemon_tth_stats_prometheus_metrics, media_type="text/plain")
         console_logger.info(f"Successfully set cache for Hourly Pokemon TTH API for VictoriaMetrics")
+        return Response(content=hourly_pokemon_tth_stats_prometheus_metrics, media_type="text/plain")
     except Exception as e:
         console_logger.error(f"Error generating metrics: {e}")
         file_logger.error(f"Error generating metrics: {e}")
