@@ -11,11 +11,15 @@ from redis import asyncio as aioredis
 from celery.result import AsyncResult
 from celery import Celery
 from config.app_config import app_config
-from processor.tasks import query_daily_api_pokemon_stats, query_weekly_api_pokemon_stats, query_monthly_api_pokemon_stats, query_hourly_total_api_pokemon_stats, query_daily_total_api_pokemon_stats, query_total_api_pokemon_stats, query_daily_surge_api_pokemon_stats, query_weekly_surge_api_pokemon_stats, query_monthly_surge_api_pokemon_stats, query_daily_quest_grouped_stats_api, query_weekly_quest_grouped_stats_api, query_monthly_quest_grouped_stats_api, query_daily_quest_total_stats_api, query_total_quest_total_stats_api, query_daily_raid_grouped_stats_api, query_weekly_raid_grouped_stats_api, query_monthly_raid_grouped_stats_api, query_hourly_raid_total_stats_api, query_daily_raid_total_stats_api, query_total_raid_total_stats_api, query_daily_invasion_grouped_stats_api, query_weekly_invasion_grouped_stats_api, query_monthly_invasion_grouped_stats_api, query_hourly_invasions_total_stats_api, query_daily_invasions_total_stats_api, query_total_invasions_total_stats_api, query_hourly_pokemon_tth_stats_api, query_daily_pokemon_tth_stats_api
+#from processor.tasks import query_daily_pokemon_grouped_stats, query_weekly_pokemon_grouped_stats, query_monthly_pokemon_grouped_stats, query_hourly_pokemon_total_stats, query_daily_pokemon_total_stats, query_pokemon_total_stats, query_daily_surge_api_pokemon_stats, query_weekly_surge_api_pokemon_stats, query_monthly_surge_api_pokemon_stats, query_daily_quest_grouped_stats_api, query_weekly_quest_grouped_stats_api, query_monthly_quest_grouped_stats_api, query_daily_quest_total_stats_api, query_total_quest_total_stats_api, query_daily_raid_grouped_stats_api, query_weekly_raid_grouped_stats_api, query_monthly_raid_grouped_stats_api, query_hourly_raid_total_stats_api, query_daily_raid_total_stats_api, query_total_raid_total_stats_api, query_daily_invasion_grouped_stats_api, query_weekly_invasion_grouped_stats_api, query_monthly_invasion_grouped_stats_api, query_hourly_invasions_total_stats_api, query_daily_invasions_total_stats_api, query_total_invasions_total_stats_api, query_hourly_pokemon_tth_stats_api, query_daily_pokemon_tth_stats_api
+from processor.tasks import CeleryTasks
 from utils.time_utils import seconds_until_next_hour, seconds_until_midnight, seconds_until_next_week, seconds_until_next_month, seconds_until_fourpm, seconds_until_next_week_fourpm, seconds_until_next_month_fourpm
 import os
 import json
 from datetime import date, datetime
+
+# CeleryTasks Initialiazer
+query_tasks = CeleryTasks()
 
 # Configuration values
 console_log_level_str = app_config.api_console_log_level.upper()
@@ -181,7 +185,7 @@ async def validate_secret(secret: str = None):
         file_logger.debug("Secret validated successfully.")
     else:
         console_logger.debug("No API secret key set, skipping secret validation.")
-        file_logger.debug("No API secret key set, skipping secret validation.")        
+        file_logger.debug("No API secret key set, skipping secret validation.")
 
 async def validate_ip(request: Request):
     client_host = request.client.host
@@ -220,7 +224,7 @@ async def daily_area_pokemon_stats(request: Request, secret: str = Depends(valid
     # If no Cache set
     console_logger.debug("Cache miss for daily Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for daily Pokemon stats, fetching new data")
-    result = get_task_result(query_daily_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_daily_pokemon_grouped_stats)
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
@@ -258,7 +262,7 @@ async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for weekly Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for weekly Pokemon stats, fetching new data")
-    result = get_task_result(query_weekly_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_weekly_pokemon_grouped_stats)
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
@@ -296,7 +300,7 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
     # If no Cache set
     console_logger.debug("Cache miss for monthly Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for monthly Pokemon stats, fetching new data")
-    result = get_task_result(query_monthly_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_monthly_pokemon_grouped_stats)
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
@@ -335,7 +339,7 @@ async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(val
     # If no Cache set
     console_logger.debug("Cache miss for hourly total Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for hourly total Pokemon stats, fetching new data")
-    result = get_task_result(query_hourly_total_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_hourly_pokemon_total_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -374,7 +378,7 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
     # If no Cache set
     console_logger.debug("Cache miss for daily total Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for daily total Pokemon stats, fetching new data")
-    result = get_task_result(query_daily_total_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_daily_pokemon_total_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -412,7 +416,7 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
     # If no Cache set
     console_logger.debug("Cache miss for total Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for total Pokemon stats, fetching new data")
-    result = get_task_result(query_total_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_pokemon_total_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -451,7 +455,7 @@ async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(valid
     # If no Cache set
     console_logger.debug("Cache miss for Surge Daily Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for Surge Daily Pokemon stats, fetching new data")
-    result = get_task_result(query_daily_surge_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_daily_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -489,7 +493,7 @@ async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for Surge Weekly Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for Surge Weekly Pokemon stats, fetching new data")
-    result = get_task_result(query_weekly_surge_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_weekly_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -527,7 +531,7 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     # If no Cache set
     console_logger.debug("Cache miss for Surge Monthly Pokemon stats, fetching new data")
     file_logger.debug("Cache miss for Surge Monthly Pokemon stats, fetching new data")
-    result = get_task_result(query_monthly_surge_api_pokemon_stats)
+    result = get_task_result(query_tasks.query_monthly_surge_api_pokemon_stats)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -566,7 +570,7 @@ async def daily_quest_grouped_stats(request: Request, secret: str= Depends(valid
     # If no Cache set
     console_logger.debug("Cache miss for Daily Quest Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Daily Quest Grouped stats, fetching new data")
-    result = get_task_result(query_daily_quest_grouped_stats_api)
+    result = get_task_result(query_tasks.query_daily_quest_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -604,7 +608,7 @@ async def weekly_quest_grouped_stats(request: Request, secret: str= Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for Weekly Quest Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Weekly Quest Grouped stats, fetching new data")
-    result = get_task_result(query_weekly_quest_grouped_stats_api)
+    result = get_task_result(query_tasks.query_weekly_quest_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -642,7 +646,7 @@ async def monthly_quest_grouped_stats(request: Request, secret: str= Depends(val
     # If no Cache set
     console_logger.debug("Cache miss for Monthly Quest Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Monthly Quest Grouped stats, fetching new data")
-    result = get_task_result(query_monthly_quest_grouped_stats_api)
+    result = get_task_result(query_tasks.query_monthly_quest_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -680,7 +684,7 @@ async def daily_quest_total_stats(request: Request, secret: str= Depends(validat
     # If no Cache set
     console_logger.debug("Cache miss for Daily Quest Total stats, fetching new data")
     file_logger.debug("Cache miss for Daily Quest Total stats, fetching new data")
-    result = get_task_result(query_daily_quest_total_stats_api)
+    result = get_task_result(query_tasks.query_daily_quest_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -718,7 +722,7 @@ async def total_quest_total_stats(request: Request, secret: str= Depends(validat
     # If no Cache set
     console_logger.debug("Cache miss for Total Quest Total stats, fetching new data")
     file_logger.debug("Cache miss for Total Quest Total stats, fetching new data")
-    result = get_task_result(query_total_quest_total_stats_api)
+    result = get_task_result(query_tasks.query_total_quest_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -757,7 +761,7 @@ async def daily_raid_grouped_stats(request: Request, secret: str= Depends(valida
     # If no Cache set
     console_logger.debug("Cache miss for Daily Raid Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Daily Raid Grouped stats, fetching new data")
-    result = get_task_result(query_daily_raid_grouped_stats_api)
+    result = get_task_result(query_tasks.query_daily_raid_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -795,7 +799,7 @@ async def weekly_raid_grouped_stats(request: Request, secret: str= Depends(valid
     # If no Cache set
     console_logger.debug("Cache miss for Weekly Raid Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Weekly Raid Grouped stats, fetching new data")
-    result = get_task_result(query_weekly_raid_grouped_stats_api)
+    result = get_task_result(query_tasks.query_weekly_raid_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -833,7 +837,7 @@ async def monthly_raid_grouped_stats(request: Request, secret: str= Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for Monthly Raid Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Monthly Raid Grouped stats, fetching new data")
-    result = get_task_result(query_monthly_raid_grouped_stats_api)
+    result = get_task_result(query_tasks.query_monthly_raid_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -871,7 +875,7 @@ async def hourly_raid_total_stats(request: Request, secret: str= Depends(validat
     # If no Cache set
     console_logger.debug("Cache miss for Hourly Raid Total stats, fetching new data")
     file_logger.debug("Cache miss for Hourly Raid Total stats, fetching new data")
-    result = get_task_result(query_hourly_raid_total_stats_api)
+    result = get_task_result(query_tasks.query_hourly_raid_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -909,7 +913,7 @@ async def daily_raid_total_stats(request: Request, secret: str= Depends(validate
     # If no Cache set
     console_logger.debug("Cache miss for Daily Raid Total stats, fetching new data")
     file_logger.debug("Cache miss for Daily Raid Total stats, fetching new data")
-    result = get_task_result(query_daily_raid_total_stats_api)
+    result = get_task_result(query_tasks.query_daily_raid_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -947,7 +951,7 @@ async def total_raid_total_stats(request: Request, secret: str= Depends(validate
     # If no Cache set
     console_logger.debug("Cache miss for Total Raid Total stats, fetching new data")
     file_logger.debug("Cache miss for Total Raid Total stats, fetching new data")
-    result = get_task_result(query_total_raid_total_stats_api)
+    result = get_task_result(query_tasks.query_total_raid_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -986,7 +990,7 @@ async def daily_invasion_grouped_stats(request: Request, secret: str= Depends(va
     # If no Cache set
     console_logger.debug("Cache miss for Daily Invasion Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Daily Invasion Grouped stats, fetching new data")
-    result = get_task_result(query_daily_invasion_grouped_stats_api)
+    result = get_task_result(query_tasks.query_daily_invasion_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1024,7 +1028,7 @@ async def weekly_invasion_grouped_stats(request: Request, secret: str= Depends(v
     # If no Cache set
     console_logger.debug("Cache miss for Weekly Invasion Grouped stats, fetching new data")
     file_logger.debug("Cache miss for Weekly Invasion Grouped stats, fetching new data")
-    result = get_task_result(query_weekly_invasion_grouped_stats_api)
+    result = get_task_result(query_tasks.query_weekly_invasion_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1062,7 +1066,7 @@ async def monthly_invasion_grouped_stats(request: Request, secret: str= Depends(
     # If no Cache set
     console_logger.debug("Cache miss for  stats, fetching new data")
     file_logger.debug("Cache miss for stats, fetching new data")
-    result = get_task_result(query_monthly_invasion_grouped_stats_api)
+    result = get_task_result(query_tasks.query_monthly_invasion_grouped_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1100,7 +1104,7 @@ async def hourly_invasion_total_stats(request: Request, secret: str= Depends(val
     # If no Cache set
     console_logger.debug("Cache miss for Hourly Invasion Total stats, fetching new data")
     file_logger.debug("Cache miss for Hourly Invasion Total stats, fetching new data")
-    result = get_task_result(query_hourly_invasions_total_stats_api)
+    result = get_task_result(query_tasks.query_hourly_invasions_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1138,7 +1142,7 @@ async def daily_invasion_total_stats(request: Request, secret: str= Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for Daily Invasion Total stats, fetching new data")
     file_logger.debug("Cache miss for Daily Invasion Total stats, fetching new data")
-    result = get_task_result(query_daily_invasions_total_stats_api)
+    result = get_task_result(query_tasks.query_daily_invasions_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1176,7 +1180,7 @@ async def total_invasion_total_stats(request: Request, secret: str= Depends(vali
     # If no Cache set
     console_logger.debug("Cache miss for Total Invasion Total stats, fetching new data")
     file_logger.debug("Cache miss for Total Invasion Total stats, fetching new data")
-    result = get_task_result(query_total_invasions_total_stats_api)
+    result = get_task_result(query_tasks.query_total_invasions_total_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1215,7 +1219,7 @@ async def hourly_pokemon_tth_stats(request: Request, secret: str= Depends(valida
     # If no Cache set
     console_logger.debug("Cache miss for Hourly Pokemon TTH stats, fetching new data")
     file_logger.debug("Cache miss for Hourly Pokemon TTH stats, fetching new data")
-    result = get_task_result(query_hourly_pokemon_tth_stats_api)
+    result = get_task_result(query_tasks.query_hourly_pokemon_tth_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1253,7 +1257,7 @@ async def daily_pokemon_tth_stats(request: Request, secret: str= Depends(validat
     # If no Cache set
     console_logger.debug("Cache miss for Daily Pokemon TTH stats, fetching new data")
     file_logger.debug("Cache miss for Daily Pokemon TTH stats, fetching new data")
-    result = get_task_result(query_daily_pokemon_tth_stats_api)
+    result = get_task_result(query_tasks.query_daily_pokemon_tth_stats_api)
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
@@ -1288,7 +1292,7 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
 
     try:
         # If cache miss, fetch data and format for VictoriaMetrics
-        daily_area_stats = get_task_result(query_daily_api_pokemon_stats)
+        daily_area_stats = get_task_result(query_tasks.query_daily_pokemon_grouped_stats)
         formatted_daily_area_stats = format_results_to_victoria(daily_area_stats, 'psyduck_daily_area_stats')
         console_logger.info("Cache miss. Fetched data for daily grouped area Pokemon metrics")
         file_logger.info("Cache miss. Fetched data for daily grouped area Pokemon metrics")
@@ -1324,7 +1328,7 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
 
     try:
         # Fetch data for metrics
-        weekly_area_stats = get_task_result(query_weekly_api_pokemon_stats)
+        weekly_area_stats = get_task_result(query_tasks.query_weekly_pokemon_grouped_stats)
         console_logger.info(f"Cache Miss. Fetched weekly grouped pokemon API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched weekly grouped pokemon API tasks sucessfuly")
 
@@ -1365,7 +1369,7 @@ async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(v
 
     try:
         # Fetch data for metrics
-        monthly_area_stats = get_task_result(query_monthly_api_pokemon_stats)
+        monthly_area_stats = get_task_result(query_tasks.query_monthly_pokemon_grouped_stats)
         console_logger.info(f"Cache Miss. Fetched monthly grouped pokemon API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched monthly grouped pokemon API tasks sucessfuly")
 
@@ -1406,7 +1410,7 @@ async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(v
 
     try:
         # Fetch data for metrics
-        hourly_total_stats = get_task_result(query_hourly_total_api_pokemon_stats)
+        hourly_total_stats = get_task_result(query_tasks.query_hourly_pokemon_total_stats)
         console_logger.info(f"Cache Miss. Fetched hourly total pokemon API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched hourly total pokemon API tasks sucessfuly")
 
@@ -1448,7 +1452,7 @@ async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(va
 
     try:
         # Fetch data for metrics
-        daily_total_stats = get_task_result(query_daily_total_api_pokemon_stats)
+        daily_total_stats = get_task_result(query_tasks.query_daily_pokemon_total_stats)
         console_logger.info(f"Cache Miss. Fetched daily total pokemon API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched daily total pokemon API tasks sucessfuly")
 
@@ -1490,7 +1494,7 @@ async def total_pokemon_metrics(request: Request, secret: str = Depends(validate
 
     try:
         # Fetch data for metrics
-        total_stats = get_task_result(query_total_api_pokemon_stats)
+        total_stats = get_task_result(query_tasks.query_pokemon_total_stats)
         console_logger.info(f"Cache Miss. Fetched total pokemon API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched total pokemon API tasks sucessfuly")
 
@@ -1531,7 +1535,7 @@ async def surge_daily_metrics(request: Request, secret: str = Depends(validate_s
 
     try:
         # Fetch data for metrics
-        surge_daily_stats = get_task_result(query_daily_surge_api_pokemon_stats)
+        surge_daily_stats = get_task_result(query_tasks.query_daily_surge_api_pokemon_stats)
         console_logger.info(f"Cache Miss. Fetched surge daily API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched surge daily API tasks sucessfuly")
 
@@ -1572,7 +1576,7 @@ async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_
 
     try:
         # Fetch data for metrics
-        surge_weekly_stats = get_task_result(query_weekly_surge_api_pokemon_stats)
+        surge_weekly_stats = get_task_result(query_tasks.query_weekly_surge_api_pokemon_stats)
         console_logger.info(f"Cache Miss. Fetched surge weekly API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched surge weekly API tasks sucessfuly")
 
@@ -1613,7 +1617,7 @@ async def surge_monthly_metrics(request: Request, secret: str = Depends(validate
 
     try:
         # Fetch data for metrics
-        surge_monthly_stats = get_task_result(query_monthly_surge_api_pokemon_stats)
+        surge_monthly_stats = get_task_result(query_tasks.query_monthly_surge_api_pokemon_stats)
         console_logger.info(f"Cache Miss. Fetched surge monthly API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched surge monthly API tasks sucessfuly")
 
@@ -1655,7 +1659,7 @@ async def daily_quest_grouped_stats_metrics(request: Request, secret: str = Depe
 
     try:
         # Fetch data for metrics
-        daily_quest_grouped_stats = get_task_result(query_daily_quest_grouped_stats_api)
+        daily_quest_grouped_stats = get_task_result(query_tasks.query_daily_quest_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Quest Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Quest Grouped API tasks sucessfuly")
 
@@ -1696,7 +1700,7 @@ async def weekly_quest_grouped_stats_metrics(request: Request, secret: str = Dep
 
     try:
         # Fetch data for metrics
-        weekly_quest_grouped_stats = get_task_result(query_weekly_quest_grouped_stats_api)
+        weekly_quest_grouped_stats = get_task_result(query_tasks.query_weekly_quest_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Weekly Quest Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Weekly Quest Grouped API tasks sucessfuly")
 
@@ -1737,7 +1741,7 @@ async def monthly_quest_grouped_stats_metrics(request: Request, secret: str = De
 
     try:
         # Fetch data for metrics
-        monthly_quest_grouped_stats = get_task_result(query_monthly_quest_grouped_stats_api)
+        monthly_quest_grouped_stats = get_task_result(query_tasks.query_monthly_quest_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Monthly Quest Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Monthly Quest Grouped API tasks sucessfuly")
 
@@ -1778,7 +1782,7 @@ async def daily_quest_total_stats_metrics(request: Request, secret: str = Depend
 
     try:
         # Fetch data for metrics
-        daily_quest_total_stats = get_task_result(query_daily_quest_total_stats_api)
+        daily_quest_total_stats = get_task_result(query_tasks.query_daily_quest_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Quest Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Quest Total API tasks sucessfuly")
 
@@ -1819,7 +1823,7 @@ async def total_quest_total_stats_metrics(request: Request, secret: str = Depend
 
     try:
         # Fetch data for metrics
-        total_quest_total_stats = get_task_result(query_total_quest_total_stats_api)
+        total_quest_total_stats = get_task_result(query_tasks.query_total_quest_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Total Quest Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Total Quest Total API tasks sucessfuly")
 
@@ -1861,7 +1865,7 @@ async def daily_raid_grouped_stats_metrics(request: Request, secret: str = Depen
 
     try:
         # Fetch data for metrics
-        daily_raid_grouped_stats = get_task_result(query_daily_raid_grouped_stats_api)
+        daily_raid_grouped_stats = get_task_result(query_tasks.query_daily_raid_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Raid Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Raid Grouped API tasks sucessfuly")
 
@@ -1902,12 +1906,12 @@ async def weekly_raid_grouped_stats_metrics(request: Request, secret: str = Depe
 
     try:
         # Fetch data for metrics
-        weekly_raid_grouped_stats = get_task_result(query_weekly_raid_grouped_stats_api)
+        weekly_raid_grouped_stats = get_task_result(query_tasks.query_weekly_raid_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Weekly Raid Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Weekly Raid Grouped API tasks sucessfuly")
 
         # Format each result set
-        formatted_weekly_raid_grouped_stats = format_results_to_victoria(weekly_raid_grouped_stats, 'psyduck_weekly_raid_grouped_stats') 
+        formatted_weekly_raid_grouped_stats = format_results_to_victoria(weekly_raid_grouped_stats, 'psyduck_weekly_raid_grouped_stats')
         console_logger.debug(f"Formatted Weekly Raid Grouped stats for VictoriaMetrics")
         file_logger.debug(f"Formatted Weekly Raid Grouped stats for VictoriaMetrics")
 
@@ -1943,7 +1947,7 @@ async def monthly_raid_grouped_stats_metrics(request: Request, secret: str = Dep
 
     try:
         # Fetch data for metrics
-        monthly_raid_grouped_stats = get_task_result(query_monthly_raid_grouped_stats_api)
+        monthly_raid_grouped_stats = get_task_result(query_tasks.query_monthly_raid_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Monthly Raid Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Monthly Raid Grouped API tasks sucessfuly")
 
@@ -1984,7 +1988,7 @@ async def hourly_raid_total_stats_metrics(request: Request, secret: str = Depend
 
     try:
         # Fetch data for metrics
-        hourly_raid_total_stats = get_task_result(query_hourly_raid_total_stats_api)
+        hourly_raid_total_stats = get_task_result(query_tasks.query_hourly_raid_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Hourly Raid Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Hourly Raid Total API tasks sucessfuly")
 
@@ -2025,7 +2029,7 @@ async def daily_raid_total_stats_metrics(request: Request, secret: str = Depends
 
     try:
         # Fetch data for metrics
-        daily_raid_total_stats = get_task_result(query_daily_raid_total_stats_api)
+        daily_raid_total_stats = get_task_result(query_tasks.query_daily_raid_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Raid Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Raid Total API tasks sucessfuly")
 
@@ -2066,12 +2070,12 @@ async def total_raid_total_stats_metrics(request: Request, secret: str = Depends
 
     try:
         # Fetch data for metrics
-        total_raid_total_stats = get_task_result(query_total_raid_total_stats_api)
+        total_raid_total_stats = get_task_result(query_tasks.query_total_raid_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Total Raid Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Total Raid Total API tasks sucessfuly")
 
         # Format each result set
-        formatted_total_raid_total_stats = format_results_to_victoria(total_raid_total_stats, 'psyduck_total_raid_total_stats') 
+        formatted_total_raid_total_stats = format_results_to_victoria(total_raid_total_stats, 'psyduck_total_raid_total_stats')
         console_logger.debug(f"Formatted Total Raid Total stats for VictoriaMetrics")
         file_logger.debug(f"Formatted Total Raid Total stats for VictoriaMetrics")
 
@@ -2108,7 +2112,7 @@ async def daily_invasion_grouped_stats_metrics(request: Request, secret: str = D
 
     try:
         # Fetch data for metrics
-        daily_invasion_grouped_stats = get_task_result(query_daily_invasion_grouped_stats_api)
+        daily_invasion_grouped_stats = get_task_result(query_tasks.query_daily_invasion_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Invasion Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Invasion Grouped API tasks sucessfuly")
 
@@ -2149,7 +2153,7 @@ async def weekly_invasion_grouped_stats_metrics(request: Request, secret: str = 
 
     try:
         # Fetch data for metrics
-        weekly_invasion_grouped_stats = get_task_result(query_weekly_invasion_grouped_stats_api)
+        weekly_invasion_grouped_stats = get_task_result(query_tasks.query_weekly_invasion_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Weekly Invasion Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Weekly Invasion Grouped API tasks sucessfuly")
 
@@ -2190,7 +2194,7 @@ async def monthly_invasion_grouped_stats_metrics(request: Request, secret: str =
 
     try:
         # Fetch data for metrics
-        monthly_invasion_grouped_stats = get_task_result(query_monthly_invasion_grouped_stats_api)
+        monthly_invasion_grouped_stats = get_task_result(query_tasks.query_monthly_invasion_grouped_stats_api)
         console_logger.info(f"Cache Miss. Fetched Monthly Invasion Grouped API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Monthly Invasion Grouped API tasks sucessfuly")
 
@@ -2231,7 +2235,7 @@ async def hourly_invasions_total_stats_metrics(request: Request, secret: str = D
 
     try:
         # Fetch data for metrics
-        hourly_invasions_total_stats = get_task_result(query_hourly_invasions_total_stats_api)
+        hourly_invasions_total_stats = get_task_result(query_tasks.query_hourly_invasions_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Hourly Invasion Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Hourly Invasion Total API tasks sucessfuly")
 
@@ -2272,7 +2276,7 @@ async def daily_invasions_total_stats_metrics(request: Request, secret: str = De
 
     try:
         # Fetch data for metrics
-        daily_invasions_total_stats = get_task_result(query_daily_invasions_total_stats_api)
+        daily_invasions_total_stats = get_task_result(query_tasks.query_daily_invasions_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Invasion Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Invasion Total API tasks sucessfuly")
 
@@ -2313,7 +2317,7 @@ async def total_invasions_total_stats_metrics(request: Request, secret: str = De
 
     try:
         # Fetch data for metrics
-        total_invasions_total_stats = get_task_result(query_total_invasions_total_stats_api)
+        total_invasions_total_stats = get_task_result(query_tasks.query_total_invasions_total_stats_api)
         console_logger.info(f"Cache Miss. Fetched Total Invasion Total API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Total Invasion Total API tasks sucessfuly")
 
@@ -2355,7 +2359,7 @@ async def hourly_pokemon_tth_stats_metrics(request: Request, secret: str = Depen
 
     try:
         # Fetch data for metrics
-        hourly_pokemon_tth_stats = get_task_result(query_hourly_pokemon_tth_stats_api)
+        hourly_pokemon_tth_stats = get_task_result(query_tasks.query_hourly_pokemon_tth_stats_api)
         console_logger.info(f"Cache Miss. Fetched Hourly Pokemon TTH API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Hourly Pokemon TTH API tasks sucessfuly")
 
@@ -2396,7 +2400,7 @@ async def daily_pokemon_tth_stats_metrics(request: Request, secret: str = Depend
 
     try:
         # Fetch data for metrics
-        daily_pokemon_tth_stats = get_task_result(query_daily_pokemon_tth_stats_api)
+        daily_pokemon_tth_stats = get_task_result(query_tasks.query_daily_pokemon_tth_stats_api)
         console_logger.info(f"Cache Miss. Fetched Daily Pokemon TTH API task sucessfuly")
         file_logger.info(f"Cache Miss. Fetched Daily Pokemon TTH API tasks sucessfuly")
 
