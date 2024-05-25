@@ -47,8 +47,11 @@ def get_current_version(cursor):
         cursor.execute("SELECT MAX(version) FROM schema_version")
         result = cursor.fetchone()
         return result[0] if result and result[0] else 0
+    except (OperationalError, ProgrammingError) as e:
+        logger.warning(f"Error getting current version (assuming initial state): {e}")
+        return 0
     except Exception as e:
-        logger.error(f"Error getting current version: {e}")
+        logger.error(f"Unexpected error getting current version: {e}")
         raise
 
 def apply_migration(cursor, filename):
