@@ -106,7 +106,7 @@ async def startup_event():
         refresh_task = asyncio.create_task(refresh_geofences())
     except httpx.HTTPError as e:
         console_logger.error(f"Failed to fetch geofences: {e}")
-        file_Logger.error(f"Failed to fetch geofences: {e}")
+        file_logger.error(f"Failed to fetch geofences: {e}")
 
 
 @backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=app_config.max_tries_geofences, jitter=None, factor=app_config.retry_delay_mult_geofences)
@@ -167,9 +167,9 @@ async def receive_data(request: Request):
     await validate_remote_addr(request)
     console_logger.debug(f"Queue size before processing: {len(data_queue)}")
     file_logger.debug(f"Queue size before processing: {len(data_queue)}")
-    async with data_queue_lock: 
+    async with data_queue_lock:
         data = await request.json()
- 
+
     geofences = geofence_cache.get('geofences', [])
     if not geofences:
         console_logger.info("No geofences matched.")
@@ -551,7 +551,7 @@ def invasion_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Invasion queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Invasion queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Invasion queue")
@@ -583,7 +583,7 @@ def raid_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Raid queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Raid queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Raid queue")
@@ -614,7 +614,7 @@ def quest_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Quests queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Quests queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Quests queue")
@@ -646,7 +646,7 @@ def process_full_queue():
             console_logger.error(f"Error processing Pokemon queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Pokemon queue on attempt {retry_count}: {e}")
             time.sleep(app_config.retry_delay)
-    
+
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Pokemon queue")
         file_logger.error("Maximum retry attempts reached. Unable to process Pokemon queue")
