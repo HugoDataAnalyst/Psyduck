@@ -594,6 +594,16 @@ def create_events(conn):
 	else:
 		print("Database cleaning event skipped as per configuration.")
 
+def update_schema_version(conn, version):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO schema_version (version) VALUES (%s)", (version,))
+        conn.commit()
+        cursor.close()
+    except Exception as e:
+        print(f"Error updating schema version: {e}")
+        conn.rollback()
+
 def create_database_schema():
 	conn = connect_to_database()
 	if conn:
@@ -602,9 +612,9 @@ def create_database_schema():
 		create_tables(conn)
 		create_procedures(conn)
 		create_events(conn)
+		update_schema_version(conn, 0)
 		conn.close()
 	print("Schema created sucessfully")
 
 if __name__ == '__main__':
 		create_database_schema()
-

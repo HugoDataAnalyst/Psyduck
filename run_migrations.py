@@ -6,6 +6,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 from config.app_config import app_config
+import subprocess
 
 # Configure logging
 log_file = app_config.migration_log_file
@@ -69,7 +70,19 @@ def run_migrations():
         conn = pymysql.connect(**db_config, client_flag=pymysql.constants.CLIENT.MULTI_STATEMENTS)
         cursor = conn.cursor()
         current_version = get_current_version(cursor)
-    
+
+        if current_version == 0:
+            # Run create_database_schema.py if version is 0
+            logger.info("Running initial schema creation script.")
+            try:
+                result = subprocess.run(['python', 'SQL/create_database_schema.py'], check=True, capture_output=True, text=True)
+                logger.info(result.stdout)
+                if result.stderr:
+                    logger.error(result.stderr)
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Error running create_database_schema.py: {e.stderr}")
+                raise
+
         migration_files = sorted([f for f in os.listdir('migrations') if f.endswith('.sql')])
         migrations_applied = False
 
