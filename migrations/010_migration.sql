@@ -11,6 +11,7 @@ RENAME TABLE total_api_pokemon_stats TO pokemon_total_stats;
 -- Redo Events and Procedures
 DROP EVENT IF EXISTS event_update_api_daily_stats;
 
+DROP PROCEDURE IF EXISTS update_daily_pokemon_grouped_stats;
 CREATE PROCEDURE update_daily_pokemon_grouped_stats()
 BEGIN
     TRUNCATE TABLE daily_pokemon_grouped_stats;
@@ -45,6 +46,7 @@ CALL update_daily_pokemon_grouped_stats();
 
 DROP EVENT IF EXISTS event_update_api_weekly_stats;
 
+DROP PROCEDURE IF EXISTS update_weekly_pokemon_grouped_stats;
 CREATE PROCEDURE update_weekly_pokemon_grouped_stats()
 BEGIN
     TRUNCATE TABLE weekly_pokemon_grouped_stats;
@@ -80,6 +82,7 @@ CALL update_weekly_pokemon_grouped_stats();
 
 DROP EVENT IF EXISTS event_update_api_monthly_stats;
 
+DROP PROCEDURE IF EXISTS update_monthly_pokemon_grouped_stats;
 CREATE PROCEDURE update_monthly_pokemon_grouped_stats()
 BEGIN
     TRUNCATE TABLE monthly_pokemon_grouped_stats;
@@ -115,6 +118,7 @@ CALL update_monthly_pokemon_grouped_stats();
 
 DROP EVENT IF EXISTS event_store_daily_grouped_stats;
 
+DROP PROCEDURE IF EXISTS store_pokemon_grouped_stats;
 CREATE PROCEDURE store_pokemon_grouped_stats()
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_grouped_pokemon_sightings AS
@@ -154,6 +158,7 @@ CALL store_pokemon_grouped_stats();
 
 DROP EVENT IF EXISTS event_store_daily_total_api_stats;
 
+DROP PROCEDURE IF EXISTS store_pokemon_total_stats;
 CREATE PROCEDURE store_pokemon_total_stats()
 BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings AS
@@ -188,6 +193,7 @@ CALL store_pokemon_total_stats();
 
 DROP EVENT IF EXISTS event_update_daily_total_api_stats;
 
+DROP PROCEDURE IF EXISTS update_daily_pokemon_total_stats;
 CREATE PROCEDURE update_daily_pokemon_total_stats()
 BEGIN
     TRUNCATE TABLE daily_pokemon_total_stats;
@@ -219,6 +225,7 @@ DROP EVENT IF EXISTS event_update_hourly_total_stats;
 
 DROP PROCEDURE IF EXISTS update_hourly_total_stats;
 
+DROP PROCEDURE IF EXISTS update_hourly_pokemon_total_stats;
 CREATE PROCEDURE update_hourly_pokemon_total_stats()
 BEGIN
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_hourly_total_stats AS
@@ -270,6 +277,7 @@ CALL update_hourly_pokemon_total_stats();
 
 DROP EVENT IF EXISTS event_update_total_api_stats;
 
+DROP PROCEDURE IF EXISTS update_pokemon_total_stats;
 CREATE PROCEDURE update_pokemon_total_stats()
 BEGIN
 	INSERT INTO total_api_pokemon_stats (area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
