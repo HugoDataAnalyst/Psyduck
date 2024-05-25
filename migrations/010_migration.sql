@@ -302,4 +302,8 @@ DO
 CALL update_pokemon_total_stats();
 
 -- Add the schema_version 0
-INSERT INTO schema_version (version) VALUES (0);
+INSERT INTO schema_version (version)
+SELECT 0
+FROM (SELECT 1) AS dummy
+LEFT JOIN schema_version sv ON sv.version = 0
+WHERE sv.version IS NULL;
