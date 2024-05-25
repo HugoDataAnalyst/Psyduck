@@ -24,11 +24,7 @@ db_config = {
 }
 
 async def init():
-    register_tortoise(
-        None,  # You can pass an app instance here if you have one
-        config=db_config,
-        generate_schemas=False  # Set to True if you want to generate schemas automatically
-    )
+    await Tortoise.init(config=db_config)
     # Can explore the code below to fully generate the database and its full schema on another time. Since it doesn't deal with versions by nature.
     # await Tortoise.generate_schemas()
 
