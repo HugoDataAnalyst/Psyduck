@@ -54,6 +54,14 @@ def get_current_version(cursor):
         logger.error(f"Unexpected error getting current version: {e}")
         raise
 
+def check_schema_version_table(cursor):
+    try:
+        cursor.execute("SHOW TABLES LIKE 'schema_version'")
+        return bool(cursor.fetchone())
+    except Exception as e:
+        logger.error(f"Error checking schema_version table: {e}")
+        raise
+
 def apply_migration(cursor, filename):
     try:
         with open(filename, 'r') as file:
@@ -72,10 +80,11 @@ def run_migrations():
     try:
         conn = pymysql.connect(**db_config, client_flag=pymysql.constants.CLIENT.MULTI_STATEMENTS)
         cursor = conn.cursor()
-        current_version = get_current_version(cursor)
+        # Check if the schema_version table exists
+        schema_version_exists = check_schema_version_table(cursor)
 
-        if current_version == 0:
-            # Run create_database_schema.py if version is 0
+        if not schema_version_exists:
+            # Run create_database_schema.py if the schema_version table does not exist
             logger.info("Running initial schema creation script.")
             try:
                 result = subprocess.run(['python', 'SQL/create_database_schema.py'], check=True, capture_output=True, text=True)
@@ -85,6 +94,9 @@ def run_migrations():
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error running create_database_schema.py: {e.stderr}")
                 raise
+
+        # Get the current schema version
+        current_version = get_current_version(cursor)
 
         migration_files = sorted([f for f in os.listdir('migrations') if f.endswith('.sql')])
         migrations_applied = False
