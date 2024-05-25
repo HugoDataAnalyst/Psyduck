@@ -1,4 +1,4 @@
-from tortoise import Tortoise, run_async
+from tortoise import Tortoise
 from config.app_config import app_config
 
 async def init():
