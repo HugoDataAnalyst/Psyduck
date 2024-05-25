@@ -12,6 +12,7 @@ import asyncio
 from processor.celery_app import celery
 from config.app_config import app_config
 from processor.tasks import insert_data_task, generate_unique_id, insert_quest_data_task, insert_raid_data_task, insert_invasion_data_task
+from utils.geofence_timezones import get_current_time_in_geofence_timezone
 from threading import Lock, Thread
 import time
 from cachetools import TTLCache
@@ -276,6 +277,9 @@ async def receive_data(request: Request):
                             message.get('disappear_time'),
                             message.get('first_seen')
                         )
+                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
+                        file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         filtered_data = {
                             'pokemon_id': message['pokemon_id'],
                             'form': message['form'],
@@ -285,7 +289,8 @@ async def receive_data(request: Request):
                             **extract_pvp_ranks(message.get('pvp', {})),
                             'shiny':message['shiny'],
                             'area_name': geofence_name,
-                            'despawn_time': despawn_time
+                            'despawn_time': despawn_time,
+                            'inserted_at': inserted_at
                         }
 
                         item_unique_id = generate_unique_id(filtered_data)
@@ -309,9 +314,13 @@ async def receive_data(request: Request):
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
                         rewards_extracted = extract_quest_rewards(message.get('rewards', []))
+                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
+                        file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         quest_data_to_store = {
                             'pokestop_id': message.get('pokestop_id'),
                             'area_name': geofence_name,
+                            'inserted_at': inserted_at,
                             # Initialize as None by default
                             'ar_type': None,
                             'normal_type': None,
@@ -377,6 +386,9 @@ async def receive_data(request: Request):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
+                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
+                        file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         raid_data_to_store = {
                             'gym_id': message['gym_id'],
                             'ex_raid_eligible': message['ex_raid_eligible'],
@@ -386,6 +398,7 @@ async def receive_data(request: Request):
                             'form': message['form'],
                             'costume': message['costume'],
                             'area_name': geofence_name,
+                            'inserted_at': inserted_at,
                         }
 
                         # Generate unique ID for Raids
@@ -414,12 +427,16 @@ async def receive_data(request: Request):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name = is_inside_geofence(lat, lon, geofences)
                     if inside:
+                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
+                        file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         invasion_data_to_store = {
                             'pokestop_id': message['pokestop_id'],
                             'display_type': message['display_type'],
                             'character': message['character'],
                             'confirmed': message['confirmed'],
                             'area_name': geofence_name,
+                            'inserted_at': inserted_at,
                         }
 
                         # Generate unique ID for Invasions
