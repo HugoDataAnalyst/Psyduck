@@ -300,3 +300,6 @@ ON SCHEDULE EVERY 1 DAY
 STARTS ADDDATE(ADDDATE(CURDATE(), INTERVAL 1 DAY), INTERVAL '1:15' HOUR_MINUTE)
 DO
 CALL update_pokemon_total_stats();
+
+-- Add the schema_version 0
+INSERT INTO schema_version (version) VALUES (0);
