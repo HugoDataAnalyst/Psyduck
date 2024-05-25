@@ -1,12 +1,44 @@
 -- Let's rename the old tables accordingly
-RENAME TABLE daily_api_pokemon_stats TO daily_pokemon_grouped_stats;
-RENAME TABLE weekly_api_pokemon_stats TO weekly_pokemon_grouped_stats;
-RENAME TABLE monthly_api_pokemon_stats TO monthly_pokemon_grouped_stats;
-RENAME TABLE daily_total_storage_pokemon_stats TO storage_pokemon_total_stats;
-RENAME TABLE daily_total_api_pokemon_stats TO daily_pokemon_total_stats;
-RENAME TABLE grouped_total_daily_pokemon_stats TO storage_pokemon_grouped_stats;
-RENAME TABLE hourly_total_api_pokemon_stats TO hourly_pokemon_total_stats;
-RENAME TABLE total_api_pokemon_stats TO pokemon_total_stats;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'daily_api_pokemon_stats'),
+           RENAME TABLE daily_api_pokemon_stats TO daily_pokemon_grouped_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'weekly_api_pokemon_stats'),
+           RENAME TABLE weekly_api_pokemon_stats TO weekly_pokemon_grouped_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'monthly_api_pokemon_stats'),
+           RENAME TABLE monthly_api_pokemon_stats TO monthly_pokemon_grouped_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'daily_total_storage_pokemon_stats'),
+           RENAME TABLE daily_total_storage_pokemon_stats TO storage_pokemon_total_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'daily_total_api_pokemon_stats'),
+           RENAME TABLE daily_total_api_pokemon_stats TO daily_pokemon_total_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'grouped_total_daily_pokemon_stats'),
+           RENAME TABLE grouped_total_daily_pokemon_stats TO storage_pokemon_grouped_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'hourly_total_api_pokemon_stats'),
+           RENAME TABLE hourly_total_api_pokemon_stats TO hourly_pokemon_total_stats,
+           NULL) AS result;
+SELECT IF(EXISTS (SELECT * FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'total_api_pokemon_stats'),
+           RENAME TABLE total_api_pokemon_stats TO pokemon_total_stats,
+           NULL) AS result;
 
 -- Redo Events and Procedures
 DROP EVENT IF EXISTS event_update_api_daily_stats;
