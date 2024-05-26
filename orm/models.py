@@ -16,7 +16,7 @@ class PokemonSightings(models.Model):
     inserted_at = fields.DatetimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "pokemon_sightings"
+        table = "pokemon_sightings"
         indexes = [
             ('inserted_at',),
             ('pokemon_id', 'form', 'area_name'),
@@ -40,7 +40,7 @@ class StoragePokemonGroupedStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "storage_pokemon_grouped_stats"
+        table = "storage_pokemon_grouped_stats"
         unique_together = ("day", "pokemon_id", "form", "area_name")
 
 class StoragePokemonTotalStats(models.Model):
@@ -56,7 +56,7 @@ class StoragePokemonTotalStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "storage_pokemon_total_stats"
+        table = "storage_pokemon_total_stats"
         unique_together = ("day", "area_name")
 
 class DailyPokemonGroupedStats(models.Model):
@@ -76,7 +76,7 @@ class DailyPokemonGroupedStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "daily_pokemon_grouped_stats"
+        table = "daily_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
 class WeeklyPokemonGroupedStats(models.Model):
@@ -96,7 +96,7 @@ class WeeklyPokemonGroupedStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "weekly_pokemon_grouped_stats"
+        table = "weekly_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
 class MonthlyPokemonGroupedStats(models.Model):
@@ -116,7 +116,7 @@ class MonthlyPokemonGroupedStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "monthly_pokemon_grouped_stats"
+        table = "monthly_pokemon_grouped_stats"
         unique_together = ("pokemon_id", "form", "area_name")
 
 class HourlyPokemonTotalStats(models.Model):
@@ -131,7 +131,7 @@ class HourlyPokemonTotalStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "hourly_pokemon_total_stats"
+        table = "hourly_pokemon_total_stats"
         unique_together = ("area_name",)
 
 class DailyPokemonTotalStats(models.Model):
@@ -147,7 +147,7 @@ class DailyPokemonTotalStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "daily_pokemon_total_stats"
+        table = "daily_pokemon_total_stats"
         unique_together = ("day", "area_name")
 
 class PokemonTotalStats(models.Model):
@@ -162,7 +162,7 @@ class PokemonTotalStats(models.Model):
     avg_despawn = fields.FloatField()
 
     class Meta:
-        db_table = "pokemon_total_stats"
+        table = "pokemon_total_stats"
         unique_together = ("area_name",)
 
 class QuestSightings(models.Model):
@@ -184,7 +184,7 @@ class QuestSightings(models.Model):
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
-        db_table = "quest_sightings"
+        table = "quest_sightings"
         indexes = [
             ('inserted_at',),
             ('area_name',),
@@ -210,7 +210,7 @@ class RaidSightings(models.Model):
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
-        db_table = "raid_sightings"
+        table = "raid_sightings"
         indexes = [
             ('inserted_at',),
             ('area_name',),
@@ -230,7 +230,7 @@ class InvasionSightings(models.Model):
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
-        db_table = "invasion_sightings"
+        table = "invasion_sightings"
         indexes = [
             ('display_type',),
             ('grunt',),
@@ -252,7 +252,7 @@ class HourlySurgeStoragePokemonStats(models.Model):
     total_shiny = fields.IntField()
 
     class Meta:
-        db_table = "hourly_surge_storage_pokemon_stats"
+        table = "hourly_surge_storage_pokemon_stats"
         unique_together = ("hour",)
 
 class DailySurgePokemonStats(models.Model):
@@ -265,7 +265,7 @@ class DailySurgePokemonStats(models.Model):
     total_shiny = fields.IntField()
 
     class Meta:
-        db_table = "daily_surge_pokemon_stats"
+        table = "daily_surge_pokemon_stats"
         unique_together = ("hour",)
 
 class WeeklySurgePokemonStats(models.Model):
@@ -278,7 +278,7 @@ class WeeklySurgePokemonStats(models.Model):
     total_shiny = fields.IntField()
 
     class Meta:
-        db_table = "weekly_surge_pokemon_stats"
+        table = "weekly_surge_pokemon_stats"
         unique_together = ("hour",)
 
 class MonthlySurgePokemonStats(models.Model):
@@ -291,7 +291,7 @@ class MonthlySurgePokemonStats(models.Model):
     total_shiny = fields.IntField()
 
     class Meta:
-        db_table = "monthly_surge_pokemon_stats"
+        table = "monthly_surge_pokemon_stats"
         unique_together = ("hour",)
 
 class TotalPokestops(models.Model):
@@ -300,7 +300,7 @@ class TotalPokestops(models.Model):
     total_stops = fields.IntField()
 
     class Meta:
-        db_table = "total_pokestops"
+        table = "total_pokestops"
         unique_together = ("day", "area_name")
 
 class StorageQuestGroupedStats(models.Model):
@@ -321,7 +321,7 @@ class StorageQuestGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "storage_quest_grouped_stats"
+        table = "storage_quest_grouped_stats"
         unique_together = ("day", "area_name")
 
 class StorageRaidGroupedStats(models.Model):
@@ -336,7 +336,7 @@ class StorageRaidGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "storage_raid_grouped_stats"
+        table = "storage_raid_grouped_stats"
         unique_together = ("day", "area_name")
 
 class StorageInvasionGroupedStats(models.Model):
@@ -347,7 +347,7 @@ class StorageInvasionGroupedStats(models.Model):
     total_grunts = fields.IntField()
 
     class Meta:
-        db_table = "storage_invasion_grouped_stats"
+        table = "storage_invasion_grouped_stats"
         unique_together = ("day", "area_name")
 
 class StorageQuestTotalStats(models.Model):
@@ -358,7 +358,7 @@ class StorageQuestTotalStats(models.Model):
     normal = fields.IntField()
 
     class Meta:
-        db_table = "storage_quest_total_stats"
+        table = "storage_quest_total_stats"
         unique_together = ("day", "area_name")
 
 class StorageRaidTotalStats(models.Model):
@@ -369,7 +369,7 @@ class StorageRaidTotalStats(models.Model):
     total_exclusive = fields.IntField()
 
     class Meta:
-        db_table = "storage_raid_total_stats"
+        table = "storage_raid_total_stats"
         unique_together = ("day", "area_name")
 
 class StorageInvasionTotalStats(models.Model):
@@ -380,7 +380,7 @@ class StorageInvasionTotalStats(models.Model):
     total_unconfirmed = fields.IntField()
 
     class Meta:
-        db_table = "storage_invasion_total_stats"
+        table = "storage_invasion_total_stats"
         unique_together = ("day", "area_name")
 
 class DailyQuestGroupedStats(models.Model):
@@ -401,7 +401,7 @@ class DailyQuestGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "daily_quest_grouped_stats"
+        table = "daily_quest_grouped_stats"
         unique_together = ("day", "area_name")
 
 class WeeklyQuestGroupedStats(models.Model):
@@ -422,7 +422,7 @@ class WeeklyQuestGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "weekly_quest_grouped_stats"
+        table = "weekly_quest_grouped_stats"
         unique_together = ("day", "area_name")
 
 class MonthlyQuestGroupedStats(models.Model):
@@ -443,7 +443,7 @@ class MonthlyQuestGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "monthly_quest_grouped_stats"
+        table = "monthly_quest_grouped_stats"
         unique_together = ("day", "area_name")
 
 class DailyRaidGroupedStats(models.Model):
@@ -458,7 +458,7 @@ class DailyRaidGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "daily_raid_grouped_stats"
+        table = "daily_raid_grouped_stats"
         unique_together = ("day", "area_name")
 
 class WeeklyRaidGroupedStats(models.Model):
@@ -473,7 +473,7 @@ class WeeklyRaidGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "weekly_raid_grouped_stats"
+        table = "weekly_raid_grouped_stats"
         unique_together = ("day", "area_name")
 
 class MonthlyRaidGroupedStats(models.Model):
@@ -488,7 +488,7 @@ class MonthlyRaidGroupedStats(models.Model):
     total = fields.IntField()
 
     class Meta:
-        db_table = "monthly_raid_grouped_stats"
+        table = "monthly_raid_grouped_stats"
         unique_together = ("day", "area_name")
 
 class DailyInvasionGroupedStats(models.Model):
@@ -499,7 +499,7 @@ class DailyInvasionGroupedStats(models.Model):
     total_grunts = fields.IntField()
 
     class Meta:
-        db_table = "daily_invasion_grouped_stats"
+        table = "daily_invasion_grouped_stats"
         unique_together = ("day", "area_name")
 
 class WeeklyInvasionGroupedStats(models.Model):
@@ -510,7 +510,7 @@ class WeeklyInvasionGroupedStats(models.Model):
     total_grunts = fields.IntField()
 
     class Meta:
-        db_table = "weekly_invasion_grouped_stats"
+        table = "weekly_invasion_grouped_stats"
         unique_together = ("day", "area_name")
 
 class MonthlyInvasionGroupedStats(models.Model):
@@ -521,7 +521,7 @@ class MonthlyInvasionGroupedStats(models.Model):
     total_grunts = fields.IntField()
 
     class Meta:
-        db_table = "monthly_invasion_grouped_stats"
+        table = "monthly_invasion_grouped_stats"
         unique_together = ("day", "area_name")
 
 class DailyQuestTotalStats(models.Model):
@@ -532,7 +532,7 @@ class DailyQuestTotalStats(models.Model):
     normal = fields.IntField()
 
     class Meta:
-        db_table = "daily_quest_total_stats"
+        table = "daily_quest_total_stats"
         unique_together = ("day", "area_name")
 
 class QuestTotalStats(models.Model):
@@ -541,7 +541,7 @@ class QuestTotalStats(models.Model):
     normal = fields.BigIntField()
 
     class Meta:
-        db_table = "quest_total_stats"
+        table = "quest_total_stats"
         unique_together = ("area_name",)
 
 class HourlyRaidTotalStats(models.Model):
@@ -551,7 +551,7 @@ class HourlyRaidTotalStats(models.Model):
     total_exclusive = fields.IntField()
 
     class Meta:
-        db_table = "hourly_raid_total_stats"
+        table = "hourly_raid_total_stats"
         unique_together = ("area_name",)
 
 class DailyRaidTotalStats(models.Model):
@@ -562,7 +562,7 @@ class DailyRaidTotalStats(models.Model):
     total_exclusive = fields.IntField()
 
     class Meta:
-        db_table = "daily_raid_total_stats"
+        table = "daily_raid_total_stats"
         unique_together = ("day", "area_name")
 
 class RaidTotalStats(models.Model):
@@ -572,7 +572,7 @@ class RaidTotalStats(models.Model):
     total_exclusive = fields.BigIntField()
 
     class Meta:
-        db_table = "raid_total_stats"
+        table = "raid_total_stats"
         unique_together = ("area_name",)
 
 class HourlyInvasionTotalStats(models.Model):
@@ -582,7 +582,7 @@ class HourlyInvasionTotalStats(models.Model):
     total_unconfirmed = fields.IntField()
 
     class Meta:
-        db_table = "hourly_invasion_total_stats"
+        table = "hourly_invasion_total_stats"
         unique_together = ("area_name",)
 
 class DailyInvasionTotalStats(models.Model):
@@ -593,7 +593,7 @@ class DailyInvasionTotalStats(models.Model):
     total_unconfirmed = fields.IntField()
 
     class Meta:
-        db_table = "daily_invasion_total_stats"
+        table = "daily_invasion_total_stats"
         unique_together = ("day", "area_name")
 
 class InvasionTotalStats(models.Model):
@@ -603,7 +603,7 @@ class InvasionTotalStats(models.Model):
     total_unconfirmed = fields.BigIntField()
 
     class Meta:
-        db_table = "invasion_total_stats"
+        table = "invasion_total_stats"
         unique_together = ("area_name",)
 
 class StorageHourlyPokemonTthStats(models.Model):
@@ -623,7 +623,7 @@ class StorageHourlyPokemonTthStats(models.Model):
     tth_55_plus = fields.IntField()
 
     class Meta:
-        db_table = "storage_hourly_pokemon_tth_stats"
+        table = "storage_hourly_pokemon_tth_stats"
         unique_together = ("area_name", "day_hour")
 
 class HourlyPokemonTthStats(models.Model):
@@ -642,7 +642,7 @@ class HourlyPokemonTthStats(models.Model):
     tth_55_plus = fields.IntField()
 
     class Meta:
-        db_table = "hourly_pokemon_tth_stats"
+        table = "hourly_pokemon_tth_stats"
         unique_together = ("area_name",)
 
 class DailyPokemonTthStats(models.Model):
@@ -662,5 +662,5 @@ class DailyPokemonTthStats(models.Model):
     total_tth_55_plus = fields.IntField()
 
     class Meta:
-        db_table = "daily_pokemon_tth_stats"
+        table = "daily_pokemon_tth_stats"
         unique_together = ("area_name", "hour")

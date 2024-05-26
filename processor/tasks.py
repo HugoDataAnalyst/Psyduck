@@ -107,8 +107,8 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             loop = asyncio.get_event_loop()
-            insert_poke_data = partial(self.insert_pokemon_data, data_batch)
-            loop.run_in_executor(None, insert_poke_data).result()
+            instance = DatabaseOperations()
+            loop.run_until_complete(instance.insert_pokemon_data(data_batch))
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Pokemon records"
@@ -137,8 +137,8 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             loop = asyncio.get_event_loop()
-            insert_quest = partial(self.insert_quest_data, data_batch)
-            loop.run_in_executor(None, insert_quest).result()
+            instance = DatabaseOperations()
+            loop.run_until_complete(instance.insert_quest_data(data_batch))
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Quest records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Quest records"
@@ -167,8 +167,8 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             loop = asyncio.get_event_loop()
-            insert_raid = partial(self.insert_raid_data, data_batch)
-            loop.run_in_executor(None, insert_raid).result()
+            instance = DatabaseOperations()
+            loop.run_until_complete(instance.insert_raid_data(data_batch))
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Raid records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Raid records"
@@ -197,8 +197,8 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             loop = asyncio.get_event_loop()
-            insert_invasion = partial(self.insert_invasion_data, data_batch)
-            loop.run_in_executor(None, insert_invasion).result()
+            instance = DatabaseOperations()
+            loop.run_until_complete(instance.insert_invasion_data(data_batch))
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Invasion records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Invasion records"
