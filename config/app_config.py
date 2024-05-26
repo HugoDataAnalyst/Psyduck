@@ -69,5 +69,10 @@ class AppConfig:
         self.api_allowed_ips = config['api']['ALLOWED_IPS'].split(", ")
         self.api_header_name = config['api']['HEADER_NAME']
         self.api_path_restriction = config['api']['PATH_RESTRICTION'].lower() == 'true'
+        self.apscheduler_log_level = config['apscheduler']['LOG_LEVEL']
+        self.apscheduler_console_log_level = config['apscheduler']['CONSOLE_LOG_LEVEL']
+        self.apscheduler_log_file = config['apscheduler']['LOG_FILE']
+        self.apscheduler_log_max_bytes = int(config['apscheduler']['LOG_MAX_BYTES'])
+        self.apscheduler_max_log_files = int(config['apscheduler']['MAX_LOG_FILES'])
 
 app_config = AppConfig()

@@ -69,5 +69,12 @@
 		"IP_RESTRICTION": "true",
 		"ALLOWED_IPS": "127.0.0.1, 192.168.1.100, 192.168.1.105",
 		"PATH_RESTRICTION": "true"
+	},
+	"apscheduler": {
+		"CONSOLE_LOG_LEVEL": "INFO",
+		"LOG_LEVEL": "INFO",
+		"LOG_FILE": "logs/apscheduler.log",
+		"LOG_MAX_BYTES": "1048576",
+		"MAX_LOG_FILES": "5"
 	}
 }
