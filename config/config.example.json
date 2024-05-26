@@ -25,7 +25,8 @@
 		"LOG_LEVEL": "INFO",
 		"LOG_FILE": "logs/receiver_logger.log",
 		"LOG_MAX_BYTES": "1048576",
-		"MAX_LOG_FILES": "5"
+		"MAX_LOG_FILES": "5",
+		"DEFAULT_TIMEZONE": "Europe/Lisbon"
 	},
 	"database": {
 		"HOST": "db_host",

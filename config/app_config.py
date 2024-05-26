@@ -16,6 +16,7 @@ class AppConfig:
         self.max_tries_geofences = int(config['koji']['MAX_TRIES_GEOFENCES'])
         self.retry_delay_mult_geofences = int(config['koji']['RETRY_DELAY_MULT_GEOFENCES'])
         self.allow_webhook_host = config['receiver']['ALLOW_WEBHOOK_HOST']
+        self.default_timezone = config['receiver']['DEFAULT_TIMEZONE']
         self.receiver_host = config['receiver']['HOST']
         self.receiver_port = int(config['receiver']['PORT'])
         self.receiver_workers = int(config['receiver']['WORKERS'])
