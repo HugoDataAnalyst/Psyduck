@@ -24,6 +24,16 @@ log_file = app_config.celery_log_file
 max_bytes = app_config.celery_log_max_bytes
 backup_count = app_config.celery_max_log_files
 
+# Helper function to run async code within sync task
+def run_async(func, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    if loop.is_running():
+        coro = func(*args, **kwargs)
+        task = asyncio.ensure_future(coro)
+        loop.run_until_complete(task)
+    else:
+        loop.run_until_complete(func(*args, **kwargs))
+
 # Organises Area based APIs
 def organize_results(results):
     organized_results = {}
@@ -80,7 +90,7 @@ class CeleryTasks(DatabaseOperations):
 
     # Pokemon Insert task
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def insert_data_task(self, data_batch, unique_id):
+    def insert_data_task(self, data_batch, unique_id):
         celery_logger.debug(f"Pokemon Task received with unique_id: {unique_id}")
 
         if redis_client.get(unique_id):
@@ -90,7 +100,7 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            await self.insert_pokemon_data(data_batch)
+            run_async(self.insert_pokemon_data, data_batch)
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Pokemon records"
@@ -108,7 +118,7 @@ class CeleryTasks(DatabaseOperations):
 
     # Quest Insert Task
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def insert_quest_data_task(self, data_batch, unique_id):
+    def insert_quest_data_task(self, data_batch, unique_id):
         celery_logger.debug(f"Quest Task received with unique_id: {unique_id}")
 
         if redis_client.get(unique_id):
@@ -118,7 +128,7 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            await self.insert_quest_data(data_batch)
+            run_async(self.insert_quest_data, data_batch)
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Quest records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Quest records"
@@ -136,7 +146,7 @@ class CeleryTasks(DatabaseOperations):
 
     # Raid Insert Task
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def insert_raid_data_task(self, data_batch, unique_id):
+    def insert_raid_data_task(self, data_batch, unique_id):
         celery_logger.debug(f"Raid Task received with unique_id: {unique_id}")
 
         if redis_client.get(unique_id):
@@ -146,7 +156,7 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            await self.insert_raid_data(data_batch)
+            run_async(self.insert_raid_data, data_batch)
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Raid records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Raid records"
@@ -164,7 +174,7 @@ class CeleryTasks(DatabaseOperations):
 
     # Invasion Insert Task
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def insert_invasion_data_task(self, data_batch, unique_id):
+    def insert_invasion_data_task(self, data_batch, unique_id):
         celery_logger.debug(f"Invasion Task received with unique_id: {unique_id}")
 
         if redis_client.get(unique_id):
@@ -174,7 +184,7 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            await self.insert_invasion_data(data_batch)
+            run_async(self.insert_invasion_data, data_batch)
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Invasion records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Invasion records"
