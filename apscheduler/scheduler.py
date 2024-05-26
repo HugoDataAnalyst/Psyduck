@@ -73,7 +73,7 @@ async def run_example_obtain_total_stops():
 
 def start_scheduler():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(run_example_obtain_total_stops, CronTrigger(hour=0, minute=0))  # Schedule to run daily at midnight
+    job = scheduler.add_job(run_example_obtain_total_stops, CronTrigger(hour=app_config.schedule_hour, minute=app_config.schedule_minute))  # Schedule to run daily at midnight
 
     # Log when the job is added to the scheduler with exact next run time
     next_run_time = job.next_run_time
