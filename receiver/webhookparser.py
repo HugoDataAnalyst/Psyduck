@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import asyncio
 from processor.celery_app import celery
 from config.app_config import app_config
-from processor.tasks import insert_data_task, generate_unique_id, insert_quest_data_task, insert_raid_data_task, insert_invasion_data_task
+from processor.tasks import CeleryTasks
 from utils.geofence_timezones import get_current_time_in_geofence_timezone
 from threading import Lock, Thread
 import time
@@ -293,7 +293,7 @@ async def receive_data(request: Request):
                             'inserted_at': inserted_at
                         }
 
-                        item_unique_id = generate_unique_id(filtered_data)
+                        item_unique_id = CeleryTasks.generate_unique_id(filtered_data)
                         data_queue.append((filtered_data, item_unique_id))
 
                         if len(data_queue) >= app_config.max_queue_size and not is_processing_queue:
@@ -360,7 +360,7 @@ async def receive_data(request: Request):
                             break
 
                         # Generate unique ID for quests
-                        quest_unique_id = generate_unique_id(quest_data_to_store)
+                        quest_unique_id = CeleryTasks.generate_unique_id(quest_data_to_store)
                         quests_data_queue.append((quest_data_to_store, quest_unique_id))
 
                         # Calculate time checker for time based task
@@ -402,7 +402,7 @@ async def receive_data(request: Request):
                         }
 
                         # Generate unique ID for Raids
-                        raid_unique_id = generate_unique_id(raid_data_to_store)
+                        raid_unique_id = CeleryTasks.generate_unique_id(raid_data_to_store)
                         raids_data_queue.append((raid_data_to_store, raid_unique_id))
 
                         # Calculate time checker for time based task
@@ -440,7 +440,7 @@ async def receive_data(request: Request):
                         }
 
                         # Generate unique ID for Invasions
-                        invasion_unique_id = generate_unique_id(invasion_data_to_store)
+                        invasion_unique_id = CeleryTasks.generate_unique_id(invasion_data_to_store)
                         invasions_data_queue.append((invasion_data_to_store, invasion_unique_id))
 
                         # Calculate time checker for time based task
@@ -557,9 +557,9 @@ def invasion_process_full_queue():
         try:
             current_invasion_batch_data = [item[0] for item in invasions_data_queue[:app_config.max_invasion_queue_size]]
             current_invasion_batch_ids = [item[1] for item in invasions_data_queue[:app_config.max_invasion_queue_size]]
-            invasion_batch_unique_id = generate_unique_id(current_invasion_batch_ids)
+            invasion_batch_unique_id = CeleryTasks.generate_unique_id(current_invasion_batch_ids)
 
-            insert_invasion_data_task.delay(current_invasion_batch_data, invasion_batch_unique_id)
+            CeleryTasks.insert_invasion_data_task.delay(current_invasion_batch_data, invasion_batch_unique_id)
             console_logger.debug(f"Processed Invasion full queue with unique_id: {invasion_batch_unique_id}")
             file_logger.debug(f"Processed Invasion full queue with unique_id: {invasion_batch_unique_id}")
             invasions_data_queue = invasions_data_queue[app_config.max_invasion_queue_size:]
@@ -589,9 +589,9 @@ def raid_process_full_queue():
         try:
             current_raid_batch_data = [item[0] for item in raids_data_queue[:app_config.max_raid_queue_size]]
             current_raid_batch_ids = [item[1] for item in raids_data_queue[:app_config.max_raid_queue_size]]
-            raid_batch_unique_id = generate_unique_id(current_raid_batch_ids)
+            raid_batch_unique_id = CeleryTasks.generate_unique_id(current_raid_batch_ids)
 
-            insert_raid_data_task.delay(current_raid_batch_data, raid_batch_unique_id)
+            CeleryTasks.insert_raid_data_task.delay(current_raid_batch_data, raid_batch_unique_id)
             console_logger.debug(f"Processed Raid full queue with unique_id: {raid_batch_unique_id}")
             file_logger.debug(f"Processed Raid full queue with unique_id: {raid_batch_unique_id}")
             raids_data_queue = raids_data_queue[app_config.max_raid_queue_size:]
@@ -620,9 +620,9 @@ def quest_process_full_queue():
         try:
             current_quest_batch_data = [item[0] for item in quests_data_queue[:app_config.max_quest_queue_size]]
             current_quest_batch_ids = [item[1] for item in quests_data_queue[:app_config.max_quest_queue_size]]
-            quest_batch_unique_id = generate_unique_id(current_quest_batch_ids)
+            quest_batch_unique_id = CeleryTasks.generate_unique_id(current_quest_batch_ids)
 
-            insert_quest_data_task.delay(current_quest_batch_data, quest_batch_unique_id)
+            CeleryTasks.insert_quest_data_task.delay(current_quest_batch_data, quest_batch_unique_id)
             console_logger.debug(f"Processed Quests full queue with unique_id: {quest_batch_unique_id}")
             file_logger.debug(f"Processed Quests full queue with unique_id: {quest_batch_unique_id}")
             quests_data_queue = quests_data_queue[app_config.max_quest_queue_size:]
@@ -651,9 +651,9 @@ def process_full_queue():
         try:
             current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
             current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
-            batch_unique_id = generate_unique_id(current_batch_ids)
+            batch_unique_id = CeleryTasks.generate_unique_id(current_batch_ids)
 
-            insert_data_task.delay(current_batch_data, batch_unique_id)
+            CeleryTasks.insert_data_task.delay(current_batch_data, batch_unique_id)
             console_logger.debug(f"Processed Pokemon full queue with unique_id: {batch_unique_id}")
             file_logger.debug(f"Processed Pokemon full queue with unique_id: {batch_unique_id}")
             data_queue = data_queue[app_config.max_queue_size:]
@@ -680,9 +680,9 @@ async def process_remaining_queue_on_shutdown():
         try:
             current_batch_data = [item[0] for item in data_queue[:app_config.max_queue_size]]
             current_batch_ids = [item[1] for item in data_queue[:app_config.max_queue_size]]
-            batch_unique_id = generate_unique_id(current_batch_ids)
+            batch_unique_id = CeleryTasks.generate_unique_id(current_batch_ids)
 
-            insert_data_task.delay(current_batch_data, batch_unique_id)
+            CeleryTasks.insert_data_task.delay(current_batch_data, batch_unique_id)
             console_logger.debug(f"Processed Pokemon batch with unique_id: {batch_unique_id}")
             file_logger.debug(f"Processed Pokemon batch with unique_id: {batch_unique_id}")
 
@@ -704,9 +704,9 @@ async def process_remaining_quest_queue_on_shutdown():
         try:
             current_batch_data = [item[0] for item in quests_data_queue[:app_config.max_quest_queue_size]]
             current_batch_ids = [item[1] for item in quests_data_queue[:app_config.max_quest_queue_size]]
-            batch_unique_id = generate_unique_id(current_batch_ids)
+            batch_unique_id = CeleryTasks.generate_unique_id(current_batch_ids)
 
-            insert_quest_data_task.delay(current_batch_data, batch_unique_id)
+            CeleryTasks.insert_quest_data_task.delay(current_batch_data, batch_unique_id)
             console_logger.debug(f"Processed Quest batch with unique_id: {batch_unique_id}")
             file_logger.debug(f"Processed Quest batch with unique_id: {batch_unique_id}")
 
@@ -728,9 +728,9 @@ async def process_remaining_raid_queue_on_shutdown():
         try:
             current_batch_data = [item[0] for item in raids_data_queue[:app_config.max_raid_queue_size]]
             current_batch_ids = [item[1] for item in raids_data_queue[:app_config.max_raid_queue_size]]
-            batch_unique_id = generate_unique_id(current_batch_ids)
+            batch_unique_id = CeleryTasks.generate_unique_id(current_batch_ids)
 
-            insert_raid_data_task.delay(current_batch_data, batch_unique_id)
+            CeleryTasks.insert_raid_data_task.delay(current_batch_data, batch_unique_id)
             console_logger.debug(f"Processed Raid batch with unique_id: {batch_unique_id}")
             file_logger.debug(f"Processed Raid batch with unique_id: {batch_unique_id}")
 
@@ -752,9 +752,9 @@ async def process_remaining_invasion_queue_on_shutdown():
         try:
             current_batch_data = [item[0] for item in invasions_data_queue[:app_config.max_invasion_queue_size]]
             current_batch_ids = [item[1] for item in invasions_data_queue[:app_config.max_invasion_queue_size]]
-            batch_unique_id = generate_unique_id(current_batch_ids)
+            batch_unique_id = CeleryTasks.generate_unique_id(current_batch_ids)
 
-            insert_invasion_data_task.delay(current_batch_data, batch_unique_id)
+            CeleryTasks.insert_invasion_data_task.delay(current_batch_data, batch_unique_id)
             console_logger.debug(f"Processed Invasion batch with unique_id: {batch_unique_id}")
             file_logger.debug(f"Processed Invasion batch with unique_id: {batch_unique_id}")
 
