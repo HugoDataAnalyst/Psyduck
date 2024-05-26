@@ -1,4 +1,5 @@
 import asyncio
+from functools import partial
 from .celery_app import celery
 import logging
 from logging.handlers import RotatingFileHandler
@@ -105,7 +106,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            run_async(self.insert_pokemon_data, data_batch)
+            loop = asyncio.get_event_loop()
+            insert_poke_data = partial(self.insert_pokemon_data, data_batch)
+            loop.run_in_executor(None, insert_poke_data).result()
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Pokemon records"
@@ -133,7 +136,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            run_async(self.insert_quest_data, data_batch)
+            loop = asyncio.get_event_loop()
+            insert_quest = partial(self.insert_quest_data, data_batch)
+            loop.run_in_executor(None, insert_quest).result()
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Quest records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Quest records"
@@ -161,7 +166,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            run_async(self.insert_raid_data, data_batch)
+            loop = asyncio.get_event_loop()
+            insert_raid = partial(self.insert_raid_data, data_batch)
+            loop.run_in_executor(None, insert_raid).result()
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Raid records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Raid records"
@@ -189,7 +196,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
-            run_async(self.insert_invasion_data, data_batch)
+            loop = asyncio.get_event_loop()
+            insert_invasion = partial(self.insert_invasion_data, data_batch)
+            loop.run_in_executor(None, insert_invasion).result()
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Invasion records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Invasion records"
