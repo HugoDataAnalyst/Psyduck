@@ -82,10 +82,15 @@ class CeleryTasks(DatabaseOperations):
         file_handler.setFormatter(file_formatter)
         celery_logger.addHandler(file_handler)
 
+    @staticmethod
+    def default(obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        raise TypeError("Type not serializable")
 
-
+    @staticmethod
     def generate_unique_id(data):
-        data_str = json.dumps(data, sort_keys=True)
+        data_str = json.dumps(data, sort_keys=True, default=CeleryTasks.default)
         return hashlib.md5(data_str.encode()).hexdigest()
 
     # Pokemon Insert task
