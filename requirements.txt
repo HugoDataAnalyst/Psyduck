@@ -13,3 +13,4 @@ httpx==0.26.0
 starlette>=0.35.0
 tortoise-orm==0.21.1
 geopy==2.3.0
+timezonefinder==6.5.0

@@ -13,6 +13,8 @@ from processor.celery_app import celery
 from config.app_config import app_config
 from processor.tasks import CeleryTasks
 from utils.geofence_timezones import get_current_time_in_geofence_timezone
+from timezonefinder import TimezoneFinder
+import pytz
 from threading import Lock, Thread
 import time
 from cachetools import TTLCache
@@ -109,6 +111,7 @@ async def startup_event():
         console_logger.error(f"Failed to fetch geofences: {e}")
         file_logger.error(f"Failed to fetch geofences: {e}")
 
+tf = TimezoneFinder()
 
 @backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=app_config.max_tries_geofences, jitter=None, factor=app_config.retry_delay_mult_geofences)
 async def fetch_geofences():
@@ -116,7 +119,20 @@ async def fetch_geofences():
         headers = {"Authorization": f"Bearer {app_config.bearer_token}"}
         response = await client.get(app_config.geofence_api_url, headers=headers)
         if response.status_code == 200:
-            return response.json().get("data", {}).get("features", [])
+            geofences = response.json().get("data", {}).get("features", [])
+            for geofence in geofences:
+                coordinates = geofence["geometry"]["coordinates"][0][0]
+                lat, lon = coordinates[1], coordinates[0]
+                timezone_str = tf.timezone_at(lat=lat, lng=lon) or app_config.default_timezone
+                geofence["properties"]["timezone"] = timezone_str
+
+            # Log all geofences and their assigned timezones
+            for geofence in geofences:
+                geofence_name = geofence["properties"].get("name", "Unknown")
+                timezone_str = geofence["properties"].get("timezone", app_config.default_timezone)
+                console_logger.info(f"Geofence: {geofence_name}, Timezone: {timezone_str}")
+                file_logger.info(f"Geofence: {geofence_name}, Timezone: {timezone_str}")
+            return geofences
         else:
             console_logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
             file_logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")
@@ -140,8 +156,9 @@ def is_inside_geofence(lat, lon, geofences):
     for geofence in geofences:
         polygon = geofence["geometry"]["coordinates"][0]
         if point.within(Polygon(polygon)):
-            return True, geofence.get("properties", {}).get("name", "Unknown")
-    return False, None
+            properties = geofence.get("properties", {})
+            return True, properties.get("name", "Unknown"), properties.get("timezone", app_config.default_timezone)
+    return False, None, app_config.default_timezone
 
 def calculate_despawn_time(disappear_time, first_seen):
     if disappear_time is None or first_seen is None:
@@ -260,7 +277,7 @@ async def receive_data(request: Request):
                 message = item.get('message', {})
                 if filter_criteria(message):
                     lat, lon = message.get('latitude'), message.get('longitude')
-                    inside, geofence_name = is_inside_geofence(lat, lon, geofences)
+                    inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
                         ind_attack = message['individual_attack']
                         ind_defense = message['individual_defense']
@@ -277,7 +294,8 @@ async def receive_data(request: Request):
                             message.get('disappear_time'),
                             message.get('first_seen')
                         )
-                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        timezone = pytz.timezone(timezone_str)
+                        inserted_at = datetime.now(timezone)
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         filtered_data = {
@@ -311,10 +329,11 @@ async def receive_data(request: Request):
                 file_logger.debug(f"Raw Quest received: {message}")
                 if quest_filter_criteria(message):
                     lat, lon = message.get('latitude'), message.get('longitude')
-                    inside, geofence_name = is_inside_geofence(lat, lon, geofences)
+                    inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
                         rewards_extracted = extract_quest_rewards(message.get('rewards', []))
-                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        timezone = pytz.timezone(timezone_str)
+                        inserted_at = datetime.now(timezone)
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         quest_data_to_store = {
@@ -384,9 +403,10 @@ async def receive_data(request: Request):
                 message = item.get('message', {})
                 if raid_filter_criteria(message) and message['pokemon_id'] not in (None, 0):
                     lat, lon = message.get('latitude'), message.get('longitude')
-                    inside, geofence_name = is_inside_geofence(lat, lon, geofences)
+                    inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
-                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        timezone = pytz.timezone(timezone_str)
+                        inserted_at = datetime.now(timezone)
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         raid_data_to_store = {
@@ -425,9 +445,10 @@ async def receive_data(request: Request):
                 message = item.get('message', {})
                 if invasion_filter_criteria(message):
                     lat, lon = message.get('latitude'), message.get('longitude')
-                    inside, geofence_name = is_inside_geofence(lat, lon, geofences)
+                    inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
-                        inserted_at = get_current_time_in_geofence_timezone(geofence_name)
+                        timezone = pytz.timezone(timezone_str)
+                        inserted_at = datetime.now(timezone)
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         invasion_data_to_store = {
