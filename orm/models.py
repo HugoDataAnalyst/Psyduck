@@ -13,7 +13,7 @@ class PokemonSightings(models.Model):
     shiny = fields.BooleanField(default=False)
     area_name = fields.CharField(max_length=255, null=True)
     despawn_time = fields.IntField(null=True)
-    inserted_at = fields.DatetimeField(auto_now_add=True)
+    inserted_at = fields.DatetimeField(null=True)
 
     class Meta:
         table = "pokemon_sightings"
@@ -180,7 +180,7 @@ class QuestSightings(models.Model):
     reward_ar_poke_form = fields.CharField(max_length=15, null=True)
     reward_normal_poke_id = fields.IntField(null=True)
     reward_normal_poke_form = fields.CharField(max_length=15, null=True)
-    inserted_at = fields.DatetimeField(auto_now_add=True)
+    inserted_at = fields.DatetimeField(null=True)
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
@@ -206,7 +206,7 @@ class RaidSightings(models.Model):
     pokemon_id = fields.IntField(null=True)
     form = fields.CharField(max_length=15, null=True)
     costume = fields.CharField(max_length=50, null=True)
-    inserted_at = fields.DatetimeField(auto_now_add=True)
+    inserted_at = fields.DatetimeField(null=True)
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
@@ -226,7 +226,7 @@ class InvasionSightings(models.Model):
     display_type = fields.IntField(null=True)
     grunt = fields.IntField(null=True)
     confirmed = fields.BooleanField(default=False, null=True)
-    inserted_at = fields.DatetimeField(auto_now_add=True)
+    inserted_at = fields.DatetimeField(null=True)
     area_name = fields.CharField(max_length=255, null=True)
 
     class Meta:
