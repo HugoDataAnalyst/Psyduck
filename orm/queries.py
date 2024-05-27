@@ -40,6 +40,22 @@ class DatabaseOperations:
         async with in_transaction() as conn:
             await PokemonSightings.bulk_create([PokemonSightings(**data) for data in data_batch])
 
+    async def insert_pokemon_data_raw(self, data_batch):
+        # Direct insertion using raw SQL
+        async with in_transaction() as conn:
+            values = ", ".join(
+                f"({data['pokemon_id']}, '{data['form']}', {data['latitude']}, {data['longitude']}, "
+                f"{data['iv']}, {data['pvp_little_rank']}, {data['pvp_great_rank']}, {data['pvp_ultra_rank']}, "
+                f"{data['shiny']}, '{data['area_name']}', {data['despawn_time']}, '{data['inserted_at'].isoformat()}')"
+                for data in data_batch
+            )
+            query = (
+                f"INSERT INTO pokemon_sightings (pokemon_id, form, latitude, longitude, iv, "
+                f"pvp_little_rank, pvp_great_rank, pvp_ultra_rank, shiny, area_name, despawn_time, inserted_at) "
+                f"VALUES {values}"
+            )
+            await conn.execute_query(query)
+
     async def insert_quest_data(self, data_batch):
         async with in_transaction() as conn:
             await QuestSightings.bulk_create([QuestSightings(**data) for data in data_batch])

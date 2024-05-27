@@ -96,9 +96,12 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
+            # Log the data batch before insertion
+            celery_logger.info(f"Pokémon Data batch to insert: {data_batch}")
+
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            loop.run_until_complete(instance.insert_pokemon_data(data_batch))
+            loop.run_until_complete(instance.insert_pokemon_data_raw(data_batch))
             num_records = len(data_batch)
             celery_logger.info(f"Successfully inserted {num_records} Pokemon records into the database for unique_id: {unique_id}")
             return f"Inserted {num_records} Pokemon records"
@@ -126,6 +129,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
+            # Log the data batch before insertion
+            celery_logger.info(f"Quest Data batch to insert: {data_batch}")
+
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
             loop.run_until_complete(instance.insert_quest_data(data_batch))
@@ -156,6 +162,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
+            # Log the data batch before insertion
+            celery_logger.info(f"Raid Data batch to insert: {data_batch}")
+
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
             loop.run_until_complete(instance.insert_raid_data(data_batch))
@@ -186,6 +195,9 @@ class CeleryTasks(DatabaseOperations):
         redis_client.set(unique_id, 'locked', ex=600)
 
         try:
+            # Log the data batch before insertion
+            celery_logger.info(f"Invasion Data batch to insert: {data_batch}")
+
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
             loop.run_until_complete(instance.insert_invasion_data(data_batch))
