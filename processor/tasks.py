@@ -25,16 +25,6 @@ log_file = app_config.celery_log_file
 max_bytes = app_config.celery_log_max_bytes
 backup_count = app_config.celery_max_log_files
 
-# Helper function to run async code within sync task
-def run_async(func, *args, **kwargs):
-    loop = asyncio.get_event_loop()
-    if loop.is_running():
-        coro = func(*args, **kwargs)
-        task = asyncio.ensure_future(coro)
-        loop.run_until_complete(task)
-    else:
-        loop.run_until_complete(func(*args, **kwargs))
-
 # Organises Area based APIs
 def organize_results(results):
     organized_results = {}
@@ -216,263 +206,291 @@ class CeleryTasks(DatabaseOperations):
 
     # API Pokemon grouped
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_pokemon_grouped_stats(self):
+    def query_daily_pokemon_grouped_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_daily_pokemon_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_daily_pokemon_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_weekly_pokemon_grouped_stats(self):
+    def query_weekly_pokemon_grouped_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_weekly_pokemon_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_weekly_pokemon_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_monthly_pokemon_grouped_stats(self):
+    def query_monthly_pokemon_grouped_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_monthly_pokemon_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_monthly_pokemon_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Pokemon Totals
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_hourly_pokemon_total_stats(self):
+    def query_hourly_pokemon_total_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_hourly_pokemon_total_stats()
+            results = loop.run_until_complete(instance.fetch_hourly_pokemon_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_pokemon_total_stats(self):
+    def query_daily_pokemon_total_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_daily_pokemon_total_stats()
+            results = loop.run_until_complete(instance.fetch_daily_pokemon_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_pokemon_total_stats(self):
+    def query_pokemon_total_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_pokemon_total_stats()
+            results = loop.run_until_complete(instance.fetch_pokemon_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Pokemon Surge's
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_surge_api_pokemon_stats(self):
+    def query_daily_surge_api_pokemon_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = await instance.fetch_daily_surge_api_pokemon_stats()
+            results = loop.run_until_complete(instance.fetch_daily_surge_api_pokemon_stats())
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_weekly_surge_api_pokemon_stats(self):
+    def query_weekly_surge_api_pokemon_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_weekly_surge_api_pokemon_stats()
+            results = loop.run_until_complete(instance.fetch_weekly_surge_api_pokemon_stats())
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_monthly_surge_api_pokemon_stats(self):
+    def query_monthly_surge_api_pokemon_stats(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_monthly_surge_api_pokemon_stats()
+            results = loop.run_until_complete(instance.fetch_monthly_surge_api_pokemon_stats())
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Quest Grouped
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_quest_grouped_stats_api(self):
+    def query_daily_quest_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_quest_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_daily_quest_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_weekly_quest_grouped_stats_api(self):
+    def query_weekly_quest_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_weekly_quest_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_weekly_quest_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_monthly_quest_grouped_stats_api(self):
+    def query_monthly_quest_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_monthly_quest_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_monthly_quest_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Quest Totals
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_quest_total_stats_api(self):
+    def query_daily_quest_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_quest_total_stats()
+            results = loop.run_until_complete(instance.fetch_daily_quest_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_total_quest_total_stats_api(self):
+    def query_total_quest_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_total_quest_total_stats()
+            results = loop.run_until_complete(instance.fetch_total_quest_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Raids Grouped
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_raid_grouped_stats_api(self):
+    def query_daily_raid_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_raid_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_daily_raid_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_weekly_raid_grouped_stats_api(self):
+    def query_weekly_raid_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_weekly_raid_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_weekly_raid_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_monthly_raid_grouped_stats_api(self):
+    def query_monthly_raid_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_monthly_raid_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_monthly_raid_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Raids Totals
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_hourly_raid_total_stats_api(self):
+    def query_hourly_raid_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_hourly_raid_total_stats()
+            results = loop.run_until_complete(instance.fetch_hourly_raid_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_raid_total_stats_api(self):
+    def query_daily_raid_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_raid_total_stats()
+            results = loop.run_until_complete(instance.fetch_daily_raid_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_total_raid_total_stats_api(self):
+    def query_total_raid_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_total_raid_total_stats()
+            results = loop.run_until_complete(instance.fetch_total_raid_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Invasion Grouped
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_invasion_grouped_stats_api(self):
+    def query_daily_invasion_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_invasion_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_daily_invasion_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_weekly_invasion_grouped_stats_api(self):
+    def query_weekly_invasion_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_weekly_invasion_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_weekly_invasion_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_monthly_invasion_grouped_stats_api(self):
+    def query_monthly_invasion_grouped_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_monthly_invasion_grouped_stats()
+            results = loop.run_until_complete(instance.fetch_monthly_invasion_grouped_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Invasion Totals
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_hourly_invasions_total_stats_api(self):
+    def query_hourly_invasions_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_hourly_invasion_total_stats()
+            results = loop.run_until_complete(instance.fetch_hourly_invasion_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_invasions_total_stats_api(self):
+    def query_daily_invasions_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_invasion_total_stats()
+            results = loop.run_until_complete(instance.fetch_daily_invasion_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_total_invasions_total_stats_api(self):
+    def query_total_invasions_total_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_total_invasion_total_stats()
+            results = loop.run_until_complete(instance.fetch_total_invasion_total_stats())
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     # API Pokemon TTH
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_hourly_pokemon_tth_stats_api(self):
+    def query_hourly_pokemon_tth_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_hourly_pokemon_tth_stats()
+            results = loop.run_until_complete(instance.fetch_hourly_pokemon_tth_stats())
             # Hourly is by Area
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
 
     @celery.task(bind=True, max_retries=app_config.max_retries)
-    async def query_daily_pokemon_tth_stats_api(self):
+    def query_daily_pokemon_tth_stats_api(self):
         try:
+            loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
-            results = instance.fetch_daily_pokemon_tth_stats()
+            results = loop.run_until_complete(instance.fetch_daily_pokemon_tth_stats())
             # Daily is by hour
             return organize_results_by_hour(results)
         except Exception as e:
