@@ -157,8 +157,10 @@ def is_inside_geofence(lat, lon, geofences):
         polygon = geofence["geometry"]["coordinates"][0]
         if point.within(Polygon(polygon)):
             properties = geofence.get("properties", {})
-            return True, properties.get("name", "Unknown"), properties.get("timezone", app_config.default_timezone)
-    return False, None, app_config.default_timezone
+            timezone_str = properties.get("timezone")
+            if timezone_str:
+                return True, properties.get("name", "Unknown"), timezone_str
+    return False, None, None
 
 def calculate_despawn_time(disappear_time, first_seen):
     if disappear_time is None or first_seen is None:
@@ -278,7 +280,7 @@ async def receive_data(request: Request):
                 if filter_criteria(message):
                     lat, lon = message.get('latitude'), message.get('longitude')
                     inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
-                    if inside:
+                    if inside and timezone_str:
                         ind_attack = message['individual_attack']
                         ind_defense = message['individual_defense']
                         ind_stamina = message['individual_stamina']
@@ -295,7 +297,7 @@ async def receive_data(request: Request):
                             message.get('first_seen')
                         )
                         timezone = pytz.timezone(timezone_str)
-                        inserted_at = datetime.now(timezone)
+                        inserted_at = datetime.now(timezone).isoformat()
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         filtered_data = {

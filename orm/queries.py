@@ -46,7 +46,7 @@ class DatabaseOperations:
             values = ", ".join(
                 f"({data['pokemon_id']}, '{data['form']}', {data['latitude']}, {data['longitude']}, "
                 f"{data['iv']}, {data['pvp_little_rank']}, {data['pvp_great_rank']}, {data['pvp_ultra_rank']}, "
-                f"{data['shiny']}, '{data['area_name']}', {data['despawn_time']}, '{data['inserted_at'].isoformat()}')"
+                f"{data['shiny']}, '{data['area_name']}', {data['despawn_time']}, '{data['inserted_at']}')"
                 for data in data_batch
             )
             query = (
