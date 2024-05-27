@@ -12,7 +12,7 @@ logger = logging.getLogger("start_api")
 async def start_scheduler():
     try:
         process = await asyncio.create_subprocess_exec(
-            'python', 'apscheduler/scheduler.py',
+            'python3.10', 'apscheduler/scheduler.py',
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )

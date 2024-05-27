@@ -53,7 +53,7 @@ async def run_example_obtain_total_stops():
 
         # Run the script asynchronously using subprocess
         process = await asyncio.create_subprocess_exec(
-            'python', 'SQL/obtain_total_stops.py',
+            'python3.10', 'SQL/obtain_total_stops.py',
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
