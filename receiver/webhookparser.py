@@ -311,6 +311,8 @@ async def receive_data(request: Request):
                             'inserted_at': inserted_at
                         }
 
+                        console_logger.debug(f"Filtered Pokemon data from: {filtered_data}")
+                        file_logger.debug(f"Filtered Pokemon data from webhook: {filtered_data}")
                         item_unique_id = CeleryTasks.generate_unique_id(filtered_data)
                         data_queue.append((filtered_data, item_unique_id))
 
@@ -378,6 +380,8 @@ async def receive_data(request: Request):
                             # Break if theres more then one reward per quest
                             break
 
+                        console_logger.debug(f"Filtered Quest data from webhook: {quest_data_to_store}")
+                        file_logger.debug(f"Filtered Quest data from webhook: {quest_data_to_store}")
                         # Generate unique ID for quests
                         quest_unique_id = CeleryTasks.generate_unique_id(quest_data_to_store)
                         quests_data_queue.append((quest_data_to_store, quest_unique_id))
@@ -421,6 +425,8 @@ async def receive_data(request: Request):
                             'inserted_at': inserted_at,
                         }
 
+                        console_logger.debug(f"Filtered Raid data from webhook: {raid_data_to_store}")
+                        file_logger.debug(f"Filtered Raid data from webhook: {raid_data_to_store}")
                         # Generate unique ID for Raids
                         raid_unique_id = CeleryTasks.generate_unique_id(raid_data_to_store)
                         raids_data_queue.append((raid_data_to_store, raid_unique_id))
@@ -460,6 +466,8 @@ async def receive_data(request: Request):
                             'inserted_at': inserted_at,
                         }
 
+                        console_logger.debug(f"Filtered Invasion data from webhook: {invasion_data_to_store}")
+                        file_logger.debug(f"Filtered Invasion data from webhook: {invasion_data_to_store}")
                         # Generate unique ID for Invasions
                         invasion_unique_id = CeleryTasks.generate_unique_id(invasion_data_to_store)
                         invasions_data_queue.append((invasion_data_to_store, invasion_unique_id))
