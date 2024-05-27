@@ -12,7 +12,7 @@ logger = logging.getLogger("start_api")
 async def start_scheduler():
     try:
         process = await asyncio.create_subprocess_exec(
-            '{app_config.schedule_python_command}', '{app_config.schedule_script_path}',
+            app_config.schedule_python_command, app_config.schedule_script_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -44,7 +44,7 @@ async def main():
         logger.warning("Scheduler failed to start. FastAPI server will still run.")
 
     # Start the FastAPI server
-    config = uvicorn.Config("api.fastapi_server:app", host=app_config.api_host, port=app_config.api_port, workers=app_config.api_workers)
+    config = uvicorn.Config("api.fastapi_server:fastapi", host=app_config.api_host, port=app_config.api_port, workers=app_config.api_workers)
     server = uvicorn.Server(config)
 
     loop = asyncio.get_event_loop()

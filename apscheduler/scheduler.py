@@ -53,7 +53,7 @@ async def run_example_obtain_total_stops():
 
         # Run the script asynchronously using subprocess
         process = await asyncio.create_subprocess_exec(
-            '{app_config.schedule_python_command}', '{app_config.schedule_script_path}',
+            app_config.schedule_python_command, app_config.schedule_script_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
