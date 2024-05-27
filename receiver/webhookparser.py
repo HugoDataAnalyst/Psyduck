@@ -337,7 +337,7 @@ async def receive_data(request: Request):
                     if inside:
                         rewards_extracted = extract_quest_rewards(message.get('rewards', []))
                         timezone = pytz.timezone(timezone_str)
-                        inserted_at = datetime.now(timezone)
+                        inserted_at = datetime.now(timezone).isoformat()
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         quest_data_to_store = {
@@ -412,7 +412,7 @@ async def receive_data(request: Request):
                     inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
                         timezone = pytz.timezone(timezone_str)
-                        inserted_at = datetime.now(timezone)
+                        inserted_at = datetime.now(timezone).isoformat()
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         raid_data_to_store = {
@@ -456,7 +456,7 @@ async def receive_data(request: Request):
                     inside, geofence_name, timezone_str = is_inside_geofence(lat, lon, geofences)
                     if inside:
                         timezone = pytz.timezone(timezone_str)
-                        inserted_at = datetime.now(timezone)
+                        inserted_at = datetime.now(timezone).isoformat()
                         console_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         file_logger.debug(f"Obtained timezone for geofence: {geofence_name} with Time: {inserted_at}")
                         invasion_data_to_store = {
