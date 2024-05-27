@@ -218,7 +218,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_pokemon_grouped_stats(self):
         try:
-            results = await self.fetch_daily_pokemon_grouped_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_daily_pokemon_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -226,7 +227,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_weekly_pokemon_grouped_stats(self):
         try:
-            results = await self.fetch_weekly_pokemon_grouped_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_weekly_pokemon_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -234,7 +236,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_monthly_pokemon_grouped_stats(self):
         try:
-            results = await self.fetch_monthly_pokemon_grouped_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_monthly_pokemon_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -243,7 +246,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_hourly_pokemon_total_stats(self):
         try:
-            results = await self.fetch_hourly_pokemon_total_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_hourly_pokemon_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -251,7 +255,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_pokemon_total_stats(self):
         try:
-            results = await self.fetch_daily_pokemon_total_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_daily_pokemon_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -259,7 +264,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_pokemon_total_stats(self):
         try:
-            results = await self.fetch_pokemon_total_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_pokemon_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -268,7 +274,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_surge_api_pokemon_stats(self):
         try:
-            results = await self.fetch_daily_surge_api_pokemon_stats()
+            instance = DatabaseOperations()
+            results = await instance.fetch_daily_surge_api_pokemon_stats()
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -276,7 +283,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_weekly_surge_api_pokemon_stats(self):
         try:
-            results = self.fetch_weekly_surge_api_pokemon_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_weekly_surge_api_pokemon_stats()
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -284,7 +292,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_monthly_surge_api_pokemon_stats(self):
         try:
-            results = self.fetch_monthly_surge_api_pokemon_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_monthly_surge_api_pokemon_stats()
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -293,7 +302,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_quest_grouped_stats_api(self):
         try:
-            results = self.fetch_daily_quest_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_quest_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -301,7 +311,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_weekly_quest_grouped_stats_api(self):
         try:
-            results = self.fetch_weekly_quest_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_weekly_quest_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -309,7 +320,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_monthly_quest_grouped_stats_api(self):
         try:
-            results = self.fetch_monthly_quest_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_monthly_quest_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -318,7 +330,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_quest_total_stats_api(self):
         try:
-            results = self.fetch_daily_quest_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_quest_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -326,7 +339,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_total_quest_total_stats_api(self):
         try:
-            results = self.fetch_total_quest_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_total_quest_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -335,7 +349,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_raid_grouped_stats_api(self):
         try:
-            results = self.fetch_daily_raid_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_raid_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -343,7 +358,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_weekly_raid_grouped_stats_api(self):
         try:
-            results = self.fetch_weekly_raid_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_weekly_raid_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -351,7 +367,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_monthly_raid_grouped_stats_api(self):
         try:
-            results = self.fetch_monthly_raid_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_monthly_raid_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -360,7 +377,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_hourly_raid_total_stats_api(self):
         try:
-            results = self.fetch_hourly_raid_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_hourly_raid_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -368,7 +386,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_raid_total_stats_api(self):
         try:
-            results = self.fetch_daily_raid_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_raid_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -376,7 +395,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_total_raid_total_stats_api(self):
         try:
-            results = self.fetch_total_raid_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_total_raid_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -385,7 +405,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_invasion_grouped_stats_api(self):
         try:
-            results = self.fetch_daily_invasion_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_invasion_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -393,7 +414,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_weekly_invasion_grouped_stats_api(self):
         try:
-            results = self.fetch_weekly_invasion_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_weekly_invasion_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -401,7 +423,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_monthly_invasion_grouped_stats_api(self):
         try:
-            results = self.fetch_monthly_invasion_grouped_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_monthly_invasion_grouped_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -410,7 +433,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_hourly_invasions_total_stats_api(self):
         try:
-            results = self.fetch_hourly_invasion_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_hourly_invasion_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -418,7 +442,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_invasions_total_stats_api(self):
         try:
-            results = self.fetch_daily_invasion_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_invasion_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -426,7 +451,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_total_invasions_total_stats_api(self):
         try:
-            results = self.fetch_total_invasion_total_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_total_invasion_total_stats()
             return organize_results(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
@@ -435,7 +461,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_hourly_pokemon_tth_stats_api(self):
         try:
-            results = self.fetch_hourly_pokemon_tth_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_hourly_pokemon_tth_stats()
             # Hourly is by Area
             return organize_results(results)
         except Exception as e:
@@ -444,7 +471,8 @@ class CeleryTasks(DatabaseOperations):
     @celery.task(bind=True, max_retries=app_config.max_retries)
     async def query_daily_pokemon_tth_stats_api(self):
         try:
-            results = self.fetch_daily_pokemon_tth_stats()
+            instance = DatabaseOperations()
+            results = instance.fetch_daily_pokemon_tth_stats()
             # Daily is by hour
             return organize_results_by_hour(results)
         except Exception as e:
