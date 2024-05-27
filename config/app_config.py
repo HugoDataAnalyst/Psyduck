@@ -75,6 +75,8 @@ class AppConfig:
         self.apscheduler_log_file = config['apscheduler']['LOG_FILE']
         self.apscheduler_log_max_bytes = int(config['apscheduler']['LOG_MAX_BYTES'])
         self.apscheduler_max_log_files = int(config['apscheduler']['MAX_LOG_FILES'])
-        self.schedule_hour = int(config["apscheduler"]["SCHEDULE_HOUR"])
-        self.schedule_minute = int(config["apscheduler"]["SCHEDULE_MINUTE"])
+        self.schedule_hour = int(config['apscheduler']['SCHEDULE_HOUR'])
+        self.schedule_minute = int(config['apscheduler']['SCHEDULE_MINUTE'])
+        self.schedule_python_command = config['apscheduler']['PYTHON_COMMAND']
+        self.schedule_script_path = config['apscheduler']['SCRIPT_PATH']
 app_config = AppConfig()

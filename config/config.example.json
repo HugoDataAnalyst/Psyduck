@@ -78,6 +78,8 @@
 		"LOG_MAX_BYTES": "1048576",
 		"MAX_LOG_FILES": "5",
 		"SCHEDULE_HOUR": "0",
-		"SCHEDULE_MINUTE": "0"
+		"SCHEDULE_MINUTE": "0",
+		"PYTHON_COMMAND": "python3.10",
+		"SCRIPT_PATH": "SQL/obtain_total_stops.py"
 	}
 }
