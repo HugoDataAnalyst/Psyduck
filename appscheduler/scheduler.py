@@ -58,10 +58,11 @@ async def run_example_obtain_total_stops():
 
         console_logger.info("Completed obtain_total_stops.py script")
         file_logger.info("Completed obtain_total_stops.py script")
-        await log_next_run_time('obtain_total_stops')
     except Exception as e:
         console_logger.error(f'Error running obtain_total_stops.py: {e}')
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
+    finally:
+        await log_next_run_time('obtain_total_stops')
 
 async def schedule_job_with_interval(job_function, interval_seconds, job_id):
     if interval_seconds:
