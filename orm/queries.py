@@ -278,7 +278,7 @@ class DatabaseOperations:
     async def fetch_daily_raid_grouped_stats(self):
         return await DailyRaidGroupedStats.all().values(
             "day",
-            "area_nmame",
+            "area_name",
             "level",
             "pokemon_id",
             "form",
@@ -291,7 +291,7 @@ class DatabaseOperations:
     async def fetch_weekly_raid_grouped_stats(self):
         return await WeeklyRaidGroupedStats.all().values(
             "day",
-            "area_nmame",
+            "area_name",
             "level",
             "pokemon_id",
             "form",
@@ -304,7 +304,7 @@ class DatabaseOperations:
     async def fetch_monthly_raid_grouped_stats(self):
         return await MonthlyRaidGroupedStats.all().values(
             "day",
-            "area_nmame",
+            "area_name",
             "level",
             "pokemon_id",
             "form",
