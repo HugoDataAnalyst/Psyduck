@@ -3,24 +3,25 @@ import requests
 from shapely.geometry import Point, Polygon
 from datetime import datetime
 from collections import Counter
+from config.app_config import app_config
 import sys
 
 # Golbat Database settings
 db1_settings = {
-    "host": "your_host",
-    "user": "your_user",
-    "password": "your_password",
-    "db": "your_database",
-    "port": "your_port"
+    "host": app_config.golbat_host,
+    "user": app_config.golbat_user,
+    "password": app_config.golbat_password,
+    "db": app_config.golbat_database,
+    "port": app_config.golbat_port
 }
 
 # Psyduck Database Settings
 datacube_settings = {
-    "host": "your_host",
-    "user": "your_user",
-    "password": "your_password",
-    "db": "DataCube",
-    "port": "your_port"
+    "host": app_config.db_host,
+    "user": app_config.db_user,
+    "password": app_config.db_password,
+    "db": app_config.db_name,
+    "port": app_config.db_port
 }
 
 # API URL for fetching geofence data

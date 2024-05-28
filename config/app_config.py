@@ -79,4 +79,9 @@ class AppConfig:
         self.schedule_minute = int(config['apscheduler']['SCHEDULE_MINUTE'])
         self.schedule_seconds = int(config['apscheduler']['SCHEDULE_INTERVAL_SECONDS'])
         self.schedule_days = int(config['apscheduler']['SCHEDULE_DAYS'])
+        self.golbat_host = config['golbat']['HOST']
+        self.golbat_user = config['golbat']['USER']
+        self.golbat_password = config['golbat']['PASSWORD']
+        self.golbat_database = config['golbat']['NAME']
+        self.golbat_port = int(config['golbat']['PORT'])
 app_config = AppConfig()
