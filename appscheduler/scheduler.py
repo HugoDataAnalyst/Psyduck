@@ -4,8 +4,8 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.cron import CronTrigger
 from config.app_config import app_config
 from SQL.obtain_total_stops import main as obtain_total_stops_main
 
@@ -62,28 +62,56 @@ async def run_example_obtain_total_stops():
         console_logger.error(f'Error running obtain_total_stops.py: {e}')
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
 
-async def log_job_next_run_time(job_id):
-    job = scheduler.get_job(job_id)
-    if job:
-        next_run_time = job.next_run_time
-        if next_run_time:
-            console_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
-            file_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
-        else:
-            console_logger.info(f"Job '{job_id}' has no next run time scheduled")
-            file_logger.info(f"Job '{job_id}' has no next run time scheduled")
-    else:
-        console_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
-        file_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
+async def schedule_job_with_interval(job_function, interval_seconds, job_id):
+    if interval_seconds is not None:
+        trigger = IntervalTrigger(seconds=interval_seconds)
 
+        if scheduler.get_job(job_id):
+            try:
+                scheduler.reschedule_job(job_id, trigger=trigger)
+                job = scheduler.get_job(job_id) # Fetch updated job for accurate logging
+                console_logger.success(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
+            except Exception as e:
+                console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
+        else:
+            try:
+                scheduler.add_job(job_function, trigger, id=job_id)
+                job = scheduler.get_job(job_id) # Fetch job for accurate logging
+                console_logger.success(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
+            except Exception as e:
+                console_logger.error(f"Failed to schedule new job '{job_id}': {e}")
+
+async def schedule_job_with_cron(job_function, schedule_hour, schedule_minute, job_id):
+    if schedule_hour is not None and schedule_minute is not None:
+        trigger = CronTrigger(hour=schedule_hour, minute=schedule_minute)
+
+        if scheduler.get_job(job_id):
+            try:
+                scheduler.reschedule_job(job_id, trigger=trigger)
+                job = scheduler.get_job(job_id) # Fetch updated job for accurate logging
+                console_logger.success(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
+            except Exception as e:
+                console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
+        else:
+            try:
+                scheduler.add_job(job_function, trigger, id=job_id)
+                job = scheduler.get_job(job_id) # Fetch job for accurate logging
+                console_logger.success(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
+            except Exception as e:
+                console_logger.error(f"Failed to schedule new job '{job_id}': {e}")
 
 async def log_all_next_run_times():
     """Logs the next run time for all scheduled jobs."""
     try:
         for job in scheduler.get_jobs():
             try:
-                console_logger.info(f"Next run time for '{job.id}' is scheduled at {job.next_run_time}")
-                file_logger.info(f"Next run time for '{job.id}' is scheduled at {job.next_run_time}")
+                next_run_time = job.next_run_time
+                if next_run_time:
+                    console_logger.info(f"Next run time for '{job.id}' is scheduled at {next_run_time}")
+                    file_logger.info(f"Next run time for '{job.id}' is scheduled at {next_run_time}")
+                else:
+                    console_logger.info(f"Job '{job.id}' has no next run time scheduled")
+                    file_logger.info(f"Job '{job.id}' has no next run time scheduled")
             except AttributeError:
                 console_logger.error(f"Unable to retrieve next run time for job '{job.id}'. Scheduler may not have started.")
                 file_logger.error(f"Unable to retrieve next run time for job '{job.id}'. Scheduler may not have started.")
@@ -91,28 +119,19 @@ async def log_all_next_run_times():
         console_logger.error(f"Failed to iterate through scheduled log jobs: {e}")
         file_logger.error(f"Failed to iterate through scheduled log jobs: {e}")
 
-
 async def start_scheduler():
     schedule_interval_seconds = app_config.schedule_seconds
     schedule_days = app_config.schedule_days
+    schedule_hour = app_config.schedule_hour
+    schedule_minute = app_config.schedule_minute
+    job_id = 'obtain_total_stops'
 
-    if schedule_interval_seconds is not None and schedule_interval_seconds != 0:
-        interval_seconds = int(schedule_interval_seconds)
-        trigger = IntervalTrigger(seconds=interval_seconds)
-        job_id = 'obtain_total_stops_seconds'
-        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
-    elif schedule_days is not None and schedule_days!= 0:
-        trigger = IntervalTrigger(days=int(schedule_days))
-        job_id = 'obtain_total_stops_days'
-        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
+    if schedule_interval_seconds:
+        await schedule_job_with_interval(run_example_obtain_total_stops, int(schedule_interval_seconds), job_id)
+    elif schedule_days:
+        await schedule_job_with_interval(run_example_obtain_total_stops, int(schedule_days) * 86400, job_id)  # Convert days to seconds
     else:
-        schedule_hour = app_config.schedule_hour
-        schedule_minute = app_config.schedule_minute
-        trigger = CronTrigger(hour=schedule_hour, minute=schedule_minute)
-        job_id = 'obtain_total_stops_cron'
-        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
-
-    await log_job_next_run_time(job_id)
+        await schedule_job_with_cron(run_example_obtain_total_stops, schedule_hour, schedule_minute, job_id)
 
     scheduler.start()
     console_logger.info("Scheduler started")
@@ -126,3 +145,10 @@ async def run_scheduler():
     except (KeyboardInterrupt, SystemExit):
         console_logger.info("Scheduler stopped")
         file_logger.info("Scheduler stopped")
+
+# start_scheduler.py
+import asyncio
+from appscheduler.scheduler import run_scheduler
+
+if __name__ == "__main__":
+    asyncio.run(run_scheduler())
