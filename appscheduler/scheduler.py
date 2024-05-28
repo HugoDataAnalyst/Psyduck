@@ -63,40 +63,40 @@ async def run_example_obtain_total_stops():
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
 
 async def schedule_job_with_interval(job_function, interval_seconds, job_id):
-    if interval_seconds is not None:
-        trigger = IntervalTrigger(seconds=interval_seconds)
+    if interval_seconds:
+        trigger = IntervalTrigger(seconds=int(interval_seconds))
 
         if scheduler.get_job(job_id):
             try:
                 scheduler.reschedule_job(job_id, trigger=trigger)
                 job = scheduler.get_job(job_id) # Fetch updated job for accurate logging
-                console_logger.success(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
+                console_logger.info(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
                 console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
         else:
             try:
                 scheduler.add_job(job_function, trigger, id=job_id)
                 job = scheduler.get_job(job_id) # Fetch job for accurate logging
-                console_logger.success(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
+                console_logger.info(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
                 console_logger.error(f"Failed to schedule new job '{job_id}': {e}")
 
 async def schedule_job_with_cron(job_function, schedule_hour, schedule_minute, job_id):
-    if schedule_hour is not None and schedule_minute is not None:
-        trigger = CronTrigger(hour=schedule_hour, minute=schedule_minute)
+    if schedule_hour and schedule_minute:
+        trigger = CronTrigger(hour=int(schedule_hour), minute=int(schedule_minute))
 
         if scheduler.get_job(job_id):
             try:
                 scheduler.reschedule_job(job_id, trigger=trigger)
                 job = scheduler.get_job(job_id) # Fetch updated job for accurate logging
-                console_logger.success(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
+                console_logger.info(f"Job completed. Rescheduled job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
                 console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
         else:
             try:
                 scheduler.add_job(job_function, trigger, id=job_id)
                 job = scheduler.get_job(job_id) # Fetch job for accurate logging
-                console_logger.success(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
+                console_logger.info(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
                 console_logger.error(f"Failed to schedule new job '{job_id}': {e}")
 
@@ -120,6 +120,7 @@ async def log_all_next_run_times():
         file_logger.error(f"Failed to iterate through scheduled log jobs: {e}")
 
 async def start_scheduler():
+    scheduler.start()
     schedule_interval_seconds = app_config.schedule_seconds
     schedule_days = app_config.schedule_days
     schedule_hour = app_config.schedule_hour
@@ -130,10 +131,12 @@ async def start_scheduler():
         await schedule_job_with_interval(run_example_obtain_total_stops, int(schedule_interval_seconds), job_id)
     elif schedule_days:
         await schedule_job_with_interval(run_example_obtain_total_stops, int(schedule_days) * 86400, job_id)  # Convert days to seconds
-    else:
+    elif schedule_hour and schedule_minute:
         await schedule_job_with_cron(run_example_obtain_total_stops, schedule_hour, schedule_minute, job_id)
+    else:
+        console_logger.info(f"No jobs to be added.")
+        file_logger.info(f"No jobs to be added.")
 
-    scheduler.start()
     console_logger.info("Scheduler started")
     file_logger.info("Scheduler started")
 

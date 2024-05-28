@@ -75,10 +75,10 @@ class AppConfig:
         self.apscheduler_log_file = config['apscheduler']['LOG_FILE']
         self.apscheduler_log_max_bytes = int(config['apscheduler']['LOG_MAX_BYTES'])
         self.apscheduler_max_log_files = int(config['apscheduler']['MAX_LOG_FILES'])
-        self.schedule_hour = int(config['apscheduler']['SCHEDULE_HOUR'])
-        self.schedule_minute = int(config['apscheduler']['SCHEDULE_MINUTE'])
-        self.schedule_seconds = int(config['apscheduler']['SCHEDULE_INTERVAL_SECONDS'])
-        self.schedule_days = int(config['apscheduler']['SCHEDULE_DAYS'])
+        self.schedule_hour = config['apscheduler'].get('SCHEDULE_HOUR', None)
+        self.schedule_minute = config['apscheduler'].get('SCHEDULE_MINUTE', None)
+        self.schedule_seconds = config['apscheduler'].get('SCHEDULE_INTERVAL_SECONDS', None)
+        self.schedule_days = config['apscheduler'].get('SCHEDULE_DAYS', None)
         self.golbat_host = config['golbat']['HOST']
         self.golbat_user = config['golbat']['USER']
         self.golbat_password = config['golbat']['PASSWORD']
