@@ -121,6 +121,9 @@ async def log_all_next_run_times():
 
 async def start_scheduler():
     scheduler.start()
+    console_logger.info("Scheduler started")
+    file_logger.info("Scheduler started")
+
     schedule_interval_seconds = app_config.schedule_seconds
     schedule_days = app_config.schedule_days
     schedule_hour = app_config.schedule_hour
@@ -137,9 +140,6 @@ async def start_scheduler():
         console_logger.info(f"No jobs to be added.")
         file_logger.info(f"No jobs to be added.")
 
-    console_logger.info("Scheduler started")
-    file_logger.info("Scheduler started")
-
 async def run_scheduler():
     try:
         await start_scheduler()
@@ -148,10 +148,3 @@ async def run_scheduler():
     except (KeyboardInterrupt, SystemExit):
         console_logger.info("Scheduler stopped")
         file_logger.info("Scheduler stopped")
-
-# start_scheduler.py
-import asyncio
-from appscheduler.scheduler import run_scheduler
-
-if __name__ == "__main__":
-    asyncio.run(run_scheduler())
