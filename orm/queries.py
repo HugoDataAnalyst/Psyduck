@@ -412,16 +412,16 @@ class DatabaseOperations:
         return await DailyPokemonTthStats.all().values(
             "hour",
             "area_name",
-            "tth_5",
-            "tth_10",
-            "tth_15",
-            "tth_20",
-            "tth_25",
-            "tth_30",
-            "tth_35",
-            "tth_40",
-            "tth_45",
-            "tth_50",
-            "tth_55",
-            "tth_55_plus"
+            "total_tth_5",
+            "total_tth_10",
+            "total_tth_15",
+            "total_tth_20",
+            "total_tth_25",
+            "total_tth_30",
+            "total_tth_35",
+            "total_tth_40",
+            "total_tth_45",
+            "total_tth_50",
+            "total_tth_55",
+            "total_tth_55_plus"
         )
