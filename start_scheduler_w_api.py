@@ -28,3 +28,9 @@ if __name__ == "__main__":
         asyncio.run(main())
     except asyncio.CancelledError:
         pass
+
+    # Additional shutdown handling to ensure cleanup
+    pending = asyncio.all_tasks()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+    loop.close()
