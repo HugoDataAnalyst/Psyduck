@@ -58,6 +58,7 @@ async def run_example_obtain_total_stops():
 
         console_logger.info("Completed obtain_total_stops.py script")
         file_logger.info("Completed obtain_total_stops.py script")
+        await log_next_run_time('obtain_total_stops')
     except Exception as e:
         console_logger.error(f'Error running obtain_total_stops.py: {e}')
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
@@ -75,7 +76,7 @@ async def schedule_job_with_interval(job_function, interval_seconds, job_id):
                 console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
         else:
             try:
-                scheduler.add_job(job_function, trigger, id=job_id)
+                scheduler.add_job(job_function, trigger, id=job_id, max_instances=1)
                 job = scheduler.get_job(job_id) # Fetch job for accurate logging
                 console_logger.info(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
@@ -94,11 +95,26 @@ async def schedule_job_with_cron(job_function, schedule_hour, schedule_minute, j
                 console_logger.error(f"Failed to reschedule job '{job_id}': {e}")
         else:
             try:
-                scheduler.add_job(job_function, trigger, id=job_id)
+                scheduler.add_job(job_function, trigger, id=job_id, max_instances=1)
                 job = scheduler.get_job(job_id) # Fetch job for accurate logging
                 console_logger.info(f"Scheduled new job '{job_id}' to run at {job.next_run_time}.")
             except Exception as e:
                 console_logger.error(f"Failed to schedule new job '{job_id}': {e}")
+
+async def log_next_run_time(job_id):
+    job = scheduler.get_job(job_id)
+    if job:
+        next_run_time = job.next_run_time
+        if next_run_time:
+            console_logger.info(f"Next run time for '{job_id}' is scheduled at {next_run_time}")
+            file_logger.info(f"Next run time for '{job_id}' is scheduled at {next_run_time}")
+        else:
+            console_logger.info(f"Job '{job_id}' has no next run time scheduled")
+            file_logger.info(f"Job '{job_id}' has no next run time scheduled")
+    else:
+        console_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
+        file_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
+
 
 async def log_all_next_run_times():
     """Logs the next run time for all scheduled jobs."""
