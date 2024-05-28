@@ -66,11 +66,16 @@ async def log_job_next_run_time(job_id):
     job = scheduler.get_job(job_id)
     if job:
         next_run_time = job.next_run_time
-        console_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
-        file_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
+        if next_run_time:
+            console_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
+            file_logger.info(f"Job '{job_id}' scheduled to run next at {next_run_time}")
+        else:
+            console_logger.info(f"Job '{job_id}' has no next run time scheduled")
+            file_logger.info(f"Job '{job_id}' has no next run time scheduled")
     else:
         console_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
         file_logger.error(f"Failed to find job '{job_id}' for logging its next run time")
+
 
 async def log_all_next_run_times():
     """Logs the next run time for all scheduled jobs."""
@@ -91,12 +96,12 @@ async def start_scheduler():
     schedule_interval_seconds = app_config.schedule_seconds
     schedule_days = app_config.schedule_days
 
-    if schedule_interval_seconds is not 0 or None:
+    if schedule_interval_seconds is not None and schedule_interval_seconds != 0:
         interval_seconds = int(schedule_interval_seconds)
         trigger = IntervalTrigger(seconds=interval_seconds)
         job_id = 'obtain_total_stops_seconds'
         job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
-    elif schedule_days is not 0 or None:
+    elif schedule_days is not None and schedule_days!= 0:
         trigger = IntervalTrigger(days=int(schedule_days))
         job_id = 'obtain_total_stops_days'
         job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)

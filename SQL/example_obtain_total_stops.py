@@ -25,8 +25,8 @@ datacube_settings = {
 }
 
 # API URL for fetching geofence data
-api_url = 'your_geofence_api_url'
-api_headers = {"Authorization": "Bearer your_bearer_token"}
+api_url = app_config.geofence_api_url
+api_headers = {"Authorization": app_config.bearer_token}
 
 # Connect to Database1 and fetch data
 def fetch_pokestops():
