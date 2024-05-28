@@ -1,12 +1,13 @@
+# scheduler.py
 import asyncio
-import subprocess
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from logging import StreamHandler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from config.app_config import app_config
+from SQL.obtain_total_stops import main as obtain_total_stops_main
 
 scheduler = AsyncIOScheduler()
 
@@ -24,7 +25,7 @@ if console_log_level_str == "OFF":
 else:
     console_log_level = getattr(logging, console_log_level_str, logging.INFO)
     console_logger.setLevel(console_log_level)
-    #handler
+    # handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(console_log_level)
     # Formatter
@@ -50,22 +51,10 @@ file_logger.addHandler(file_handler)
 
 async def run_example_obtain_total_stops():
     try:
-        console_logger.info("Starting btain_total_stops.py script")
+        console_logger.info("Starting obtain_total_stops.py script")
         file_logger.info("Starting obtain_total_stops.py script")
 
-        # Run the script asynchronously using subprocess
-        process = await asyncio.create_subprocess_exec(
-            app_config.schedule_python_command, app_config.schedule_script_path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-        if stdout:
-            console_logger.info(f'[stdout]\n{stdout.decode()}')
-            file_logger.info(f'[stdout]\n{stdout.decode()}')
-        if stderr:
-            console_logger.error(f'[stderr]\n{stderr.decode()}')
-            file_logger.error(f'[stderr]\n{stderr.decode()}')
+        await asyncio.to_thread(obtain_total_stops_main)
 
         console_logger.info("Completed obtain_total_stops.py script")
         file_logger.info("Completed obtain_total_stops.py script")
@@ -73,8 +62,25 @@ async def run_example_obtain_total_stops():
         console_logger.error(f'Error running obtain_total_stops.py: {e}')
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
 
-def start_scheduler():
-    job = scheduler.add_job(run_example_obtain_total_stops, CronTrigger(hour=app_config.schedule_hour, minute=app_config.schedule_minute))  # Schedule to run daily at midnight
+async def start_scheduler():
+    schedule_interval_seconds = app_config.schedule_seconds
+    schedule_days = app_config.schedule_days
+
+    if schedule_interval_seconds:
+        interval_seconds = int(schedule_interval_seconds)
+        trigger = IntervalTrigger(seconds=interval_seconds)
+        job_id = 'obtain_total_stops_seconds'
+        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
+    elif schedule_days:
+        trigger = IntervalTrigger(days=int(schedule_days))
+        job_id = 'obtain_total_stops_days'
+        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
+    else:
+        schedule_hour = app_config.schedule_hour
+        schedule_minute = app_config.schedule_minute
+        trigger = CronTrigger(hour=schedule_hour, minute=schedule_minute)
+        job_id = 'obtain_total_stops_cron'
+        job = scheduler.add_job(run_example_obtain_total_stops, trigger, id=job_id)
 
     # Log when the job is added to the scheduler with exact next run time
     next_run_time = job.next_run_time
@@ -86,9 +92,10 @@ def start_scheduler():
     file_logger.info("Scheduler started")
 
 if __name__ == "__main__":
-    start_scheduler()
     try:
-        asyncio.get_event_loop().run_forever()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(start_scheduler())
+        loop.run_forever
     except (KeyboardInterrupt, SystemExit):
         console_logger.info("Scheduler stopped")
         file_logger.info("Scheduler stopped")
