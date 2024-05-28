@@ -8,6 +8,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from config.app_config import app_config
 
+scheduler = AsyncIOScheduler()
+
 # Configuration values
 console_log_level_str = app_config.api_console_log_level.upper()
 log_level_str = app_config.api_log_level.upper()
@@ -72,7 +74,6 @@ async def run_example_obtain_total_stops():
         file_logger.error(f'Error running obtain_total_stops.py: {e}')
 
 def start_scheduler():
-    scheduler = AsyncIOScheduler()
     job = scheduler.add_job(run_example_obtain_total_stops, CronTrigger(hour=app_config.schedule_hour, minute=app_config.schedule_minute))  # Schedule to run daily at midnight
 
     # Log when the job is added to the scheduler with exact next run time
