@@ -10,6 +10,7 @@ import os
 import hashlib
 import json
 import redis
+import pytz
 from datetime import datetime, date
 from orm.queries import DatabaseOperations
 
@@ -48,6 +49,17 @@ def organize_results_by_hour(results):
             organized_results_by_hour[hour] = []
         organized_results_by_hour[hour].append(row)
     return organized_results_by_hour
+
+def calculate_timezone_offset(timezone_str):
+    try:
+        timezone = pytz.timezone(timezone_str)
+        now = datetime.now(pytz.utc)
+        offset = timezone.utcoffset(now).total_seconds() / 60  # Offset in minutes
+        return int(offset)
+    except Exception as e:
+        celery_logger.error(f"Error calculating timezone offset for {timezone_str}: {e}")
+        return 0  # Default to UTC if there's an error
+
 
 class CeleryTasks(DatabaseOperations):
     # Console logger setup
@@ -507,3 +519,29 @@ class CeleryTasks(DatabaseOperations):
             return organize_results_by_hour(results)
         except Exception as e:
             self.retry(exc=e, countdown=app_config.retry_delay)
+
+    @celery.task(bind=True, max_retries=app_config.max_retries)
+    def update_area_time_zones_task(self, area_timezones):
+        celery_logger.info(f"TimeZone Task received for geofences with length: {len(area_timezones)}")
+
+        try:
+            for area in area_timezones:
+                area['time_zone_offset'] = calculate_timezone_offset(area['timezone'])
+
+            celery_logger.info(f"TimeZone Data batch to insert: {area_timezones}")
+
+            loop = asyncio.get_event_loop()
+            instance = DatabaseOperations()
+            loop.run_until_complete(instance.update_area_time_zones(area_timezones))
+            num_records = len(area_timezones)
+            celery_logger.info(f"Successfully inserted {num_records} TimeZones into the database")
+            return f"Inserted {num_records} TimeZone records"
+        except OperationalError as error:
+            celery_logger.error(f"Failed to insert TimeZones record into MySQL table: {error}")
+            try:
+                # Retry with exponential backoff
+                retry_delay = app_config.retry_delay * (2 ** self.request.retries)
+                celery_logger.debug(f"Retrying TimeZone Insertion in {retry_delay} seconds...")
+                self.retry(countdown=retry_delay)
+            except self.MaxRetriesExceededError:
+                celery_logger.debug("Max TimeZone retries exceeded. Giving up.")

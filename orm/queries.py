@@ -1,6 +1,7 @@
 from tortoise.transactions import in_transaction
 from datetime import datetime
 from orm.models import (
+    AreaTimeZones,
     PokemonSightings,
     QuestSightings,
     RaidSightings,
@@ -32,7 +33,8 @@ from orm.models import (
     DailyInvasionTotalStats,
     InvasionTotalStats,
     HourlyPokemonTthStats,
-    DailyPokemonTthStats
+    DailyPokemonTthStats,
+    AreaTimeZones
 )
 
 class DatabaseOperations:
@@ -425,3 +427,10 @@ class DatabaseOperations:
             "total_tth_55",
             "total_tth_55_plus"
         )
+
+    async def update_area_time_zones(self, data_batch):
+        async with in_transaction() as conn:
+            await AreaTimeZones.bulk_create(
+                [AreaTimeZones(**data) for data in data_batch],
+                update_on_duplicate=['timezone', 'time_zone_offset']
+            )

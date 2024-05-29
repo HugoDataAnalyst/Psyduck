@@ -120,18 +120,25 @@ async def fetch_geofences():
         response = await client.get(app_config.geofence_api_url, headers=headers)
         if response.status_code == 200:
             geofences = response.json().get("data", {}).get("features", [])
+            area_timezones = []
             for geofence in geofences:
                 coordinates = geofence["geometry"]["coordinates"][0][0]
                 lat, lon = coordinates[1], coordinates[0]
                 timezone_str = tf.timezone_at(lat=lat, lng=lon) or app_config.default_timezone
                 geofence["properties"]["timezone"] = timezone_str
 
+                # Add to the list of area timezones
+                area_name = geofence["properties"].get("name", "Unknown")
+                area_timezones.append({"area_name": area_name, "timezone": timezone_str})
             # Log all geofences and their assigned timezones
             for geofence in geofences:
                 geofence_name = geofence["properties"].get("name", "Unknown")
                 timezone_str = geofence["properties"].get("timezone", app_config.default_timezone)
                 console_logger.info(f"Geofence: {geofence_name}, Timezone: {timezone_str}")
                 file_logger.info(f"Geofence: {geofence_name}, Timezone: {timezone_str}")
+
+            # Update the area_time_zones table asynchronously
+            CeleryTasks.update_area_time_zones_task.delay(area_timezones)
             return geofences
         else:
             console_logger.error(f"Failed to fetch geofences. Status Code: {response.status_code}")

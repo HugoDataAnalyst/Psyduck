@@ -703,3 +703,12 @@ class DailyPokemonTthStats(models.Model):
         table = "daily_pokemon_tth_stats"
         unique_together = ("area_name", "hour")
         indexes = [("area_name", "hour")]
+
+class AreaTimeZones(models.Model):
+    area_name = fields.CharField(max_length=255, pk=True)
+    timezone = fields.CharField(max_length=255)
+    time_zone_offset = fields.IntField()
+
+    class Meta:
+        table = "area_time_zones"
+        indexes = [("area_name",)]
