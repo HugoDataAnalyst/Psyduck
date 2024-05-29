@@ -430,7 +430,11 @@ class DatabaseOperations:
 
     async def update_area_time_zones(self, data_batch):
         async with in_transaction() as conn:
-            await AreaTimeZones.bulk_create(
-                [AreaTimeZones(**data) for data in data_batch],
-                update_on_duplicate=['timezone', 'time_zone_offset']
-            )
+            for data in data_batch:
+                existing_record = await AreaTimeZones.get_or_none(area_name=data['area_name'])
+                if existing_record:
+                    existing_record.timezone = data['timezone']
+                    existing_record.time_zone_offset = data['time_zone_offset']
+                    await existing_record.save()
+                else:
+                    await AreaTimeZones.create(**data)
