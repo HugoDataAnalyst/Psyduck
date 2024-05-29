@@ -53,7 +53,7 @@ def organize_results_by_hour(results):
 def calculate_timezone_offset(timezone_str):
     try:
         timezone = pytz.timezone(timezone_str)
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         offset = timezone.utcoffset(now).total_seconds() / 60  # Offset in minutes
         return int(offset)
     except Exception as e:
