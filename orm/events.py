@@ -13,7 +13,7 @@ class EventGenerator:
 
     def generate_event_daily_sql(self, procedure_name, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
-        event_name = f"event_{procedure_name}"
+        event_name = f"event_{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -52,7 +52,7 @@ class EventGenerator:
         for timezone in unique_timezones:
             offset = timezone['time_zone_offset']
             for procedure in procedure_names:
-                drop_event_sql, create_event_sql = self.generate_event_daily_sql(f"{procedure}_{abs(offset)}", offset)
+                drop_event_sql, create_event_sql = self.generate_event_daily_sql(procedure, offset)
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
                 print(f"Event for {procedure} with offset {offset} created/updated.")
