@@ -1,6 +1,5 @@
 from config.app_config import app_config
 from datetime import datetime, timedelta
-from tortoise import Tortoise, run_async
 from orm.queries import DatabaseOperations
 
 class EventGenerator:
