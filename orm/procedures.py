@@ -49,10 +49,11 @@ class ProcedureGenerator:
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
-        create_procedure_sql=f"""
+        create_procedure_sql = f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            CREATE TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings;
+            CREATE TEMPORARY TABLE temp_grouped_pokemon_sightings AS
             SELECT *
             FROM pokemon_sightings
             WHERE area_name IN ({area_names_str})
@@ -66,12 +67,12 @@ class ProcedureGenerator:
                 AVG(latitude) AS avg_lat,
                 AVG(longitude) AS avg_lon,
                 COUNT(pokemon_id) AS total,
-                SUM(CASE WHEN iv = 100 THEN 1 ELSE NULL END) AS total_iv100,
-                SUM(CASE WHEN iv = 0 THEN 1 ELSE NULL END) AS total_iv0,
-                SUM(CASE WHEN pvp_little_rank = 1 THEN 1 ELSE NULL END) AS total_top1_little,
-                SUM(CASE WHEN pvp_great_rank = 1 THEN 1 ELSE NULL END) AS total_top1_great,
-                SUM(CASE WHEN pvp_ultra_rank = 1 THEN 1 ELSE NULL END) AS total_top1_ultra,
-                SUM(CASE WHEN shiny = 1 THEN 1 ELSE NULL END) AS total_shiny,
+                SUM(CASE WHEN iv = 100 THEN 1 ELSE 0 END) AS total_iv100,
+                SUM(CASE WHEN iv = 0 THEN 1 ELSE 0 END) AS total_iv0,
+                SUM(CASE WHEN pvp_little_rank = 1 THEN 1 ELSE 0 END) AS total_top1_little,
+                SUM(CASE WHEN pvp_great_rank = 1 THEN 1 ELSE 0 END) AS total_top1_great,
+                SUM(CASE WHEN pvp_ultra_rank = 1 THEN 1 ELSE 0 END) AS total_top1_ultra,
+                SUM(CASE WHEN shiny = 1 THEN 1 ELSE 0 END) AS total_shiny,
                 area_name,
                 AVG(despawn_time) AS avg_despawn
             FROM temp_grouped_pokemon_sightings
