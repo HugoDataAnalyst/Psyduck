@@ -13,15 +13,15 @@ class EventGenerator:
 
     def generate_event_daily_sql(self, procedure_name, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
-        event_name = f"event_{procedure_name}_{timezone_offset}"
+        event_name = f"event_{procedure_name}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
 
 
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
-        event_time_db = current_time_db.replace(hour=1, minute=0, second=0, microsecond=0) + timedelta(days=1)
-        adjusted_event_time = event_time_db + timedelta(minutes=offset_diff)
+        event_time_db = current_time_db.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
