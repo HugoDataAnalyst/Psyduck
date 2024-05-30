@@ -447,3 +447,7 @@ class DatabaseOperations:
 
     async def get_all_area_timezones(self):
         return await AreaTimeZones.all().distinct().values_list('area_name', 'timezone', 'time_zone_offset')
+
+    async def execute_sql(self, sql):
+        async with in_transaction() as conn:
+            await conn.execute_script(sql)
