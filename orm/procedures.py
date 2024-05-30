@@ -37,7 +37,7 @@ class ProcedureGenerator:
             FROM temp_total_pokemon_sightings
             GROUP BY area_name;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_total_pokemon_sightings;
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -46,12 +46,13 @@ class ProcedureGenerator:
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_pokemon_grouped_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER $$
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            CREATE TEMPORARY TABLE IF NOT EXISTS temp_grouped_pokemon_sightings AS
+            CREATE TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings AS
             SELECT *
             FROM pokemon_sightings
             WHERE area_name IN ({area_names_str})
@@ -77,23 +78,22 @@ class ProcedureGenerator:
             GROUP BY pokemon_id, form, area_name
             ORDER BY area_name, pokemon_id;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_grouped_pokemon_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_quest_total_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_quest_total_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER $$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_quest_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings;
             CREATE TEMPORARY TABLE temp_store_total_quest_sightings AS
             SELECT qs.*,
                    CASE
@@ -122,23 +122,22 @@ class ProcedureGenerator:
             GROUP BY tqs.area_name, tqs.scanned
             ORDER BY tqs.area_name ASC, tqs.scanned ASC;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_quest_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_quest_grouped_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_quest_grouped_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER $$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_quest_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings;
             CREATE TEMPORARY TABLE temp_store_grouped_quest_sightings AS
             SELECT *,
                    CASE
@@ -171,23 +170,22 @@ class ProcedureGenerator:
             FROM temp_store_grouped_quest_sightings
             GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, scanned;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_quest_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_raid_total_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_raid_total_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER $$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_raid_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings;
             CREATE TEMPORARY TABLE temp_store_total_raid_sightings AS
             SELECT *
             FROM raid_sightings
@@ -204,23 +202,22 @@ class ProcedureGenerator:
             FROM temp_store_total_raid_sightings
             GROUP BY area_name;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_raid_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_raid_grouped_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_raid_grouped_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER$$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_raid_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings;
             CREATE TEMPORARY TABLE temp_store_grouped_raid_sightings AS
             SELECT *
             FROM raid_sightings
@@ -241,22 +238,22 @@ class ProcedureGenerator:
             FROM temp_store_grouped_raid_sightings
             GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_raid_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_invasion_total_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_invasion_total_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER$$
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_invasion_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings;
             CREATE TEMPORARY TABLE temp_store_total_invasion_sightings AS
             SELECT *
             FROM invasion_sightings
@@ -273,23 +270,22 @@ class ProcedureGenerator:
             FROM temp_store_total_invasion_sightings
             GROUP BY area_name;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_total_invasion_sightings;
-        END$$
-        DELIMITER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_invasion_grouped_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_invasion_grouped_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER$$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_invasion_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings;
             CREATE TEMPORARY TABLE temp_store_grouped_invasion_sightings AS
             SELECT *
             FROM invasion_sightings
@@ -306,16 +302,16 @@ class ProcedureGenerator:
             FROM temp_store_grouped_invasion_sightings
             GROUP BY display_type, grunt, area_name;
 
-            DROP TEMPORARY TABLE IF NOT EXISTS temp_store_grouped_invasion_sightings;
-        END$$
-        DELIMTIER ;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_hourly_pokemon_tth_procedure(self):
-        sql = f"""
-        DELIMITER $$
-        DROP PROCEDURE IF EXISTS store_hourly_pokemon_tth$$
+
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS store_hourly_pokemon_tth;"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE store_hourly_pokemon_tth()
         BEGIN
             -- Create temporary table with adjusted times for the past hour in the local time zone of each area
@@ -367,7 +363,6 @@ class ProcedureGenerator:
             -- Drop temporary tables
             DROP TEMPORARY TABLE IF EXISTS temp_hourly_tth_stats;
             DROP TEMPORARY TABLE IF EXISTS temp_spawn_tth_by_area;
-        END$$
-        DELIMITER ;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql

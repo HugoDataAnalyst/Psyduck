@@ -12,7 +12,7 @@ class EventGenerator:
 
     def generate_event_daily_sql(self, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
-        event_name = f"run_procedures_{abs(offset_diff)}"
+        event_name = f"event_{procedure_names}_{abs(offset_diff)}"
         procedure_names = [
             f"store_pokemon_total_{abs(offset_diff)}",
             f"store_pokemon_grouped_{abs(offset_diff)}",
@@ -22,7 +22,7 @@ class EventGenerator:
             f"store_raid_grouped_{abs(offset_diff)}",
             f"store_invasion_total_{abs(offset_diff)}",
             f"store_invasion_grouped_{abs(offset_diff)}",
-            "store_hourly_pokemon_tth"
+            f"store_hourly_pokemon_tth"
         ]
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
