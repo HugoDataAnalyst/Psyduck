@@ -96,34 +96,29 @@ file_handler.setFormatter(file_formatter)
 file_logger.addHandler(file_handler)
 
 refresh_task = None
+update_db_task = None
 
 @webhook_processor.on_event("startup")
 async def startup_event():
-    global geofence_cache, refresh_task, area_timezones_cache
+    global geofence_cache, refresh_task, update_db_task, area_timezones_cache
     try:
         geofences = await fetch_geofences()
         geofence_cache['geofences'] = geofences
         console_logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
         file_logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
 
-        # Check if are timezones have changed
-        db_ops = DatabaseOperations()
-        current_area_timezones = await db_ops.get_all_area_timezones()
-        cached_area_timezones = area_timezones_cache.get('area_timezones')
-
-        if cached_area_timezones != current_area_timezones:
-            console_logger.info("Area timezones have changed. Regenerating DB operations.")
-            file_logger.info("Area timezones have changed. Regenerating DB operations.")
-            await generate_db_operations_main()
-            area_timezones_cache['area_timezones'] = current_area_timezones
-        else:
-            console_logger.info("Area timezones have not changed.")
-            file_logger.info("Area timezones have not changed.")
+        # Initial area timezone check and generate DB Operations if necessary
+        await check_and_update_area_timezones()
 
         # Cancel existing refresh tasks before creating a new one
         if refresh_task:
             refresh_task.cancel()
         refresh_task = asyncio.create_task(refresh_geofences())
+
+        # Cancel existing update_db_task before creating a new one
+        if update_db_task:
+            update_db_task.cancel()
+        update_db_task = asyncio.create_task(periodic_update_db_operations())
     except httpx.HTTPError as e:
         console_logger.error(f"Failed to fetch geofences: {e}")
         file_logger.error(f"Failed to fetch geofences: {e}")
@@ -185,6 +180,30 @@ def is_inside_geofence(lat, lon, geofences):
             if timezone_str:
                 return True, properties.get("name", "Unknown"), timezone_str
     return False, None, None
+
+async def check_and_update_area_timezones():
+    global area_timezones_cache
+    db_ops = DatabaseOperations()
+    current_area_timezones = await db_ops.get_all_area_timezones()
+    cached_area_timezones = area_timezones_cache.get('area_timezones')
+
+    if cached_area_timezones != current_area_timezones:
+        console_logger.info("Area timezones have changed. Regenerating DB operations.")
+        file_logger.info("Area timezones have changed. Regenerating DB operations.")
+        await generate_db_operations_main()
+        area_timezones_cache['area_timezones'] = current_area_timezones
+    else:
+        console_logger.info("Area timezones have not changed.")
+        file_logger.info("Area timezones have not changed.")
+
+async def periodic_update_db_operations():
+    while True:
+        try:
+            await check_and_update_area_timezones()
+        except Exception as e:
+            console_logger.error(f"Failed to update area timezones and regenerate DB operations: {e}")
+            file_logger.error(f"Failed to update area timezones and regenerate DB operations: {e}")
+        await asyncio.sleep(23 * 60 * 60)  # Sleep for 23 hours before next check
 
 def calculate_despawn_time(disappear_time, first_seen):
     if disappear_time is None or first_seen is None:
