@@ -13,7 +13,7 @@ class EventGenerator:
 
     def generate_event_daily_sql(self, procedure_name, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset
-        event_name = f"event_{procedure_name}_{abs(offset_diff)}"
+        event_name = f"event_{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
