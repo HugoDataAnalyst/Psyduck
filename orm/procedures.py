@@ -10,10 +10,10 @@ class ProcedureGenerator:
         offset_diff = timezone_offset - self.db_timezone_offset
         procedure_name = f"store_pokemon_total_{abs(offset_diff)}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
-        sql = f"""
-        DELIMITER $$
 
-        DROP PROCEDURE IF EXISTS {procedure_name}$$
+        drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
+
+        create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
             CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings AS
@@ -38,10 +38,9 @@ class ProcedureGenerator:
             GROUP BY area_name;
 
             DROP TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings;
-        END$$
-        DELIMITER ;
+        END;
         """
-        return sql
+        return drop_procedure_sql, create_procedure_sql
 
     async def generate_store_pokemon_grouped_sql(self, area_names, timezone_offset):
         offset_diff = timezone_offset - self.db_timezone_offset

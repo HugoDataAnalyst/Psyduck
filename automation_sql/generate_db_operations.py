@@ -17,7 +17,7 @@ async def create_procedures():
         timezone_groups[offset].append(area_name)
 
     for offset, areas in timezone_groups.items():
-        store_pokemon_total_sql = await procedure_generator.generate_store_pokemon_total_sql(areas, offset)
+        drop_store_pokemon_total_sql, store_pokemon_total_sql = await procedure_generator.generate_store_pokemon_total_sql(areas, offset)
         store_pokemon_grouped_sql = await procedure_generator.generate_store_pokemon_grouped_sql(areas, offset)
         store_quest_total_sql = await procedure_generator.generate_store_quest_total_sql(areas, offset)
         store_quest_grouped_sql = await procedure_generator.generate_store_quest_grouped_sql(areas, offset)
@@ -27,6 +27,7 @@ async def create_procedures():
         store_invasion_grouped_sql = await procedure_generator.generate_store_invasion_grouped_sql(areas, offset)
         store_hourly_pokemon_tth_sql = await procedure_generator.generate_store_hourly_pokemon_tth_procedure()
 
+        await db_ops.execute_sql(drop_store_pokemon_total_sql)
         await db_ops.execute_sql(store_pokemon_total_sql)
         await db_ops.execute_sql(store_pokemon_grouped_sql)
         await db_ops.execute_sql(store_quest_total_sql)
