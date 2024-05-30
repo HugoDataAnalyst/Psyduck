@@ -33,8 +33,10 @@ class EventGenerator:
         event_time_db = current_time_db.replace(hour=1, minute=0, second=0, microsecond=0) + timedelta(days=1)
         adjusted_event_time = event_time_db + timedelta(minutes=offset_diff)
 
-        sql = f"""
-        CREATE OR REPLACE EVENT {event_name}
+        drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
+
+        create_event_sql = f"""
+        CREATE EVENT IF NOT EXISTS {event_name}
         ON SCHEDULE EVERY 1 DAY
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
@@ -42,16 +44,14 @@ class EventGenerator:
         {"; ".join([f"CALL {procedure}" for procedure in procedure_names])};
         END;
         """
-        return sql
+        return drop_event_sql, create_event_sql
 
     async def create_events(self):
         unique_timezones = await self.get_unique_timezones()
-        async with self.db_ops.get_connection() as connection:
-            async with connection.cursor() as cursor:
-                for timezone in unique_timezones:
-                    offset = timezone['time_zone_offset']
-                    event_sql = self.generate_event_daily_sql(offset)
-                    await cursor.execute(event_sql)
-                    print(f"Event for offset {offset} created/updated.")
-                await connection.commit()
+        for timezone in unique_timezones:
+            offset = timezone['time_zone_offset']
+            drop_event_sql, create_event_sql = self.generate_event_daily_sql(offset)
+            await self.db_ops.execute_sql(drop_event_sql)
+            await self.db_ops.execute_sql(create_event_sql)
+            print(f"Event for offset {offset} created/updated.")
 
