@@ -11,10 +11,10 @@ async def create_procedures():
 
     timezone_groups = {}
     for area in area_timezones:
-        offset = area['time_zone_offset']
+        area_name, offset = area
         if offset not in timezone_groups:
             timezone_groups[offset] = []
-        timezone_groups[offset].append(area['area_name'])
+        timezone_groups[offset].append(area_name)
 
     for offset, areas in timezone_groups.items():
         store_pokemon_total_sql = await procedure_generator.generate_store_pokemon_total_sql(areas, offset)
