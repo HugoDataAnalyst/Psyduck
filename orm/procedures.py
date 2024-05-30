@@ -52,8 +52,8 @@ class ProcedureGenerator:
         create_procedure_sql = f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings;
-            CREATE TEMPORARY TABLE temp_grouped_pokemon_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_grouped_pokemon_sightings_{abs(offset_diff)} AS
             SELECT *
             FROM pokemon_sightings
             WHERE area_name IN ({area_names_str})
@@ -75,11 +75,11 @@ class ProcedureGenerator:
                 SUM(CASE WHEN shiny = 1 THEN 1 ELSE 0 END) AS total_shiny,
                 area_name,
                 AVG(despawn_time) AS avg_despawn
-            FROM temp_grouped_pokemon_sightings
+            FROM temp_grouped_pokemon_sightings_{abs(offset_diff)}
             GROUP BY pokemon_id, form, area_name
             ORDER BY area_name, pokemon_id;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -94,8 +94,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings;
-            CREATE TEMPORARY TABLE temp_store_total_quest_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_total_quest_sightings_{abs(offset_diff)} AS
             SELECT qs.*,
                    CASE
                        WHEN HOUR(qs.inserted_at) >= 21 OR HOUR(qs.inserted_at) < 5 THEN 1
@@ -119,11 +119,11 @@ class ProcedureGenerator:
                 COUNT(tqs.ar_type) AS ar,
                 COUNT(tqs.normal_type) AS normal,
                 tqs.scanned
-            FROM temp_store_total_quest_sightings tqs
+            FROM temp_store_total_quest_sightings_{abs(offset_diff)} tqs
             GROUP BY tqs.area_name, tqs.scanned
             ORDER BY tqs.area_name ASC, tqs.scanned ASC;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_quest_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -138,8 +138,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings;
-            CREATE TEMPORARY TABLE temp_store_grouped_quest_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_grouped_quest_sightings_{abs(offset_diff)} AS
             SELECT *,
                    CASE
                        WHEN HOUR(inserted_at) >= 22 OR HOUR(inserted_at) < 5 THEN 1
@@ -168,10 +168,10 @@ class ProcedureGenerator:
                 COALESCE(reward_normal_poke_form,0) AS reward_normal_poke_form,
                 COUNT(*) AS total,
                 COALESCE(scanned,0) AS scanned
-            FROM temp_store_grouped_quest_sightings
+            FROM temp_store_grouped_quest_sightings_{abs(offset_diff)}
             GROUP BY ar_type, reward_ar_type, normal_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, area_name, scanned;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_quest_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -186,8 +186,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings;
-            CREATE TEMPORARY TABLE temp_store_total_raid_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_total_raid_sightings_{abs(offset_diff)} AS
             SELECT *
             FROM raid_sightings
             WHERE area_name IN ({area_names_str})
@@ -200,10 +200,10 @@ class ProcedureGenerator:
                 COUNT(*) AS total,
                 SUM(CASE WHEN ex_raid_eligible = 1 THEN 1 ELSE 0 END) AS total_ex_raid,
                 SUM(CASE WHEN is_exclusive = 1 THEN 1 ELSE 0 END) AS total_exclusive
-            FROM temp_store_total_raid_sightings
+            FROM temp_store_total_raid_sightings_{abs(offset_diff)}
             GROUP BY area_name;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -218,8 +218,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings;
-            CREATE TEMPORARY TABLE temp_store_grouped_raid_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_grouped_raid_sightings_{abs(offset_diff)} AS
             SELECT *
             FROM raid_sightings
             WHERE area_name IN ({area_names_str})
@@ -236,10 +236,10 @@ class ProcedureGenerator:
                 ex_raid_eligible,
                 is_exclusive,
                 COUNT(*) AS total
-            FROM temp_store_grouped_raid_sightings
+            FROM temp_store_grouped_raid_sightings_{abs(offset_diff)}
             GROUP BY level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, area_name;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -254,8 +254,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings;
-            CREATE TEMPORARY TABLE temp_store_total_invasion_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_total_invasion_sightings_{abs(offset_diff)} AS
             SELECT *
             FROM invasion_sightings
             WHERE area_name IN ({area_names_str})
@@ -268,10 +268,10 @@ class ProcedureGenerator:
                 SUM(CASE WHEN confirmed = 0 THEN 1 ELSE 0 END) AS total_grunts,
                 SUM(CASE WHEN confirmed = 1 THEN 1 ELSE 0 END) AS total_confirmed,
                 SUM(CASE WHEN confirmed = 0 THEN 1 ELSE 0 END) - SUM(CASE WHEN confirmed = 1 THEN 1 ELSE 0 END) AS total_unconfirmed
-            FROM temp_store_total_invasion_sightings
+            FROM temp_store_total_invasion_sightings_{abs(offset_diff)}
             GROUP BY area_name;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
@@ -286,8 +286,8 @@ class ProcedureGenerator:
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings;
-            CREATE TEMPORARY TABLE temp_store_grouped_invasion_sightings AS
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings_{abs(offset_diff)};
+            CREATE TEMPORARY TABLE temp_store_grouped_invasion_sightings_{abs(offset_diff)} AS
             SELECT *
             FROM invasion_sightings
             WHERE area_name IN ({area_names_str})
@@ -300,10 +300,10 @@ class ProcedureGenerator:
                 display_type,
                 grunt,
                 SUM(CASE WHEN confirmed = 0 THEN 1 ELSE 0 END) AS total_grunts
-            FROM temp_store_grouped_invasion_sightings
+            FROM temp_store_grouped_invasion_sightings_{abs(offset_diff)}
             GROUP BY display_type, grunt, area_name;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings;
+            DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings_{abs(offset_diff)};
         END;
         """
         return drop_procedure_sql, create_procedure_sql

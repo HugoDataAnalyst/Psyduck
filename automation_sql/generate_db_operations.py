@@ -51,8 +51,7 @@ async def main():
     await create_procedures()
 
     # Create events
-    db_timezone_offset = app_config.db_timezone_offset
-    event_generator = EventGenerator(db_timezone_offset)
+    event_generator = EventGenerator()
     await event_generator.create_events()
 
 if __name__ == "__main__":
