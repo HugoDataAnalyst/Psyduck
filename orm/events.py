@@ -22,15 +22,17 @@ class EventGenerator:
             f"store_raid_total_{abs(offset_diff)}",
             f"store_raid_grouped_{abs(offset_diff)}",
             f"store_invasion_total_{abs(offset_diff)}",
-            f"store_invasion_grouped_{abs(offset_diff)}"
-            f"store_hourly_pokemon_tth"
+            f"store_invasion_grouped_{abs(offset_diff)}",
+            "store_hourly_pokemon_tth"
         ]
-        sign = "+" if offset_diff >= 0 else "-"
-        offset_str = f"{sign}{abs(offset_diff)}:00"
+        # Get the current UTC time and adjust it to the database's local time
+        current_time_utc = datetime.utcnow()
+        current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
 
-        current_time = datetime.utcnow()
-        event_time = current_time.replace(hour=1, minute=0, second=0, microsecond=0) + timedelta(days=1)
-        adjusted_event_time = event_time - timedelta(minutes=timezone_offset)
+
+        # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
+        event_time_db = current_time_db.replace(hour=1, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        adjusted_event_time = event_time_db + timedelta(minutes=offset_diff)
 
         sql = f"""
         CREATE OR REPLACE EVENT {event_name}

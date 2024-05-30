@@ -1,6 +1,6 @@
 from config.app_config import app_config
 from tortoise import Tortoise, run_async
-from queries import DatabaseOperations
+from orm.queries import DatabaseOperations
 
 class ProcedureGenerator:
     def __init__(self):
