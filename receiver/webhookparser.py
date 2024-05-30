@@ -9,11 +9,12 @@ import requests
 import os
 from datetime import datetime, timedelta
 import asyncio
+from orm.queries import DatabaseOperations
 from processor.celery_app import celery
 from config.app_config import app_config
 from processor.tasks import CeleryTasks
-from utils.geofence_timezones import get_current_time_in_geofence_timezone
 from timezonefinder import TimezoneFinder
+from automation_sql.generate_db_operations import main as generate_db_operations_main
 import pytz
 from threading import Lock, Thread
 import time
@@ -26,6 +27,7 @@ webhook_processor = FastAPI()
 
 # Caching geofences
 geofence_cache = TTLCache(maxsize=app_config.max_size_geofence, ttl=app_config.cache_geofences)
+area_timezones_cache = TTLCache(maxsize=400, ttl=23*60*60)
 
 # Data processing queue Pokémon
 is_processing_queue = False
@@ -97,12 +99,27 @@ refresh_task = None
 
 @webhook_processor.on_event("startup")
 async def startup_event():
-    global geofence_cache, refresh_task
+    global geofence_cache, refresh_task, area_timezones_cache
     try:
         geofences = await fetch_geofences()
         geofence_cache['geofences'] = geofences
         console_logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
         file_logger.info(f"Sucessfully obtained {len(geofences)} geofences.")
+
+        # Check if are timezones have changed
+        db_ops = DatabaseOperations()
+        current_area_timezones = await db_ops.get_all_area_timezones()
+        cached_area_timezones = area_timezones_cache.get('area_timezones')
+
+        if cached_area_timezones != current_area_timezones:
+            console_logger.info("Area timezones have changed. Regenerating DB operations.")
+            file_logger.info("Area timezones have changed. Regenerating DB operations.")
+            await generate_db_operations_main()
+            area_timezones_cache['area_timezones'] = current_area_timezones
+        else:
+            console_logger.info("Area timezones have not changed.")
+            file_logger.info("Area timezones have not changed.")
+
         # Cancel existing refresh tasks before creating a new one
         if refresh_task:
             refresh_task.cancel()

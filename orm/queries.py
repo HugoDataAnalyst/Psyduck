@@ -438,3 +438,12 @@ class DatabaseOperations:
                     await existing_record.save()
                 else:
                     await AreaTimeZones.create(**data)
+
+    async def get_unique_timezones():
+        return await AreaTimeZones.all().distinct().values_list('time_zone_offset', flat=True)
+
+    async def get_area_timezones():
+        return await AreaTimeZones.all().distinct().values_list('area_name', 'time_zone_offset')
+
+    async def get_all_area_timezones():
+        return await AreaTimeZones.all().distinct().values_list('area_name', 'timezone', 'time_zone_offset')

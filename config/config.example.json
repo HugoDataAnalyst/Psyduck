@@ -34,6 +34,7 @@
 		"NAME": "Psyduck",
 		"USER": "db_user",
 		"PASSWORD": "db_password",
+		"OFFSET": "60",
 		"CLEAN": "true",
 		"MIGRATION_LOG_LEVEL": "INFO",
 		"MIGRATION_LOG_FILE": "logs/migration.log",

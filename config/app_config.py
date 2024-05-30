@@ -38,6 +38,7 @@ class AppConfig:
         self.db_name = config['database']['NAME']
         self.db_user = config['database']['USER']
         self.db_password = config['database']['PASSWORD']
+        self.db_timezone_offset = int(config['database']['OFFSET'])
         self.db_clean = config['database']['CLEAN'].lower() == 'true'
         self.migration_log_level = config['database']['MIGRATION_LOG_LEVEL']
         self.migration_log_file = config['database']['MIGRATION_LOG_FILE']
