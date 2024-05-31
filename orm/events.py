@@ -36,9 +36,24 @@ class EventGenerator:
         """
         return drop_event_sql, create_event_sql
 
+    def generate_event_hourly_sql(self, procedure_name):
+        event_name = f"event_{procedure_name}"
+        drop_event_sql = f"DROP EVENT IF EXISTS {event_name}"
+
+        create_event_sql = f"""
+        CREATE EVENT IF NOT EXISTS {event_name}
+        ON SCHEDULE EVERY 1 HOUR
+        STARTS (CURRENT_TIMESTAMP + INTERVAL 1 HOUR - INTERVAL MINUTE(CURRENT_TIMESTAMP) MINUTE - INTERVAL SECOND(CURRENT_TIMESTAMP) SECOND)
+        DO
+        BEGIN
+        CALL {procedure_name};
+        END;
+        """
+        return drop_event_sql, create_event_sql
+
     async def create_events(self):
         unique_timezones = await self.get_unique_timezones()
-        procedure_names = [
+        daily_procedure_names = [
             "store_pokemon_total",
             "store_pokemon_grouped",
             "store_quest_total",
@@ -46,14 +61,18 @@ class EventGenerator:
             "store_raid_total",
             "store_raid_grouped",
             "store_invasion_total",
-            "store_invasion_grouped",
-            "store_hourly_pokemon_tth"
+            "store_invasion_grouped"
         ]
         for timezone in unique_timezones:
             offset = timezone['time_zone_offset']
-            for procedure in procedure_names:
+            for procedure in daily_procedure_names:
                 drop_event_sql, create_event_sql = self.generate_event_daily_sql(procedure, offset)
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
                 print(f"Event for {procedure} with offset {offset} created/updated.")
+
+            store_hourly_procedure = "store_hourly_pokemon_tth"
+            drop_event_sql, create_event_sql = self.generate_event_hourly_sql(store_hourly_procedure)
+            await self.db_ops.execute_sql(drop_event_sql)
+            await self.db_ops.execute_sql(create_event_sql)
 
