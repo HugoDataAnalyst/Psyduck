@@ -738,7 +738,7 @@ class ProcedureGenerator:
 
     # Update Raid Total Procedures
 
-    async def generate_update_hourly_raid_total_procedure(self, area_names, timezone_offset):
+    async def generate_update_hourly_raid_total_procedure(self):
         procedure_name = f"update_hourly_raid_total_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
@@ -911,7 +911,7 @@ class ProcedureGenerator:
 
     # Update Invasion Total Procedures
 
-    async def generate_update_hourly_invasion_total_procedure(self, area_names, timezone_offset):
+    async def generate_update_hourly_invasion_total_procedure(self):
         procedure_name = f"update_hourly_invasion_total_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
@@ -1071,7 +1071,7 @@ class ProcedureGenerator:
 
     # Update Surge Procedures
 
-    async def generate_update_hourly_surge_procedure(self, area_names, timezone_offset):
+    async def generate_update_hourly_surge_procedure(self):
         procedure_name = f"update_hourly_surge_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
@@ -1221,7 +1221,7 @@ class ProcedureGenerator:
 
     # Update TTH Procedures
 
-    async def generate_update_hourly_pokemon_tth_procedure(self, area_names, timezone_offset):
+    async def generate_update_hourly_pokemon_tth_procedure(self):
         procedure_name = f"update_hourly_pokemon_tth_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
