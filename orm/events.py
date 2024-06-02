@@ -439,6 +439,7 @@ class EventGenerator:
             "update_hourly_raid_total_stats",
             "update_hourly_invasion_total_stats",
             "update_hourly_surge_stats",
+            "update_hourly_pokemon_total_stats"
             "update_hourly_pokemon_tth_stats"
         ]
 
