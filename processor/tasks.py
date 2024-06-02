@@ -109,7 +109,7 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             # Log the data batch before insertion
-            celery_logger.info(f"Pokémon Data batch to insert: {data_batch}")
+            celery_logger.debug(f"Pokémon Data batch to insert: {data_batch}")
 
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
@@ -142,7 +142,7 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             # Log the data batch before insertion
-            celery_logger.info(f"Quest Data batch to insert: {data_batch}")
+            celery_logger.debug(f"Quest Data batch to insert: {data_batch}")
 
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
@@ -175,7 +175,7 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             # Log the data batch before insertion
-            celery_logger.info(f"Raid Data batch to insert: {data_batch}")
+            celery_logger.debug(f"Raid Data batch to insert: {data_batch}")
 
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
@@ -208,7 +208,7 @@ class CeleryTasks(DatabaseOperations):
 
         try:
             # Log the data batch before insertion
-            celery_logger.info(f"Invasion Data batch to insert: {data_batch}")
+            celery_logger.debug(f"Invasion Data batch to insert: {data_batch}")
 
             loop = asyncio.get_event_loop()
             instance = DatabaseOperations()
