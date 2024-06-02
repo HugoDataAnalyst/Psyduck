@@ -538,7 +538,7 @@ class EventGenerator:
                 print(f"Event for {hourly_update_procedure} with offset {offset} created/updated.")
             # Daily Delete Events
             for daily_delete_procedure in daily_delete_procedures_names:
-                drop_event_sql, create_event_sql = self.generate_update_hourly_event_sql(daily_delete_procedure, offset)
+                drop_event_sql, create_event_sql = self.generate_daily_delete_event_sql(daily_delete_procedure, offset)
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
                 print(f"Event for {daily_delete_procedure} with offset {offset} created/updated.")

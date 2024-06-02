@@ -920,10 +920,10 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_hourly_invasion_total_stats;
             CREATE TEMPORARY TABLE temp_hourly_invasion_total_stats AS
-            SELECT is.*
-            FROM invasion_sightings is
-            JOIN area_time_zones atz ON is.area_name = atz.area_name
-            WHERE is.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            SELECT inv.*
+            FROM invasion_sightings inv
+            JOIN area_time_zones atz ON inv.area_name = atz.area_name
+            WHERE inv.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
 
             DROP TEMPORARY TABLE IF EXISTS all_invasion_area_names;
             CREATE TEMPORARY TABLE all_invasion_area_names AS
