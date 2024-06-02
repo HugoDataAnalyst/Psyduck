@@ -20,6 +20,7 @@ class EventGenerator:
             offset_diff = self.db_timezone_offset - timezone_offset
 
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -38,7 +39,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -65,6 +66,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -83,7 +85,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -95,6 +97,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -113,7 +116,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -125,6 +128,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -143,7 +147,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -155,6 +159,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -176,7 +181,7 @@ class EventGenerator:
         STARTS '{next_weekly_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -188,6 +193,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -209,7 +215,7 @@ class EventGenerator:
         STARTS '{next_weekly_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -221,6 +227,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -242,7 +249,7 @@ class EventGenerator:
         STARTS '{next_monthly_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -254,6 +261,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -275,7 +283,7 @@ class EventGenerator:
         STARTS '{next_monthly_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -303,6 +311,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -321,7 +330,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
@@ -333,6 +342,7 @@ class EventGenerator:
         else:
             offset_diff = self.db_timezone_offset - timezone_offset
         event_name = f"event_{procedure_name}_{timezone_offset}"
+        adjusted_procedure_name = f"{procedure_name}_{timezone_offset}"
         # Get the current UTC time and adjust it to the database's local time
         current_time_utc = datetime.utcnow()
         current_time_db = current_time_utc + timedelta(minutes=self.db_timezone_offset)
@@ -351,7 +361,7 @@ class EventGenerator:
         STARTS '{adjusted_event_time.strftime('%Y-%m-%d %H:%M:%S')}'
         DO
         BEGIN
-        CALL {procedure_name};
+        CALL {adjusted_procedure_name};
         END;
         """
         return drop_event_sql, create_event_sql
