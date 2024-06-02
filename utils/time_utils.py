@@ -1,5 +1,52 @@
 from datetime import datetime, timedelta
 import time
+
+def seconds_until_next_hourly_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=2, second=10, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_daily_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=1, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_weekly_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=21, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_monthly_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=41, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_quest_daily_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=11, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_quest_weekly_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=21, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+def hourly_cache_for_quest_monthly_event():
+    """Returns the number of seconds remaining until the start of the next hour."""
+    now = datetime.now()
+    next_hour = (now + timedelta(hours=1)).replace(minute=41, second=0, microsecond=0)
+    return int((next_hour - now).total_seconds())
+
+"""
+The below functions are currently not being used.
+"""
+
 def seconds_until_half_hour():
     """Returns the number of seconds remaining until the next half-hour mark."""
     now = datetime.datetime.now()
