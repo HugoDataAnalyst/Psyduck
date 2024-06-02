@@ -22,7 +22,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_pokemon_total_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
+            INSERT INTO storage_pokemon_total_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 area_name,
@@ -59,7 +59,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_pokemon_grouped_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
+            INSERT INTO storage_pokemon_grouped_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 pokemon_id,
@@ -106,7 +106,7 @@ class ProcedureGenerator:
             WHERE qs.area_name IN ({area_names_str})
               AND qs.inserted_at >= NOW() - INTERVAL 1 DAY AND qs.inserted_at < NOW();
 
-            REPLACE INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
+            INSERT INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
             SELECT
                 DATE(NOW()) as day,
                 tqs.area_name,
@@ -150,7 +150,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= NOW() - INTERVAL 1 DAY AND inserted_at < NOW();
 
-            REPLACE INTO storage_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
+            INSERT INTO storage_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
             SELECT
                 DATE(NOW()) as day,
                 area_name,
@@ -193,7 +193,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_raid_total_stats (day, area_name, total, total_ex_raid, total_exclusive)
+            INSERT INTO storage_raid_total_stats (day, area_name, total, total_ex_raid, total_exclusive)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 area_name,
@@ -225,7 +225,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_raid_grouped_stats (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, total)
+            INSERT INTO storage_raid_grouped_stats (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, total)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 area_name,
@@ -261,7 +261,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_invasion_total_stats (day, area_name, total_grunts, total_confirmed, total_unconfirmed)
+            INSERT INTO storage_invasion_total_stats (day, area_name, total_grunts, total_confirmed, total_unconfirmed)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 area_name,
@@ -293,7 +293,7 @@ class ProcedureGenerator:
             WHERE area_name IN ({area_names_str})
               AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
 
-            REPLACE INTO storage_invasion_grouped_stats (day, area_name, display_type, grunt, total_grunts)
+            INSERT INTO storage_invasion_grouped_stats (day, area_name, display_type, grunt, total_grunts)
             SELECT
                 CURDATE() - INTERVAL 1 DAY as day,
                 area_name,
@@ -343,7 +343,7 @@ class ProcedureGenerator:
             GROUP BY area_name;
 
             -- Insert or update the hourly TTH stats
-            REPLACE INTO storage_hourly_pokemon_tth_stats (`day_hour`, area_name, tth_5, tth_10, tth_15, tth_20, tth_25, tth_30, tth_35, tth_40, tth_45, tth_50, tth_55, tth_55_plus)
+            INSERT INTO storage_hourly_pokemon_tth_stats (`day_hour`, area_name, tth_5, tth_10, tth_15, tth_20, tth_25, tth_30, tth_35, tth_40, tth_45, tth_50, tth_55, tth_55_plus)
             SELECT
                 `day_hour`,
                 area_name,
