@@ -98,13 +98,13 @@ class ProcedureGenerator:
             CREATE TEMPORARY TABLE temp_store_total_quest_sightings_{timezone_offset} AS
             SELECT qs.*,
                    CASE
-                       WHEN HOUR(qs.inserted_at) >= 21 OR HOUR(qs.inserted_at) < 5 THEN 1
-                       WHEN HOUR(qs.inserted_at) >= 7 AND HOUR(qs.inserted_at) < 14 THEN 2
+                       WHEN HOUR(qs.inserted_at) >= 00 OR HOUR(qs.inserted_at) < 5 THEN 1
+                       WHEN HOUR(qs.inserted_at) >= 10 AND HOUR(qs.inserted_at) < 14 THEN 2
                        ELSE 0
                    END AS scanned
             FROM quest_sightings qs
             WHERE qs.area_name IN ({area_names_str})
-              AND qs.inserted_at >= NOW() - INTERVAL 1 DAY AND qs.inserted_at < NOW();
+            AND qs.inserted_at >= NOW() - INTERVAL 1 DAY AND qs.inserted_at < NOW();
 
             INSERT INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
             SELECT
