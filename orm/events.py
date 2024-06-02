@@ -28,10 +28,7 @@ class EventGenerator:
         # Set the event to start at 00 in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
@@ -76,10 +73,7 @@ class EventGenerator:
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=15, minute=0, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
@@ -109,10 +103,7 @@ class EventGenerator:
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=1, minute=0, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
@@ -142,10 +133,7 @@ class EventGenerator:
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=15, minute=10, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
@@ -175,10 +163,7 @@ class EventGenerator:
         # Set the event to start at 1:20 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=1, minute=20, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         # Calculate the next weekly occurrence (next week's day and time)
         next_weekly_time = adjusted_event_time + timedelta(days=(8 - adjusted_event_time.weekday()))
@@ -211,10 +196,7 @@ class EventGenerator:
         # Set the event to start at 15:20 PM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=15, minute=20, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         # Calculate the next weekly occurrence (next week's day and time)
         next_weekly_time = adjusted_event_time + timedelta(days=(8 - adjusted_event_time.weekday()))
@@ -247,10 +229,7 @@ class EventGenerator:
         # Set the event to start at 1:20 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=1, minute=40, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         # Calculate the next occurrence on the first day of the next month at the same time
         next_monthly_time = adjusted_event_time.replace(day=1) + relativedelta(months=1)
@@ -283,10 +262,7 @@ class EventGenerator:
         # Set the event to start at 1:20 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=15, minute=40, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         # Calculate the next occurrence on the first day of the next month at the same time
         next_monthly_time = adjusted_event_time.replace(day=1) + relativedelta(months=1)
@@ -335,10 +311,7 @@ class EventGenerator:
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=4, minute=50, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
@@ -368,10 +341,7 @@ class EventGenerator:
         # Set the event to start at 1 AM in the database's local time, adjusted by the timezone offset
         event_time_db = current_time_db.replace(hour=16, minute=00, second=0, microsecond=0) + timedelta(days=1)
         # Adjust event time considering the offset difference
-        if offset_diff >= 0:
-            adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
-        else:
-            adjusted_event_time = timedelta(minutes=offset_diff) - event_time_db
+        adjusted_event_time = event_time_db - timedelta(minutes=offset_diff)
 
         drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
 
