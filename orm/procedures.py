@@ -320,7 +320,8 @@ class ProcedureGenerator:
             SELECT ps.*
             FROM pokemon_sightings ps
             JOIN area_time_zones atz ON ps.area_name = atz.area_name
-            WHERE ps.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            WHERE ps.inserted_at >= UTC_TIMESTAMP() - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE
+            AND ps.inserted_at < UTC_TIMESTAMP() + INTERVAL atz.time_zone_offset MINUTE;
 
             -- Create temporary table for TTH stats
             CREATE TEMPORARY TABLE IF NOT EXISTS temp_spawn_tth_by_area AS
@@ -381,7 +382,8 @@ class ProcedureGenerator:
             SELECT ps.*
             FROM pokemon_sightings ps
             JOIN area_time_zones atz ON ps.area_name = atz.area_name
-            WHERE ps.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            WHERE ps.inserted_at >= UTC_TIMESTAMP() - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE
+            AND ps.inserted_at < UTC_TIMESTAMP() + INTERVAL atz.time_zone_offset MINUTE;
 
             CREATE TEMPORARY TABLE IF NOT EXISTS all_area_names AS
             SELECT DISTINCT area_name
@@ -750,7 +752,8 @@ class ProcedureGenerator:
             SELECT rs.*
             FROM raid_sightings rs
             JOIN area_time_zones atz ON rs.area_name = atz.area_name
-            WHERE rs.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            WHERE rs.inserted_at >= UTC_TIMESTAMP() - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE
+            AND rs.inserted_at < UTC_TIMESTAMP() + INTERVAL atz.time_zone_offset MINUTE;
 
             DROP TEMPORARY TABLE IF EXISTS all_raid_area_names;
             CREATE TEMPORARY TABLE all_raid_area_names AS
@@ -923,7 +926,8 @@ class ProcedureGenerator:
             SELECT inv.*
             FROM invasion_sightings inv
             JOIN area_time_zones atz ON inv.area_name = atz.area_name
-            WHERE inv.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            WHERE inv.inserted_at >= UTC_TIMESTAMP() - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE
+            AND inv.inserted_at < UTC_TIMESTAMP() + INTERVAL atz.time_zone_offset MINUTE;
 
             DROP TEMPORARY TABLE IF EXISTS all_invasion_area_names;
             CREATE TEMPORARY TABLE all_invasion_area_names AS
@@ -1083,7 +1087,8 @@ class ProcedureGenerator:
             SELECT ps.*
             FROM pokemon_sightings ps
             JOIN area_time_zones atz ON ps.area_name = atz.area_name
-            WHERE ps.inserted_at >= CONVERT_TZ(NOW(), @@session.time_zone, '+01:00') - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE;
+            WHERE ps.inserted_at >= UTC_TIMESTAMP() - INTERVAL 60 MINUTE + INTERVAL atz.time_zone_offset MINUTE
+            AND ps.inserted_at < UTC_TIMESTAMP() + INTERVAL atz.time_zone_offset MINUTE;
 
             INSERT INTO hourly_surge_storage_pokemon_stats (hour, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny)
             SELECT
