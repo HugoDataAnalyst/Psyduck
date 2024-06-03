@@ -1113,15 +1113,14 @@ class ProcedureGenerator:
         """
         return drop_procedure_sql, create_procedure_sql
 
-    async def generate_update_daily_surge_procedure(self, area_names, timezone_offset):
-        procedure_name = f"update_daily_surge_stats_{timezone_offset}"
-        area_names_str = ', '.join([f"'{name}'" for name in area_names])
+    async def generate_update_daily_surge_procedure(self):
+        procedure_name = f"update_daily_surge_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            CREATE TEMPORARY TABLE IF NOT EXISTS temp_daily_surge_{timezone_offset} AS
+            CREATE TEMPORARY TABLE IF NOT EXISTS temp_daily_surge AS
             SELECT
                 HOUR(hour) AS hour_of_day,
                 SUM(total_iv100) AS sum_total_iv100,
@@ -1131,7 +1130,7 @@ class ProcedureGenerator:
                 SUM(total_top1_ultra) AS sum_total_top1_ultra,
                 SUM(total_shiny) AS sum_total_shiny
             FROM hourly_surge_storage_pokemon_stats
-            WHERE area_name IN ({area_names_str}) AND hour >= NOW() - INTERVAL 1 DAY AND hour < NOW()
+            WHERE hour >= NOW() - INTERVAL 1 DAY AND hour < NOW()
             GROUP BY HOUR(hour);
 
             REPLACE INTO daily_surge_pokemon_stats (hour, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny)
@@ -1143,22 +1142,21 @@ class ProcedureGenerator:
                 sum_total_top1_great,
                 sum_total_top1_ultra,
                 sum_total_shiny
-            FROM temp_daily_surge_{timezone_offset};
+            FROM temp_daily_surge;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_daily_surge_{timezone_offset};
+            DROP TEMPORARY TABLE IF EXISTS temp_daily_surge_;
         END;
         """
         return drop_procedure_sql, create_procedure_sql
 
-    async def generate_update_weekly_surge_procedure(self, area_names, timezone_offset):
-        procedure_name = f"update_weekly_surge_stats_{timezone_offset}"
-        area_names_str = ', '.join([f"'{name}'" for name in area_names])
+    async def generate_update_weekly_surge_procedure(self):
+        procedure_name = f"update_weekly_surge_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            CREATE TEMPORARY TABLE IF NOT EXISTS temp_weekly_surge_{timezone_offset} AS
+            CREATE TEMPORARY TABLE IF NOT EXISTS temp_weekly_surge AS
             SELECT
                 HOUR(hour) AS hour_of_day,
                 SUM(total_iv100) AS sum_total_iv100,
@@ -1168,7 +1166,7 @@ class ProcedureGenerator:
                 SUM(total_top1_ultra) AS sum_total_top1_ultra,
                 SUM(total_shiny) AS sum_total_shiny
             FROM hourly_surge_storage_pokemon_stats
-            WHERE area_name IN ({area_names_str}) AND hour >= NOW() - INTERVAL 1 WEEK AND hour < NOW()
+            WHERE hour >= NOW() - INTERVAL 1 WEEK AND hour < NOW()
             GROUP BY HOUR(hour);
 
             REPLACE INTO weekly_surge_pokemon_stats (hour, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny)
@@ -1180,22 +1178,21 @@ class ProcedureGenerator:
                 sum_total_top1_great,
                 sum_total_top1_ultra,
                 sum_total_shiny
-            FROM temp_weekly_surge_{timezone_offset};
+            FROM temp_weekly_surge;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_weekly_surge_{timezone_offset};
+            DROP TEMPORARY TABLE IF EXISTS temp_weekly_surge;
         END;
         """
         return drop_procedure_sql, create_procedure_sql
 
-    async def generate_update_monthly_surge_procedure(self, area_names, timezone_offset):
-        procedure_name = f"update_monthly_surge_stats_{timezone_offset}"
-        area_names_str = ', '.join([f"'{name}'" for name in area_names])
+    async def generate_update_monthly_surge_procedure(self):
+        procedure_name = f"update_monthly_surge_stats"
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
         create_procedure_sql=f"""
         CREATE PROCEDURE {procedure_name}()
         BEGIN
-            CREATE TEMPORARY TABLE IF NOT EXISTS temp_monthly_surge_{timezone_offset} AS
+            CREATE TEMPORARY TABLE IF NOT EXISTS temp_monthly_surge AS
             SELECT
                 HOUR(hour) AS hour_of_day,
                 SUM(total_iv100) AS sum_total_iv100,
@@ -1205,7 +1202,7 @@ class ProcedureGenerator:
                 SUM(total_top1_ultra) AS sum_total_top1_ultra,
                 SUM(total_shiny) AS sum_total_shiny
             FROM hourly_surge_storage_pokemon_stats
-            WHERE area_name IN ({area_names_str}) AND hour >= NOW() - INTERVAL 1 MONTH AND hour < NOW()
+            WHERE hour >= NOW() - INTERVAL 1 MONTH AND hour < NOW()
             GROUP BY HOUR(hour);
 
             REPLACE INTO monthly_surge_pokemon_stats (hour, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny)
@@ -1217,9 +1214,9 @@ class ProcedureGenerator:
                 sum_total_top1_great,
                 sum_total_top1_ultra,
                 sum_total_shiny
-            FROM temp_monthly_surge_{timezone_offset};
+            FROM temp_monthly_surge;
 
-            DROP TEMPORARY TABLE IF EXISTS temp_monthly_surge_{timezone_offset};
+            DROP TEMPORARY TABLE IF EXISTS temp_monthly_surge;
         END;
         """
         return drop_procedure_sql, create_procedure_sql
