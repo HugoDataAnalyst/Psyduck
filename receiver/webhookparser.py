@@ -505,7 +505,7 @@ async def receive_data(request: Request):
                         invasion_data_to_store = {
                             'pokestop_id': message['pokestop_id'],
                             'display_type': message['display_type'],
-                            'character': message['character'],
+                            'grunt': message['character'],
                             'confirmed': message['confirmed'],
                             'area_name': geofence_name,
                             'inserted_at': inserted_at.isoformat(),
