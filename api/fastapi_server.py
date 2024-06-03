@@ -13,6 +13,7 @@ from celery import Celery
 from config.app_config import app_config
 from processor.tasks import CeleryTasks
 from utils.time_utils import seconds_until_next_hour, seconds_until_midnight, seconds_until_next_week, seconds_until_next_month, seconds_until_fourpm, seconds_until_next_week_fourpm, seconds_until_next_month_fourpm
+from utils.time_utils import CacheTimers
 import os
 import json
 from datetime import date, datetime
@@ -227,7 +228,8 @@ async def daily_area_pokemon_stats(request: Request, secret: str = Depends(valid
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new daily Pokemon stats")
@@ -265,7 +267,8 @@ async def weekly_area_pokemon_stats(request: Request, secret: str = Depends(vali
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
-    ttl = seconds_until_next_week()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_weekly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new weekly Pokemon stats")
@@ -303,7 +306,8 @@ async def monthly_area_pokemon_stats(request: Request, secret: str = Depends(val
     serialized_result = json.dumps(result)
 
     # Cache the new data with dynamic TTL
-    ttl = seconds_until_next_month()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_monthly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new monthly Pokemon stats")
@@ -342,7 +346,8 @@ async def hourly_total_pokemon_stats(request: Request, secret: str = Depends(val
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_hour()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.seconds_until_next_hourly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new hourly total Pokemon stats")
@@ -380,7 +385,8 @@ async def daily_total_pokemon_stats(request: Request, secret: str= Depends(valid
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new daily total Pokemon stats")
@@ -418,7 +424,8 @@ async def total_pokemon_stats(request: Request, secret: str= Depends(validate_se
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new total Pokemon stats")
@@ -457,7 +464,8 @@ async def surge_daily_pokemon_stats(request: Request, secret: str= Depends(valid
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Surge Daily Pokemon stats")
@@ -495,7 +503,8 @@ async def surge_weekly_pokemon_stats(request: Request, secret: str= Depends(vali
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_week()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_weekly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Surge Weekly Pokemon stats")
@@ -533,7 +542,8 @@ async def surge_monthly_pokemon_stats(request: Request, secret: str= Depends(val
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_month()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_monthly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Surge Monthly Pokemon stats")
@@ -572,7 +582,8 @@ async def daily_quest_grouped_stats(request: Request, secret: str= Depends(valid
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_fourpm()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_quest_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Quest Grouped stats")
@@ -610,7 +621,8 @@ async def weekly_quest_grouped_stats(request: Request, secret: str= Depends(vali
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_week_fourpm()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_quest_weekly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Weekly Quest Grouped stats")
@@ -648,7 +660,8 @@ async def monthly_quest_grouped_stats(request: Request, secret: str= Depends(val
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_month_fourpm()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_quest_monthly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Monthly Quest Grouped stats")
@@ -686,7 +699,8 @@ async def daily_quest_total_stats(request: Request, secret: str= Depends(validat
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_fourpm()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_quest_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Quest Total stats")
@@ -724,7 +738,8 @@ async def total_quest_total_stats(request: Request, secret: str= Depends(validat
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_fourpm()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_quest_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Total Quest Total stats")
@@ -763,7 +778,8 @@ async def daily_raid_grouped_stats(request: Request, secret: str= Depends(valida
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Raid Grouped stats")
@@ -801,7 +817,8 @@ async def weekly_raid_grouped_stats(request: Request, secret: str= Depends(valid
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_week()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_weekly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Weekly Raid Grouped stats")
@@ -839,7 +856,8 @@ async def monthly_raid_grouped_stats(request: Request, secret: str= Depends(vali
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_month()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_monthly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Monthly Raid Grouped stats")
@@ -877,7 +895,8 @@ async def hourly_raid_total_stats(request: Request, secret: str= Depends(validat
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_hour()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.seconds_until_next_hourly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Hourly Raid Total stats")
@@ -915,7 +934,8 @@ async def daily_raid_total_stats(request: Request, secret: str= Depends(validate
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Raid Total stats")
@@ -953,7 +973,8 @@ async def total_raid_total_stats(request: Request, secret: str= Depends(validate
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Total Raid Total stats")
@@ -992,7 +1013,8 @@ async def daily_invasion_grouped_stats(request: Request, secret: str= Depends(va
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Invasion Grouped stats")
@@ -1030,7 +1052,8 @@ async def weekly_invasion_grouped_stats(request: Request, secret: str= Depends(v
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_week()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_weekly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Weekly Invasion Grouped stats")
@@ -1068,7 +1091,8 @@ async def monthly_invasion_grouped_stats(request: Request, secret: str= Depends(
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_month()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_monthly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Monthly Invasion Grouped stats")
@@ -1106,7 +1130,8 @@ async def hourly_invasion_total_stats(request: Request, secret: str= Depends(val
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_hour()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.seconds_until_next_hourly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Hourly Invasion Total stats")
@@ -1144,7 +1169,8 @@ async def daily_invasion_total_stats(request: Request, secret: str= Depends(vali
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Invasion Total stats")
@@ -1182,7 +1208,8 @@ async def total_invasion_total_stats(request: Request, secret: str= Depends(vali
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Total Invasion Total stats")
@@ -1221,7 +1248,8 @@ async def hourly_pokemon_tth_stats(request: Request, secret: str= Depends(valida
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_next_hour()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.seconds_until_next_hourly_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Hourly Pokemon TTH stats")
@@ -1259,7 +1287,8 @@ async def daily_pokemon_tth_stats(request: Request, secret: str= Depends(validat
     serialized_result = json.dumps(result)
 
     # If cached result is None, update the cache
-    ttl = seconds_until_midnight()
+    cache_timer = CacheTimers()
+    ttl = cache_timer.hourly_cache_for_daily_event()
     try:
         redis_client.set(cache_key, serialized_result, ex=ttl)
         console_logger.info("Cache set with new Daily Pokemon TTH stats")
@@ -1299,7 +1328,8 @@ async def daily_area_pokemon_metrics(request: Request, secret: str = Depends(val
         daily_area_pokemon_prometheus_metrics = '\n'.join([formatted_daily_area_stats])
 
         # Cache the newly fetched and formatted metrics with a dynamic expiration
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_area_pokemon_prometheus_metrics, ex=ttl)
 
         console_logger.info("Successfully set cache for daily area Pokemon metrics")
@@ -1340,7 +1370,8 @@ async def weekly_area_pokemon_metrics(request: Request, secret: str = Depends(va
             formatted_weekly_area_stats
         ])
 
-        ttl = seconds_until_next_week()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_weekly_event()
         redis_client.set(cache_key, weekly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for grouped-weekly API for VictoriaMetrics")
@@ -1381,7 +1412,8 @@ async def monthly_area_pokemon_metrics(request: Request, secret: str = Depends(v
             formatted_monthly_area_stats
         ])
 
-        ttl = seconds_until_next_month()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_monthly_event()
         redis_client.set(cache_key, monthly_area_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for grouped-monthly API for VictoriaMetrics")
@@ -1422,7 +1454,8 @@ async def total_hourly_pokemon_metrics(request: Request, secret: str = Depends(v
             formatted_hourly_total_stats
         ])
 
-        ttl = seconds_until_next_hour()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.seconds_until_next_hourly_event()
         redis_client.set(cache_key, total_hourly_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for hourly total pokemon API for VictoriaMetrics")
@@ -1464,7 +1497,8 @@ async def total_daily_pokemon_metrics(request: Request, secret: str = Depends(va
             formatted_daily_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, total_daily_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for daily total pokemon API for VictoriaMetrics")
@@ -1506,7 +1540,8 @@ async def total_pokemon_metrics(request: Request, secret: str = Depends(validate
             formatted_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, total_pokemon_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for total pokemon API for VictoriaMetrics")
@@ -1547,7 +1582,8 @@ async def surge_daily_metrics(request: Request, secret: str = Depends(validate_s
             formatted_surge_daily_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, surge_daily_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for surge daily Pokemon API for VictoriaMetrics")
@@ -1588,7 +1624,8 @@ async def surge_weekly_metrics(request: Request, secret: str = Depends(validate_
             formatted_surge_weekly_stats
         ])
 
-        ttl = seconds_until_next_week()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_weekly_event()
         redis_client.set(cache_key, surge_weekly_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Surge Weekly Pokemon for VictoriaMetrics")
@@ -1629,7 +1666,8 @@ async def surge_monthly_metrics(request: Request, secret: str = Depends(validate
             formatted_surge_monthly_stats
         ])
 
-        ttl = seconds_until_next_month()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_monthly_event()
         redis_client.set(cache_key, surge_monthly_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for monthly Surge Pokemon API for VictoriaMetrics")
@@ -1671,7 +1709,8 @@ async def daily_quest_grouped_stats_metrics(request: Request, secret: str = Depe
             formatted_daily_quest_grouped_stats
         ])
 
-        ttl = seconds_until_fourpm()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_quest_daily_event()
         redis_client.set(cache_key, daily_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Quest Grouped API for VictoriaMetrics")
@@ -1712,7 +1751,8 @@ async def weekly_quest_grouped_stats_metrics(request: Request, secret: str = Dep
             formatted_weekly_quest_grouped_stats
         ])
 
-        ttl = seconds_until_next_week_fourpm()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_quest_weekly_event()
         redis_client.set(cache_key, weekly_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Weekly Quest Grouped API for VictoriaMetrics")
@@ -1753,7 +1793,8 @@ async def monthly_quest_grouped_stats_metrics(request: Request, secret: str = De
             formatted_monthly_quest_grouped_stats
         ])
 
-        ttl = seconds_until_next_month_fourpm()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_quest_monthly_event()
         redis_client.set(cache_key, monthly_quest_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Monthly Quest Grouped API for VictoriaMetrics")
@@ -1794,7 +1835,8 @@ async def daily_quest_total_stats_metrics(request: Request, secret: str = Depend
             formatted_daily_quest_total_stats
         ])
 
-        ttl = seconds_until_fourpm()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_quest_daily_event()
         redis_client.set(cache_key, daily_quest_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Quest Total API for VictoriaMetrics")
@@ -1835,7 +1877,8 @@ async def total_quest_total_stats_metrics(request: Request, secret: str = Depend
             formatted_total_quest_total_stats
         ])
 
-        ttl = seconds_until_fourpm()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_quest_daily_event()
         redis_client.set(cache_key, total_quest_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Total Quest Total API for VictoriaMetrics")
@@ -1877,7 +1920,8 @@ async def daily_raid_grouped_stats_metrics(request: Request, secret: str = Depen
             formatted_daily_raid_grouped_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Raid Grouped API for VictoriaMetrics")
@@ -1918,7 +1962,8 @@ async def weekly_raid_grouped_stats_metrics(request: Request, secret: str = Depe
             formatted_weekly_raid_grouped_stats
         ])
 
-        ttl = seconds_until_next_week()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_weekly_event()
         redis_client.set(cache_key, weekly_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Weekly Raid Grouped API for VictoriaMetrics")
@@ -1959,7 +2004,8 @@ async def monthly_raid_grouped_stats_metrics(request: Request, secret: str = Dep
             formatted_monthly_raid_grouped_stats
         ])
 
-        ttl = seconds_until_next_month()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_monthly_event()
         redis_client.set(cache_key, monthly_raid_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Monthly Raid Grouped API for VictoriaMetrics")
@@ -2000,7 +2046,8 @@ async def hourly_raid_total_stats_metrics(request: Request, secret: str = Depend
             formatted_hourly_raid_total_stats
         ])
 
-        ttl = seconds_until_next_hour()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.seconds_until_next_hourly_event()
         redis_client.set(cache_key, hourly_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Hourly Raid Total API for VictoriaMetrics")
@@ -2041,7 +2088,8 @@ async def daily_raid_total_stats_metrics(request: Request, secret: str = Depends
             formatted_daily_raid_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Raid Total API for VictoriaMetrics")
@@ -2082,7 +2130,8 @@ async def total_raid_total_stats_metrics(request: Request, secret: str = Depends
             formatted_total_raid_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, total_raid_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Total Raid Total API for VictoriaMetrics")
@@ -2124,7 +2173,8 @@ async def daily_invasion_grouped_stats_metrics(request: Request, secret: str = D
             formatted_daily_invasion_grouped_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Invasion Grouped API for VictoriaMetrics")
@@ -2165,7 +2215,8 @@ async def weekly_invasion_grouped_stats_metrics(request: Request, secret: str = 
             formatted_weekly_invasion_grouped_stats
         ])
 
-        ttl = seconds_until_next_week()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_weekly_event()
         redis_client.set(cache_key, weekly_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Weekly Invasion Grouped API for VictoriaMetrics")
@@ -2206,7 +2257,8 @@ async def monthly_invasion_grouped_stats_metrics(request: Request, secret: str =
             formatted_monthly_invasion_grouped_stats
         ])
 
-        ttl = seconds_until_next_month()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_monthly_event()
         redis_client.set(cache_key, monthly_invasion_grouped_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Monthly Invasion Grouped API for VictoriaMetrics")
@@ -2247,7 +2299,8 @@ async def hourly_invasions_total_stats_metrics(request: Request, secret: str = D
             formatted_hourly_invasions_total_stats
         ])
 
-        ttl = seconds_until_next_hour()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.seconds_until_next_hourly_event()
         redis_client.set(cache_key, hourly_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Hourly Invasion Total API for VictoriaMetrics")
@@ -2288,7 +2341,8 @@ async def daily_invasions_total_stats_metrics(request: Request, secret: str = De
             formatted_daily_invasions_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Daily Invasion Total API for VictoriaMetrics")
@@ -2329,7 +2383,8 @@ async def total_invasions_total_stats_metrics(request: Request, secret: str = De
             formatted_total_invasions_total_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, total_invasions_total_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Total Invasion Total API for VictoriaMetrics")
@@ -2371,7 +2426,8 @@ async def hourly_pokemon_tth_stats_metrics(request: Request, secret: str = Depen
             formatted_hourly_pokemon_tth_stats
         ])
 
-        ttl = seconds_until_next_hour()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.seconds_until_next_hourly_event()
         redis_client.set(cache_key, hourly_pokemon_tth_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         console_logger.info(f"Successfully set cache for Hourly Pokemon TTH API for VictoriaMetrics")
@@ -2412,7 +2468,8 @@ async def daily_pokemon_tth_stats_metrics(request: Request, secret: str = Depend
             formatted_daily_pokemon_tth_stats
         ])
 
-        ttl = seconds_until_midnight()
+        cache_timer = CacheTimers()
+        ttl = cache_timer.hourly_cache_for_daily_event()
         redis_client.set(cache_key, daily_pokemon_tth_stats_prometheus_metrics, ex=ttl)
         # Return as plain text
         return Response(content=daily_pokemon_tth_stats_prometheus_metrics, media_type="text/plain")
