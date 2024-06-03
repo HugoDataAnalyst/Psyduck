@@ -521,7 +521,7 @@ class DailyInvasionGroupedStats(models.Model):
     area_name = fields.CharField(max_length=255)
     display_type = fields.IntField()
     grunt = fields.IntField()
-    total_grunts = fields.IntField()
+    total_grunts = fields.IntField(null=True)
 
     class Meta:
         table = "daily_invasion_grouped_stats"
