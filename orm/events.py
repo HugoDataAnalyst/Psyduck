@@ -304,6 +304,54 @@ class EventGenerator:
         """
         return drop_event_sql, create_event_sql
 
+    def generate_update_daily_noareas_event_sql(self, procedure_name):
+        event_name = f"event_{procedure_name}"
+
+        drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
+
+        create_event_sql = f"""
+        CREATE EVENT IF NOT EXISTS {event_name}
+        ON SCHEDULE EVERY 1 HOUR
+        STARTS (CURRENT_TIMESTAMP + INTERVAL 1 HOUR - INTERVAL MINUTE(CURRENT_TIMESTAMP) MINUTE - INTERVAL SECOND(CURRENT_TIMESTAMP) SECOND + INTERVAL 2 MINUTE)
+        DO
+        BEGIN
+        CALL {procedure_name};
+        END;
+        """
+        return drop_event_sql, create_event_sql
+
+    def generate_update_weekly_noareas_event_sql(self, procedure_name):
+        event_name = f"event_{procedure_name}"
+
+        drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
+
+        create_event_sql = f"""
+        CREATE EVENT IF NOT EXISTS {event_name}
+        ON SCHEDULE EVERY 1 WEEK
+        STARTS STR_TO_DATE(CONCAT(DATE_FORMAT(CURDATE() + INTERVAL 8 - DAYOFWEEK(CURDATE()) DAY, '%Y-%m-%d'), ' 01:20:00'), '%Y-%m-%d %H:%i:%s')
+        DO
+        BEGIN
+        CALL {procedure_name};
+        END;
+        """
+        return drop_event_sql, create_event_sql
+
+    def generate_update_monthly_noareas_event_sql(self, procedure_name):
+        event_name = f"event_{procedure_name}"
+
+        drop_event_sql = f"DROP EVENT IF EXISTS {event_name};"
+
+        create_event_sql = f"""
+        CREATE EVENT IF NOT EXISTS {event_name}
+        ON SCHEDULE EVERY 1 MONTH
+        STARTS STR_TO_DATE(CONCAT(YEAR(NOW()), '-', MONTH(NOW()) + (DAY(NOW()) > 1), '-01 01:40:00'), '%Y-%m-%d %H:%i:%s')
+        DO
+        BEGIN
+        CALL {procedure_name};
+        END;
+        """
+        return drop_event_sql, create_event_sql
+
     def generate_daily_delete_event_sql(self, procedure_name, timezone_offset):
         # Determine offset_diff based on the sign of timezone_offset
         if timezone_offset >= 0:
@@ -381,7 +429,8 @@ class EventGenerator:
 
         # Hourly Storage Events
         store_hourly_procedure = [
-            "store_hourly_pokemon_tth"
+            "store_hourly_pokemon_tth",
+            "update_hourly_surge_stats"
         ]
 
         # Daily Quest Storage Events
@@ -398,7 +447,6 @@ class EventGenerator:
             "update_daily_raid_grouped_stats",
             "update_daily_invasion_total_stats",
             "update_daily_invasion_grouped_stats",
-            "update_daily_surge_stats",
             "update_daily_pokemon_tth_stats"
         ]
 
@@ -412,8 +460,7 @@ class EventGenerator:
         weekly_update_procedures_names = [
             "update_weekly_pokemon_grouped_stats",
             "update_weekly_raid_grouped_stats",
-            "update_weekly_invasion_grouped_stats",
-            "update_weekly_surge_stats"
+            "update_weekly_invasion_grouped_stats"
         ]
 
         # Weekly Update Quest Events
@@ -425,8 +472,7 @@ class EventGenerator:
         monthly_update_procedures_names = [
             "update_monthly_pokemon_grouped_stats",
             "update_monthly_raid_grouped_stats",
-            "update_monthly_invasion_grouped_stats",
-            "update_monthly_surge_stats"
+            "update_monthly_invasion_grouped_stats"
         ]
 
         # Monthly Update Quest Events
@@ -438,9 +484,23 @@ class EventGenerator:
         hourly_update_procedures_names = [
             "update_hourly_raid_total_stats",
             "update_hourly_invasion_total_stats",
-            "update_hourly_surge_stats",
             "update_hourly_pokemon_total_stats",
             "update_hourly_pokemon_tth_stats"
+        ]
+
+        # Daily No Areas Update Events
+        daily_noareas_update_procedures_names = [
+            "update_daily_surge_stats"
+        ]
+
+        # Weekly No Areas Update Events
+        weekly_noareas_update_procedures_names = [
+            "update_weekly_surge_stats"
+        ]
+
+        # Monthly No Areas Update Events
+        monthly_noareas_update_procedures_names = [
+            "update_monthly_surge_stats"
         ]
 
         # Daily Delete Events
@@ -468,7 +528,7 @@ class EventGenerator:
                 drop_event_sql, create_event_sql = self.generate_store_event_hourly_sql(hourly_procedure)
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
-                print(f"Event for {hourly_procedure} with offset {offset} created/updated.")
+                print(f"Event for {hourly_procedure} created/updated.")
             # Daily Quest Storage
             for quest_daily_procedure in store_quest_daily_procedure:
                 drop_event_sql, create_event_sql = self.generate_store_quest_event_daily_sql(quest_daily_procedure, offset)
@@ -511,12 +571,30 @@ class EventGenerator:
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
                 print(f"Event for {monthly_update_quest_procedure} with offset {offset} created/updated.")
-            # Hourly Update Total/TTH/Surge Events
+            # Hourly Update Total/TTH Events
             for hourly_update_procedure in hourly_update_procedures_names:
                 drop_event_sql, create_event_sql = self.generate_update_hourly_event_sql(hourly_update_procedure)
                 await self.db_ops.execute_sql(drop_event_sql)
                 await self.db_ops.execute_sql(create_event_sql)
-                print(f"Event for {hourly_update_procedure} with offset {offset} created/updated.")
+                print(f"Event for {hourly_update_procedure} created/updated.")
+            # Daily No Areas Update Events
+            for daily_noareas_update_procedure in daily_noareas_update_procedures_names:
+                drop_event_sql, create_event_sql = self.generate_update_daily_noareas_event_sql(daily_noareas_update_procedure)
+                await self.db_ops.execute_sql(drop_event_sql)
+                await self.db_ops.execute_sql(create_event_sql)
+                print(f"Event for {daily_noareas_update_procedure} created/updated.")
+            # Weekly No Areas Update Events
+            for weekly_noareas_update_procedure in weekly_noareas_update_procedures_names:
+                drop_event_sql, create_event_sql = self.generate_update_weekly_noareas_event_sql(weekly_noareas_update_procedure)
+                await self.db_ops.execute_sql(drop_event_sql)
+                await self.db_ops.execute_sql(create_event_sql)
+                print(f"Event for {weekly_noareas_update_procedure} created/updated.")
+            # Monthly No Areas Update Events
+            for monthly_noareas_update_procedure in monthly_noareas_update_procedures_names:
+                drop_event_sql, create_event_sql = self.generate_update_weekly_noareas_event_sql(monthly_noareas_update_procedure)
+                await self.db_ops.execute_sql(drop_event_sql)
+                await self.db_ops.execute_sql(create_event_sql)
+                print(f"Event for {monthly_noareas_update_procedure} created/updated.")
             # Daily Delete Events
             for daily_delete_procedure in daily_delete_procedures_names:
                 drop_event_sql, create_event_sql = self.generate_daily_delete_event_sql(daily_delete_procedure, offset)
