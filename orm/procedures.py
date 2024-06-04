@@ -5,11 +5,23 @@ class ProcedureGenerator:
     def __init__(self):
         self.db_ops = DatabaseOperations()
         self.db_timezone_offset = app_config.db_timezone_offset
+
+    def format_timezone_offset(self, offset_minutes):
+        hours_offset = offset_minutes // 60
+        minutes_offset = offset_minutes % 60
+        sign = '+' if offset_minutes >= 0 else '-'
+        formatted_offset = f"{sign}{abs(hours_offset):02}:{abs(minutes_offset):02}"
+        return formatted_offset
+
+
     # Storage Procedures
     async def generate_store_pokemon_total_sql(self, area_names, timezone_offset):
 
         procedure_name = f"store_pokemon_total_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
+
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
@@ -17,35 +29,42 @@ class ProcedureGenerator:
         CREATE PROCEDURE {procedure_name}()
         BEGIN
             CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_pokemon_sightings_{timezone_offset} AS
-            SELECT *
-            FROM pokemon_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            SELECT ps.*
+            FROM pokemon_sightings ps
+            JOIN area_time_zones atz ON ps.area_name = atz.area_name
+            WHERE ps.area_name IN ({area_names_str})
+            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_pokemon_total_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
-                area_name,
-                COUNT(pokemon_id) AS total,
-                SUM(CASE WHEN iv = 100 THEN 1 ELSE 0 END) AS total_iv100,
-                SUM(CASE WHEN iv = 0 THEN 1 ELSE 0 END) AS total_iv0,
-                SUM(CASE WHEN pvp_little_rank = 1 THEN 1 ELSE 0 END) AS total_top1_little,
-                SUM(CASE WHEN pvp_great_rank = 1 THEN 1 ELSE 0 END) AS total_top1_great,
-                SUM(CASE WHEN pvp_ultra_rank = 1 THEN 1 ELSE 0 END) AS total_top1_ultra,
-                SUM(CASE WHEN shiny = 1 THEN 1 ELSE 0 END) AS total_shiny,
-                AVG(despawn_time) AS avg_despawn
-            FROM temp_total_pokemon_sightings_{timezone_offset}
-            GROUP BY area_name;
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                ps.area_name,
+                COUNT(ps.pokemon_id) AS total,
+                SUM(CASE WHEN ps.iv = 100 THEN 1 ELSE 0 END) AS total_iv100,
+                SUM(CASE WHEN ps.iv = 0 THEN 1 ELSE 0 END) AS total_iv0,
+                SUM(CASE WHEN ps.pvp_little_rank = 1 THEN 1 ELSE 0 END) AS total_top1_little,
+                SUM(CASE WHEN ps.pvp_great_rank = 1 THEN 1 ELSE 0 END) AS total_top1_great,
+                SUM(CASE WHEN ps.pvp_ultra_rank = 1 THEN 1 ELSE 0 END) AS total_top1_ultra,
+                SUM(CASE WHEN ps.shiny = 1 THEN 1 ELSE 0 END) AS total_shiny,
+                AVG(ps.despawn_time) AS avg_despawn
+            FROM temp_total_pokemon_sightings_{timezone_offset} ps
+            JOIN area_time_zones atz ON ps.area_name = atz.area_name
+            GROUP BY ps.area_name;
 
             DROP TEMPORARY TABLE IF EXISTS temp_total_pokemon_sightings_{timezone_offset};
         END;
         """
         return drop_procedure_sql, create_procedure_sql
 
+
     async def generate_store_pokemon_grouped_sql(self, area_names, timezone_offset):
 
         procedure_name = f"store_pokemon_grouped_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
+
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
 
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
@@ -56,12 +75,14 @@ class ProcedureGenerator:
             CREATE TEMPORARY TABLE temp_grouped_pokemon_sightings_{timezone_offset} AS
             SELECT *
             FROM pokemon_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            JOIN area_time_zones atz ON ps.area_name = atz.area_name
+            WHERE ps.area_name IN ({area_names_str})
+            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_pokemon_grouped_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
                 pokemon_id,
                 form,
                 AVG(latitude) AS avg_lat,
@@ -89,6 +110,10 @@ class ProcedureGenerator:
         procedure_name = f"store_quest_total_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -103,8 +128,10 @@ class ProcedureGenerator:
                        ELSE 0
                    END AS scanned
             FROM quest_sightings qs
+            JOIN area_time_zones atz ON qs.area_name = atz.area_name
             WHERE qs.area_name IN ({area_names_str})
-            AND qs.inserted_at >= NOW() - INTERVAL 1 DAY AND qs.inserted_at < NOW();
+            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
             SELECT
@@ -133,6 +160,9 @@ class ProcedureGenerator:
         procedure_name = f"store_quest_grouped_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -147,8 +177,10 @@ class ProcedureGenerator:
                        ELSE 0
                    END AS scanned
             FROM quest_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= NOW() - INTERVAL 1 DAY AND inserted_at < NOW();
+            JOIN area_time_zones atz ON qs.area_name = atz.area_name
+            WHERE qs.area_name IN ({area_names_str})
+            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
             SELECT
@@ -181,6 +213,9 @@ class ProcedureGenerator:
         procedure_name = f"store_raid_total_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -188,10 +223,12 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_store_total_raid_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_store_total_raid_sightings_{timezone_offset} AS
-            SELECT *
-            FROM raid_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            SELECT rs.*
+            FROM raid_sightings rs
+            JOIN area_time_zones atz ON rs.area_name = atz.area_name
+            WHERE rs.area_name IN ({area_names_str})
+            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_raid_total_stats (day, area_name, total, total_ex_raid, total_exclusive)
             SELECT
@@ -213,6 +250,9 @@ class ProcedureGenerator:
         procedure_name = f"store_raid_grouped_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -220,10 +260,12 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_raid_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_store_grouped_raid_sightings_{timezone_offset} AS
-            SELECT *
-            FROM raid_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            SELECT rs.*
+            FROM raid_sightings rs
+            JOIN area_time_zones atz ON rs.area_name = atz.area_name
+            WHERE rs.area_name IN ({area_names_str})
+            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_raid_grouped_stats (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, total)
             SELECT
@@ -249,6 +291,9 @@ class ProcedureGenerator:
         procedure_name = f"store_invasion_total_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -256,10 +301,12 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_store_total_invasion_sightings_{timezone_offset} AS
-            SELECT *
-            FROM invasion_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            SELECT inv.*
+            FROM invasion_sightings inv.
+            JOIN area_time_zones atz ON inv.area_name = atz.area_name
+            WHERE inv.area_name IN ({area_names_str})
+            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_invasion_total_stats (day, area_name, total_grunts, total_confirmed, total_unconfirmed)
             SELECT
@@ -281,6 +328,9 @@ class ProcedureGenerator:
         procedure_name = f"store_invasion_grouped_{timezone_offset}"
         area_names_str = ', '.join([f"'{name}'" for name in area_names])
 
+        # Get the formatted timezone offset
+        formatted_offset = self.format_timezone_offset(self.db_timezone_offset)
+
         drop_procedure_sql = f"DROP PROCEDURE IF EXISTS {procedure_name};"
 
         create_procedure_sql=f"""
@@ -288,10 +338,12 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_store_grouped_invasion_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_store_grouped_invasion_sightings_{timezone_offset} AS
-            SELECT *
-            FROM invasion_sightings
-            WHERE area_name IN ({area_names_str})
-              AND inserted_at >= CURDATE() - INTERVAL 1 DAY AND inserted_at < CURDATE();
+            SELECT inv.*
+            FROM invasion_sightings inv
+            JOIN area_time_zones atz ON inv.area_name = atz.area_name
+            WHERE inv.area_name IN ({area_names_str})
+            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
+            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
 
             INSERT INTO storage_invasion_grouped_stats (day, area_name, display_type, grunt, total_grunts)
             SELECT
