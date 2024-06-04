@@ -232,7 +232,7 @@ class ProcedureGenerator:
 
             INSERT INTO storage_raid_total_stats (day, area_name, total, total_ex_raid, total_exclusive)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
                 area_name,
                 COUNT(*) AS total,
                 SUM(CASE WHEN ex_raid_eligible = 1 THEN 1 ELSE 0 END) AS total_ex_raid,
@@ -269,7 +269,7 @@ class ProcedureGenerator:
 
             INSERT INTO storage_raid_grouped_stats (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, total)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
                 area_name,
                 level,
                 pokemon_id,
@@ -310,7 +310,7 @@ class ProcedureGenerator:
 
             INSERT INTO storage_invasion_total_stats (day, area_name, total_grunts, total_confirmed, total_unconfirmed)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
                 area_name,
                 SUM(CASE WHEN confirmed = 0 THEN 1 ELSE 0 END) AS total_grunts,
                 SUM(CASE WHEN confirmed = 1 THEN 1 ELSE 0 END) AS total_confirmed,
@@ -347,7 +347,7 @@ class ProcedureGenerator:
 
             INSERT INTO storage_invasion_grouped_stats (day, area_name, display_type, grunt, total_grunts)
             SELECT
-                CURDATE() - INTERVAL 1 DAY as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
                 area_name,
                 display_type,
                 grunt,
