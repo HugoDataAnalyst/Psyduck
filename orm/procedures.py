@@ -302,7 +302,7 @@ class ProcedureGenerator:
             DROP TEMPORARY TABLE IF EXISTS temp_store_total_invasion_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_store_total_invasion_sightings_{timezone_offset} AS
             SELECT inv.*
-            FROM invasion_sightings inv.
+            FROM invasion_sightings inv
             JOIN area_time_zones atz ON inv.area_name = atz.area_name
             WHERE inv.area_name IN ({area_names_str})
             AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
