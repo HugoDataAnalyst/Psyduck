@@ -33,12 +33,12 @@ class ProcedureGenerator:
             FROM pokemon_sightings ps
             JOIN area_time_zones atz ON ps.area_name = atz.area_name
             WHERE ps.area_name IN ({area_names_str})
-            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_pokemon_total_stats (day, area_name, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, avg_despawn)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 ps.area_name,
                 COUNT(ps.pokemon_id) AS total,
                 SUM(CASE WHEN ps.iv = 100 THEN 1 ELSE 0 END) AS total_iv100,
@@ -73,16 +73,16 @@ class ProcedureGenerator:
         BEGIN
             DROP TEMPORARY TABLE IF EXISTS temp_grouped_pokemon_sightings_{timezone_offset};
             CREATE TEMPORARY TABLE temp_grouped_pokemon_sightings_{timezone_offset} AS
-            SELECT *
-            FROM pokemon_sightings
+            SELECT ps.*
+            FROM pokemon_sightings ps
             JOIN area_time_zones atz ON ps.area_name = atz.area_name
             WHERE ps.area_name IN ({area_names_str})
-            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND ps.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND ps.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_pokemon_grouped_stats (day, pokemon_id, form, avg_lat, avg_lon, total, total_iv100, total_iv0, total_top1_little, total_top1_great, total_top1_ultra, total_shiny, area_name, avg_despawn)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 pokemon_id,
                 form,
                 AVG(latitude) AS avg_lat,
@@ -130,8 +130,8 @@ class ProcedureGenerator:
             FROM quest_sightings qs
             JOIN area_time_zones atz ON qs.area_name = atz.area_name
             WHERE qs.area_name IN ({area_names_str})
-            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_quest_total_stats(day, area_name, total_stops, ar, normal, scanned)
             SELECT
@@ -179,8 +179,8 @@ class ProcedureGenerator:
             FROM quest_sightings
             JOIN area_time_zones atz ON qs.area_name = atz.area_name
             WHERE qs.area_name IN ({area_names_str})
-            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND qs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND qs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_quest_grouped_stats (day, area_name, ar_type, normal_type, reward_ar_type, reward_normal_type, reward_ar_item_id, reward_ar_item_amount, reward_normal_item_id, reward_normal_item_amount, reward_ar_poke_id, reward_ar_poke_form, reward_normal_poke_id, reward_normal_poke_form, total, scanned)
             SELECT
@@ -227,12 +227,12 @@ class ProcedureGenerator:
             FROM raid_sightings rs
             JOIN area_time_zones atz ON rs.area_name = atz.area_name
             WHERE rs.area_name IN ({area_names_str})
-            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_raid_total_stats (day, area_name, total, total_ex_raid, total_exclusive)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 area_name,
                 COUNT(*) AS total,
                 SUM(CASE WHEN ex_raid_eligible = 1 THEN 1 ELSE 0 END) AS total_ex_raid,
@@ -264,12 +264,12 @@ class ProcedureGenerator:
             FROM raid_sightings rs
             JOIN area_time_zones atz ON rs.area_name = atz.area_name
             WHERE rs.area_name IN ({area_names_str})
-            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND rs.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND rs.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_raid_grouped_stats (day, area_name, level, pokemon_id, form, costume, ex_raid_eligible, is_exclusive, total)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 area_name,
                 level,
                 pokemon_id,
@@ -305,12 +305,12 @@ class ProcedureGenerator:
             FROM invasion_sightings inv
             JOIN area_time_zones atz ON inv.area_name = atz.area_name
             WHERE inv.area_name IN ({area_names_str})
-            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_invasion_total_stats (day, area_name, total_grunts, total_confirmed, total_unconfirmed)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 area_name,
                 SUM(CASE WHEN confirmed = 0 THEN 1 ELSE 0 END) AS total_grunts,
                 SUM(CASE WHEN confirmed = 1 THEN 1 ELSE 0 END) AS total_confirmed,
@@ -342,12 +342,12 @@ class ProcedureGenerator:
             FROM invasion_sightings inv
             JOIN area_time_zones atz ON inv.area_name = atz.area_name
             WHERE inv.area_name IN ({area_names_str})
-            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone)
-            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.time_zone);
+            AND inv.inserted_at >= CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone)
+            AND inv.inserted_at < CONVERT_TZ(NOW(), '{formatted_offset}', atz.timezone);
 
             INSERT INTO storage_invasion_grouped_stats (day, area_name, display_type, grunt, total_grunts)
             SELECT
-                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.time_zone) as day,
+                CONVERT_TZ(NOW() - INTERVAL 1 DAY, '{formatted_offset}', atz.timezone) as day,
                 area_name,
                 display_type,
                 grunt,
