@@ -106,7 +106,7 @@ async def startup_event():
         refresh_task = asyncio.create_task(refresh_geofences())
     except httpx.HTTPError as e:
         console_logger.error(f"Failed to fetch geofences: {e}")
-        file_Logger.error(f"Failed to fetch geofences: {e}")
+        file_logger.error(f"Failed to fetch geofences: {e}")
 
 
 @backoff.on_exception(backoff.expo, httpx.HTTPError, max_tries=app_config.max_tries_geofences, jitter=None, factor=app_config.retry_delay_mult_geofences)
@@ -137,9 +137,16 @@ async def refresh_geofences():
 def is_inside_geofence(lat, lon, geofences):
     point = Point(lon, lat)
     for geofence in geofences:
+        geofence_name = geofence.get("properties", {}).get("name", "Unknown")
         polygon = geofence["geometry"]["coordinates"][0]
-        if point.within(Polygon(polygon)):
-            return True, geofence.get("properties", {}).get("name", "Unknown")
+        console_logger.debug(f"Polygon data:, {polygon}")
+        file_logger.debug(f"Polygon data:, {polygon}")
+        try:
+            if point.within(Polygon(polygon)):
+                return True, geofence_name
+        except Exception as e:
+            console_logger.error(f"Error processing polygon for geofence {geofence_name}: {polygon}, Error: {e}")
+            file_logger.error(f"Error processing polygon for geofence {geofence_name}: {polygon}, Error: {e}")
     return False, None
 
 def calculate_despawn_time(disappear_time, first_seen):
@@ -167,9 +174,9 @@ async def receive_data(request: Request):
     await validate_remote_addr(request)
     console_logger.debug(f"Queue size before processing: {len(data_queue)}")
     file_logger.debug(f"Queue size before processing: {len(data_queue)}")
-    async with data_queue_lock: 
+    async with data_queue_lock:
         data = await request.json()
- 
+
     geofences = geofence_cache.get('geofences', [])
     if not geofences:
         console_logger.info("No geofences matched.")
@@ -551,7 +558,7 @@ def invasion_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Invasion queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Invasion queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Invasion queue")
@@ -583,7 +590,7 @@ def raid_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Raid queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Raid queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Raid queue")
@@ -614,7 +621,7 @@ def quest_process_full_queue():
             retry_count += 1
             console_logger.error(f"Error processing Quests queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Quests queue on attempt {retry_count}: {e}")
-            time.sleep(app_confg.retry_delay)
+            time.sleep(app_config.retry_delay)
 
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Quests queue")
@@ -646,7 +653,7 @@ def process_full_queue():
             console_logger.error(f"Error processing Pokemon queue on attempt {retry_count}: {e}")
             file_logger.error(f"Error processing Pokemon queue on attempt {retry_count}: {e}")
             time.sleep(app_config.retry_delay)
-    
+
     if retry_count > app_config.max_retries:
         console_logger.error("Maximum retry attempts reached. Unable to process Pokemon queue")
         file_logger.error("Maximum retry attempts reached. Unable to process Pokemon queue")
