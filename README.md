@@ -1,5 +1,7 @@
 ## Psyduck
 
+## This project development has been discontinued please use the newest version [here](https://github.com/HugoDataAnalyst/PsyduckV2)
+
 Welcome to **PsyyyPsyPsyyyyyduckk** - a multifaceted project designed to streamline data handling and analysis.
 
 This 3-in-1 solution encompasses:
